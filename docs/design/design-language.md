@@ -30,7 +30,7 @@ UI text, default content, or shipped assets.
 | --- | --- |
 | Tool bar / tabline (top) | Site navigation, page tabs |
 | Status bar (bottom) | State/mode indicator, current location (breadcrumb), reading progress, color-mode and language switchers |
-| File explorer (side tree) | Site/content navigation sidebar |
+| File explorer (side tree) | Site/content navigation sidebar — retractable on desktop; not part of the UI in paper mode |
 | Floating windows | Utilities: search / command palette / pickers, settings |
 | Editor viewport | The content area (article body) |
 
@@ -41,21 +41,41 @@ e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
 scrolls with the article and is **not** a separate floating bar. Structure, top to
 bottom:
 
-1. an optional fully-custom region, rendered from a user-supplied Vue file;
+1. a fully-custom section rendered from a user-supplied Vue file — its own component
+   sitting directly on top of the footer, rendering nothing when the user supplies no
+   file (plan task THEME-006);
 2. a separator rule;
 3. a copyright row — `Copyright © <year> <author>` on the left, social icons on the
    right;
 4. an attribution row — “Powered by VitePress and VitePress Theme Terminal” on the
-   left, RSS and Creative Commons (CC BY) license icons on the right.
+   left, the RSS icon (only when a feed is configured) and the license icons on the
+   right; on desktop this row's text is lighter than the copyright row's (the lighter
+   tone derived per the color rules; see the ui-sketch.md §5 note).
 
-Author, social links, RSS, and license values come from `themeConfig`; the fixed
-strings are localized; the icons are Font Awesome (general-icon context,
+The social-icon list and the RSS feed are easily configured via `themeConfig`; the
+author in the copyright and the license icons come from the central author & license
+system (CONF-002; default license CC BY-NC-SA 4.0). Fixed strings are localized; the
+icons are Font Awesome (general-icon context,
 [`typography-and-icons.md`](typography-and-icons.md) §2). On narrow viewports the rows
-stack. Further implementation details — including how the custom Vue file is wired in —
-are to be specified later (plan task THEME-004).
+stack. Further implementation details are to be specified later (plan tasks THEME-004,
+THEME-006).
 
-ASCII wireframes of this layout — desktop, floating window, mobile, paper mode, and
-footer — live in [`ui-sketch.md`](ui-sketch.md).
+**Cards & shell-prompt decoration** — a reusable card component renders as a TUI-style
+floating window (Unicode-frame flavor, with the rounded, floating finish of §5). Each
+use may configure an optional **shell-prompt decoration**, a header line of the form
+`user@host:path$ command args`, where `user` is always the normalized author username
+from the central author & license configuration (CONF-002); host, path, and command
+are chosen by the consuming component. The prompt marks featured or special content:
+the license card and the comment card always carry it, the home-page welcome card
+carries it, project/About grids use it for their more featured entries, and the
+settings panel never does (plan task COMP-001). Related: code blocks render as
+card-style floating windows in the same visual language — framed like the card
+component, but headed by a title bar (file name when given, plus the language name)
+holding a COPY button, **not** by a shell-prompt-like decoration (STYLE-004; wireframe
+in ui-sketch.md §6).
+
+ASCII wireframes of this layout — desktop, floating window, mobile, paper mode,
+footer, and cards — live in [`ui-sketch.md`](ui-sketch.md).
 
 ## 5. Modern finish
 

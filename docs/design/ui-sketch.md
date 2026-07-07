@@ -138,25 +138,64 @@ with the page rather than floating as its own bar (design-language.md §4, foote
 ╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
-The custom area is optional and only renders when the user supplies the Vue file. The
-rule below it is the separator from the footer spec. `[gh] [tw] [em]` stand for
-configured social icons, `[rss] [cc] [by]` for the RSS link and CC BY license icons —
-all Font Awesome, all driven by `themeConfig`. On mobile each row stacks (copyright line,
-powered by line, social icons, RSS/license icons). Implementation details are to be added
-later (THEME-004).
+The custom section on top is rendered from a user-supplied Vue file and renders
+nothing when none is supplied (THEME-006). The rule below it is the separator from the
+footer spec. `[gh] [tw] [em]` stand for the easily configurable social-icon list,
+`[rss]` for the RSS link (icon shown only when a feed is configured), and `[cc] [by]`
+for the license icons, which follow the license configured in the author & license
+system (CONF-002; default CC BY-NC-SA 4.0) — all Font Awesome. On mobile each row
+stacks (copyright line, powered by line, social icons, RSS/license icons).
+Implementation details are to be added later (THEME-004, THEME-006).
 
 *Extra Note: The second row's text should be lighter in color than the first row,
 to visually separate the two rows. Apply only on desktop.*
+
+## 6. Card component — floating window with shell prompt
+
+The reusable card (design-language.md §4, cards) is a TUI-style floating window. The
+prompt line is optional and configured per use: `admin` here is the normalized author
+username from the author & license configuration (CONF-002); host, path, and command
+are chosen by the consuming component.
+
+```
+╭─ card ───────────────────────────────────────────────────────────────────╮
+│ admin@vitepress-theme-terminal:~/posts$ license ~/posts/hello-world      │
+│ ──────────────────────────────────────────────────────────────────────── │
+│                                                                          │
+│  Card body: license info, comments, welcome text, project tiles, ...     │
+│                                                                          │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
+
+With the prompt: license card (COMP-003), comment card (COMP-004), home welcome card
+(PAGE-001), and the more featured project/About entries (PAGE-002/003). Without the
+prompt: the settings panel (THEME-007) and any plain content card.
+
+### Code block variant
+
+Code blocks reuse the card look, but the header is a **title bar** — file name (when
+given), language name, and a COPY button — not a shell-prompt decoration (STYLE-004):
+
+```
+╭─ code block ─────────────────────────────────────────────────────────────╮
+│ main.scss · scss                                                 [copy]  │
+│ ──────────────────────────────────────────────────────────────────────── │
+│  1 │ @use "tokens" as *;                                                 │
+│  2 │ body { color: var(--main-color); }                                  │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
 
 ## Region → specification → build task
 
 | Sketch region | Specification | Build task |
 | --- | --- | --- |
-| Tool bar / tabline | design-language.md §4–§5 | THEME-001 |
+| Tool bar / tabline | design-language.md §4–§5 | THEME-001, THEME-005 |
 | Status bar | design-language.md §4–§5 | THEME-001 |
 | File explorer / mobile drawer | design-language.md §4, §8 | THEME-002 |
 | Floating find window | design-language.md §4, §7 | THEME-003 |
-| Footer (in-viewport) | design-language.md §4 (footer) | THEME-004 |
+| Footer (in-viewport) + custom section | design-language.md §4 (footer) | THEME-004, THEME-006 |
+| Card / floating window with prompt | design-language.md §4 (cards) | COMP-001 |
+| Code block card (file · lang · COPY) | design-language.md §4 (cards) | STYLE-004 |
 | Viewport text & code colors | color-system.md | STYLE-001 … STYLE-003 |
 | Fonts & glyphs used in chrome | typography-and-icons.md | FONT-001, FONT-002 |
 | Mobile behaviors overall | design-language.md §8 | MOBILE-001 |

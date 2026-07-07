@@ -2,7 +2,8 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-07 (DOC-005).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-07 (design refinements after
+DOC-006: code-block cards, explorer retract/paper behavior).
 
 ## Root
 
@@ -25,9 +26,14 @@ each. **Update whenever a file is added, meaningfully changed, or removed** (rul
 ## .agent/
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
-  acceptance criteria. DOC-001/003/005 done; the rest is the roadmap for building the
-  theme, incl. THEME-004 (footer) and DOC-004 (user docs, deps: all tasks). Note:
-  I18N-001 also requires shipping a Chinese (Simplified) locale.
+  acceptance criteria. DOC-001/003/005/006 done. Roadmap: infra + config (incl.
+  CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
+  chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
+  explorer, palette, footer + custom pre-footer section, tool bar extras, settings
+  panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
+  Waline comments), content (tags/categories, series), pages (home, projects, about,
+  friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
+  a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
 ## docs/
@@ -36,9 +42,13 @@ each. **Update whenever a file is added, meaningfully changed, or removed** (rul
   rules; clarifies `docs/` is repo documentation, not site content.
 - `design/design-language.md` — binding: identity, NeoVim/LazyVim-inspired TUI design
   language, hard no-branding rule, iconic components table (tool bar, status bar,
-  explorer, floating windows), footer spec (in-viewport: custom Vue region · separator
-  · copyright/social row · powered-by/RSS/CC-BY row; details TBD in THEME-004), modern
-  finish, mode list, keyboard/mobile/i18n principles.
+  explorer, floating windows), footer spec (custom Vue section on top · separator ·
+  copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
+  author/license from CONF-002; attribution row lighter on desktop), cards &
+  shell-prompt decoration (prompt user = normalized author username; prompt marks
+  featured content; code blocks are card-style windows with a file/lang title bar +
+  COPY button, no prompt), explorer retractable on desktop & absent in paper mode,
+  modern finish, mode list, keyboard/mobile/i18n principles.
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   dominant esp. for text; hard rule that all auxiliary colors are derived from it; IBM
   Carbon as supporting palette; Oxocarbon (nvim for dark/light, vscode variant for
@@ -50,8 +60,9 @@ each. **Update whenever a file is added, meaningfully changed, or removed** (rul
 - `design/ui-sketch.md` — ASCII wireframes (structure binding, details illustrative):
   desktop shell (tool bar / explorer + viewport / status bar), floating find palette,
   mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
-  hides explorer/utility panels), in-viewport footer; legend of placeholder glyphs and
-  a region → spec → build-task map.
+  hides explorer/utility panels), in-viewport footer (attribution row lighter on
+  desktop), card component with shell prompt + code-block variant with file/lang/COPY
+  title bar (§6); legend of placeholder glyphs and a region → spec → build-task map.
 
 ## .vitepress/
 

@@ -2,8 +2,8 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (INFRA-001: SCSS toolchain —
-`sass` devDep, `styles/main.scss` entry, `style.css` retired).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (CONF-001: typed themeConfig
+schema in `theme/config.ts` + `useThemeConfig` composable; INFRA-001 same day).
 
 ## Root
 
@@ -26,7 +26,7 @@ each. **Update whenever a file is added, meaningfully changed, or removed** (rul
 ## .agent/
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
-  acceptance criteria. DOC-001/003/005/006 and INFRA-001 done. Roadmap: config (incl.
+  acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001 done. Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -66,9 +66,18 @@ each. **Update whenever a file is added, meaningfully changed, or removed** (rul
 
 ## .vitepress/
 
-- `config.mts` — site config: `srcDir: "src"`, title "VitePress Theme Terminal",
-  description. Future home of head injection (fonts/icons), `themeConfig` surface,
-  locales, and Shiki theme setup.
+- `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
+  `srcDir: "src"`, title, description; `themeConfig` block present with commented
+  option examples (all options optional — defaults in `theme/config.ts`). Future home
+  of head injection (fonts/icons), locales, and Shiki theme setup.
+- `theme/config.ts` — CONF-001 configuration surface, framework-free (importable from
+  the Node-side config): `TerminalThemeConfig` schema (`mainColor` default `#80E0A7`,
+  `localeStrings` override hook for I18N-001; feature toggles land here),
+  `themeConfigDefaults`, `resolveThemeConfig()` (per-option fallback, survives
+  explicit `undefined`).
+- `theme/composables/useThemeConfig.ts` — client composable: `useThemeConfig()` wraps
+  `useData()` + `resolveThemeConfig()`; components read all user options through it,
+  honoring per-locale `themeConfig`.
 - `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
   empty `enhanceApp`.
 - `theme/Layout.vue` — placeholder layout: `frontmatter.home` branch renders site

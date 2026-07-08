@@ -61,7 +61,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Configuration
 
-- [ ] **CONF-001** — Theme configuration surface
+- [x] **CONF-001** — Theme configuration surface
   - **Category:** Configuration · **Deps:** —
   - **Acceptance criteria:** a typed `themeConfig` schema (main color with default
     `#80E0A7`, locale-strings hook, feature toggles as they appear) read from

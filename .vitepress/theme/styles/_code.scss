@@ -1,0 +1,92 @@
+// ============================================================================
+// _code.scss — code block rendering & Shiki mode switching (STYLE-003)
+// ============================================================================
+// VitePress renders fenced code through Shiki with the three oxocarbon themes
+// (theme/shiki/oxocarbon.ts) and `defaultColor: false`: every token span
+// carries `--shiki-dark`, `--shiki-light`, and `--shiki-paper` custom
+// properties instead of a fixed color. These rules pick the variable matching
+// the active mode. Full card-style chrome (title bar, COPY button, file name)
+// is STYLE-004 — this file keeps blocks minimal but correct.
+
+// ----------------------------------------------------------------------------
+// Block container — VitePress wraps fences in div[class*='language-']
+// ----------------------------------------------------------------------------
+div[class*="language-"] {
+  position: relative;
+  margin: 1.25rem 0;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  overflow: hidden;
+
+  // Default-theme leftovers not yet part of this theme's design: the COPY
+  // control and language label belong to the code-block card (STYLE-004).
+  > button.copy,
+  > span.lang {
+    display: none;
+  }
+}
+
+pre.shiki {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--ct-font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+
+  code {
+    display: block;
+    background: none;
+    padding: 0;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Mode switching — pick the Shiki variable set of the active mode
+// ----------------------------------------------------------------------------
+
+// Dark (default)
+pre.shiki,
+pre.shiki span {
+  color: var(--shiki-dark, inherit);
+  background-color: var(--shiki-dark-bg, transparent);
+  font-style: var(--shiki-dark-font-style, inherit);
+  font-weight: var(--shiki-dark-font-weight, inherit);
+  text-decoration: var(--shiki-dark-text-decoration, inherit);
+}
+
+// Light
+:root[data-ct-mode="light"] {
+  pre.shiki,
+  pre.shiki span {
+    color: var(--shiki-light, inherit);
+    background-color: var(--shiki-light-bg, transparent);
+    font-style: var(--shiki-light-font-style, inherit);
+    font-weight: var(--shiki-light-font-weight, inherit);
+    text-decoration: var(--shiki-light-text-decoration, inherit);
+  }
+}
+
+// Paper — shared by the paper mode attribute and printing
+@mixin paper-code {
+  pre.shiki,
+  pre.shiki span {
+    color: var(--shiki-paper, inherit);
+    background-color: var(--shiki-paper-bg, transparent);
+    font-style: var(--shiki-paper-font-style, inherit);
+    font-weight: var(--shiki-paper-font-weight, inherit);
+    text-decoration: var(--shiki-paper-text-decoration, inherit);
+  }
+}
+
+:root[data-ct-mode="paper"] {
+  @include paper-code;
+}
+
+@media print {
+  :root,
+  :root[data-ct-mode="dark"],
+  :root[data-ct-mode="light"] {
+    @include paper-code;
+  }
+}

@@ -1,7 +1,7 @@
 # Color System
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-07.
+> Last updated: 2026-07-08.
 
 ## 1. Three layers
 
@@ -65,3 +65,26 @@ Implementation goes through custom Shiki themes configured in the VitePress conf
 Only the **main color** is user-configurable (via `themeConfig`, default `#80E0A7`).
 Carbon and Oxocarbon values are fixed theme constants. Any future configurable color
 must be added to the VitePress config surface and documented (see `AGENTS.md` §6.5).
+
+## 8. Implementation reference (decided with STYLE-001…003)
+
+- **Token prefix `--ct-`.** All theme custom properties use it: primitives in
+  `styles/_tokens.scss` (Carbon values, main-color derivatives via `color-mix()`, font
+  stacks, radii) and per-mode **semantic tokens** (`--ct-bg`, `--ct-text`,
+  `--ct-link`, …) in `styles/_modes.scss`. Components consume semantic tokens, not
+  primitives.
+- **Main color injection.** The configured value is emitted at build time as an inline
+  `<head>` style `:root{--ct-main:…}` (`theme/head.ts`); the SCSS default lives on the
+  lower-specificity `html` selector so the injected value always wins. All derivatives
+  are `color-mix()` expressions over `var(--ct-main)` — changing the config re-tunes
+  everything (§3).
+- **Mode mechanism.** The active mode lives on `<html data-ct-mode="dark|light|paper">`
+  (dark = default), persisted in `localStorage` key `ct-mode`, restored before first
+  paint by an inline head script, and switched via the `useColorMode()` composable.
+  `@media print` force-applies the paper tokens over any active mode.
+- **Code highlighting.** Three custom Shiki themes (`theme/shiki/`) are passed as
+  `markdown.theme = { light, dark, paper }`: VitePress forwards the object to Shiki
+  with `defaultColor: false`, so tokens carry `--shiki-dark/-light/-paper` variables,
+  selected per mode in `styles/_code.scss`. Dark/light transcribe the oxocarbon.nvim
+  highlight groups to TextMate scopes; paper is the vendored print theme
+  (`PRINT.json`, MIT) from nyoom-engineering/oxocarbon-vscode.

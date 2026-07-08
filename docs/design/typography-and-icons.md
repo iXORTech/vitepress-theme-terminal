@@ -1,7 +1,7 @@
 # Typography & Icons
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-07.
+> Last updated: 2026-07-08.
 
 ## 1. Font families — IBM Plex only
 
@@ -36,3 +36,8 @@
 - **No new npm dependencies** may be introduced for fonts or icons.
 - Self-hosting the same stylesheets/woff2 files later is acceptable (add a plan task),
   as long as the no-npm rule holds.
+- **Implemented (FONT-001):** IBM Plex Sans/Serif/Mono load from the Google Fonts CSS2
+  API (weights 400/600/700 + italic 400; Mono without 700) via `<link>`s built in
+  `theme/head.ts`; fallback stacks live in `styles/_tokens.scss` (`--ct-font-sans/
+  -serif/-mono`), and the per-mode body family is the `--ct-font-body` semantic token
+  (Serif in paper mode).

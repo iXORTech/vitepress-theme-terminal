@@ -1,0 +1,70 @@
+// ============================================================================
+// _tokens.scss — design tokens: Carbon palette + main-color derivatives
+// (STYLE-001) and font stacks (FONT-001)
+// ============================================================================
+// Exposes every design token as a CSS custom property. Two hard rules apply
+// (docs/design/color-system.md):
+//   - Only the MAIN COLOR is user-configurable; it arrives on `--ct-main`,
+//     injected into <head> at build time from `themeConfig` (theme/head.ts).
+//   - Every color that matches or varies the main color is DERIVED from
+//     `--ct-main` via `color-mix()` — never configured, never hardcoded (§3).
+// Carbon and font values are fixed theme constants (§4).
+
+// Main-color fallback — declared on `html` (lower specificity than `:root`) so
+// the build-time `:root{--ct-main:…}` injected in <head> from themeConfig
+// (theme/head.ts) always wins, regardless of stylesheet order. Mirrors
+// themeConfigDefaults.mainColor.
+html {
+  --ct-main: #80e0a7;
+}
+
+:root {
+  // Main-color derivatives — all computed from --ct-main (color-system.md §3).
+  --ct-main-bright: color-mix(in oklab, var(--ct-main) 80%, white);        // hover / strong text on dark
+  --ct-main-dim: color-mix(in srgb, var(--ct-main) 62%, transparent);      // dimmed text on dark
+  --ct-main-subtle: color-mix(in srgb, var(--ct-main) 12%, transparent);   // subtle accent background
+  --ct-main-border: color-mix(in srgb, var(--ct-main) 40%, transparent);   // accent borders
+  --ct-main-selection: color-mix(in srgb, var(--ct-main) 28%, transparent); // text selection
+  --ct-main-deep: color-mix(in oklab, var(--ct-main) 45%, var(--ct-gray-100));    // body text on light surfaces
+  --ct-main-deeper: color-mix(in oklab, var(--ct-main) 32%, var(--ct-gray-100));  // headings/hover on light surfaces
+
+  // --------------------------------------------------------------------------
+  // IBM Carbon palette — fixed supporting structure (color-system.md §4)
+  // --------------------------------------------------------------------------
+  --ct-white: #ffffff;
+  --ct-gray-10: #f4f4f4;
+  --ct-gray-20: #e0e0e0;
+  --ct-gray-30: #c6c6c6;
+  --ct-gray-40: #a8a8a8;
+  --ct-gray-50: #8d8d8d;
+  --ct-gray-60: #6f6f6f;
+  --ct-gray-70: #525252;
+  --ct-gray-80: #393939;
+  --ct-gray-90: #262626;
+  --ct-gray-100: #161616;
+
+  // Carbon semantic colors (error/warning/info/success; MD-002 callouts)
+  --ct-red-60: #da1e28;   // error on light
+  --ct-red-50: #fa4d56;   // error on dark
+  --ct-yellow-30: #f1c21b; // warning
+  --ct-green-50: #24a148; // success on light
+  --ct-green-40: #42be65; // success on dark
+  --ct-blue-60: #0f62fe;  // info on light
+  --ct-blue-40: #78a9ff;  // info on dark
+
+  // --------------------------------------------------------------------------
+  // Font stacks — IBM Plex with system fallbacks (typography-and-icons.md §1)
+  // --------------------------------------------------------------------------
+  --ct-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --ct-font-serif: "IBM Plex Serif", ui-serif, georgia, serif;
+  --ct-font-mono: "IBM Plex Mono", ui-monospace, sfmono-regular, menlo,
+    consolas, monospace;
+
+  // --------------------------------------------------------------------------
+  // Shape & spacing — subtle rounding + floating gaps (design-language.md §5)
+  // --------------------------------------------------------------------------
+  --ct-radius: 6px;       // panels & floating windows — subtle, text-composed feel
+  --ct-radius-small: 4px; // inline elements (inline code, small controls)
+  --ct-gap: 12px;         // gap between floating panels
+}

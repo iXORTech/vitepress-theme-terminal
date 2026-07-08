@@ -1,0 +1,139 @@
+// ============================================================================
+// _modes.scss — the three color modes: dark / light / paper (STYLE-002)
+// ============================================================================
+// Each mode assigns the same set of SEMANTIC tokens (--ct-bg, --ct-text, …)
+// from the primitives in _tokens.scss, per docs/design/color-system.md §6:
+//   - dark  (default): Carbon dark layers, main color dominant — body text
+//     itself renders in the main color (§2).
+//   - light: light layers; text uses darkened main-color derivatives so
+//     contrast comes first — still derived, never a second constant (§2).
+//   - paper: reader/print mode — near-black serif body on paper white, main
+//     color only as sparing accent; also applied via @media print.
+// The active mode lives on <html data-ct-mode="…">, set before first paint by
+// the head script (theme/head.ts) and switched by useColorMode(); the user's
+// choice persists in localStorage under `ct-mode`.
+
+// ----------------------------------------------------------------------------
+// Mode token sets
+// ----------------------------------------------------------------------------
+
+@mixin dark-tokens {
+  color-scheme: dark;
+
+  --ct-bg: var(--ct-gray-100);
+  --ct-surface: var(--ct-gray-90);
+  --ct-surface-2: var(--ct-gray-80);
+
+  --ct-text: var(--ct-main); // main color dominant (color-system.md §2)
+  --ct-text-strong: var(--ct-main-bright);
+  --ct-text-dim: var(--ct-main-dim);
+  --ct-text-neutral: var(--ct-gray-30); // neutral tier for chrome/secondary UI
+  --ct-heading: var(--ct-main-bright);
+
+  --ct-link: var(--ct-main);
+  --ct-link-hover: var(--ct-main-bright);
+
+  --ct-border: var(--ct-gray-80);
+  --ct-border-accent: var(--ct-main-border);
+  --ct-selection: var(--ct-main-selection);
+
+  --ct-inline-code-bg: var(--ct-main-subtle);
+  --ct-inline-code-fg: var(--ct-main-bright);
+
+  --ct-error: var(--ct-red-50);
+  --ct-warning: var(--ct-yellow-30);
+  --ct-info: var(--ct-blue-40);
+  --ct-success: var(--ct-green-40);
+
+  --ct-font-body: var(--ct-font-sans);
+}
+
+@mixin light-tokens {
+  color-scheme: light;
+
+  --ct-bg: var(--ct-white);
+  --ct-surface: var(--ct-gray-10);
+  --ct-surface-2: var(--ct-gray-20);
+
+  // Darkened main-color derivatives: contrast first, still derived (§2).
+  --ct-text: var(--ct-main-deep);
+  --ct-text-strong: var(--ct-main-deeper);
+  --ct-text-dim: color-mix(in srgb, var(--ct-main-deep) 65%, transparent);
+  --ct-text-neutral: var(--ct-gray-70);
+  --ct-heading: var(--ct-main-deeper);
+
+  --ct-link: var(--ct-main-deep);
+  --ct-link-hover: var(--ct-main-deeper);
+
+  --ct-border: var(--ct-gray-20);
+  --ct-border-accent: var(--ct-main-border);
+  --ct-selection: var(--ct-main-selection);
+
+  --ct-inline-code-bg: var(--ct-main-subtle);
+  --ct-inline-code-fg: var(--ct-main-deeper);
+
+  --ct-error: var(--ct-red-60);
+  --ct-warning: var(--ct-yellow-30);
+  --ct-info: var(--ct-blue-60);
+  --ct-success: var(--ct-green-50);
+
+  --ct-font-body: var(--ct-font-sans);
+}
+
+@mixin paper-tokens {
+  color-scheme: light;
+
+  --ct-bg: var(--ct-white); // paper white
+  --ct-surface: var(--ct-white);
+  --ct-surface-2: var(--ct-gray-10);
+
+  // Near-black body text; main color reserved for sparing accents (§6).
+  --ct-text: var(--ct-gray-100);
+  --ct-text-strong: var(--ct-gray-100);
+  --ct-text-dim: var(--ct-gray-60);
+  --ct-text-neutral: var(--ct-gray-70);
+  --ct-heading: var(--ct-gray-100);
+
+  --ct-link: var(--ct-main-deep);
+  --ct-link-hover: var(--ct-main-deeper);
+
+  --ct-border: var(--ct-gray-20);
+  --ct-border-accent: var(--ct-main-border);
+  --ct-selection: var(--ct-main-selection);
+
+  --ct-inline-code-bg: var(--ct-gray-10);
+  --ct-inline-code-fg: var(--ct-gray-100);
+
+  --ct-error: var(--ct-red-60);
+  --ct-warning: var(--ct-yellow-30);
+  --ct-info: var(--ct-blue-60);
+  --ct-success: var(--ct-green-50);
+
+  // Serif long-form body in paper mode (typography-and-icons.md §1).
+  --ct-font-body: var(--ct-font-serif);
+}
+
+// ----------------------------------------------------------------------------
+// Mode application — dark is the default (:root), the attribute overrides
+// ----------------------------------------------------------------------------
+
+:root {
+  @include dark-tokens;
+}
+
+:root[data-ct-mode="light"] {
+  @include light-tokens;
+}
+
+:root[data-ct-mode="paper"] {
+  @include paper-tokens;
+}
+
+// Printing always uses the paper tokens, whatever mode is active (§6).
+@media print {
+  :root,
+  :root[data-ct-mode="dark"],
+  :root[data-ct-mode="light"] {
+    @include paper-tokens;
+  }
+}

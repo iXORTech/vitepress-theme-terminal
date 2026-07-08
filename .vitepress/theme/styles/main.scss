@@ -5,17 +5,36 @@
 // lives under `.vitepress/theme/styles/` as SCSS partials — one per concern or
 // component — and is wired in here with `@use`. Never style in Vue SFC <style>
 // blocks or plain CSS files (AGENTS.md §6.3).
-//
-// Planned partials (added by their respective tasks):
-//   - _tokens.scss   → Carbon palette + main-color derivatives   (STYLE-001)
-//   - _modes.scss    → dark / light / paper color modes           (STYLE-002)
-//   - _content.scss  → base markdown content styling              (STYLE-005)
-//   - component partials (tool bar, status bar, explorer, cards…) (THEME-*/COMP-*)
+
+@use "tokens";  // Carbon palette, main-color derivatives, fonts (STYLE-001/FONT-001)
+@use "modes";   // dark / light / paper semantic tokens (STYLE-002)
+@use "shell";   // placeholder layout shell (retired by THEME-001)
+@use "content"; // base markdown content styling (STYLE-005)
+@use "code";    // code blocks & Shiki mode switching (STYLE-003)
 
 // ----------------------------------------------------------------------------
-// Base — minimal placeholder until design tokens (STYLE-001) and IBM Plex
-// loading (FONT-001) land.
+// Base document styles
 // ----------------------------------------------------------------------------
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ct-bg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--ct-font-body);
+  background: var(--ct-bg);
+  color: var(--ct-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Text selection uses the derived main-color highlight (color-system.md §3)
+::selection {
+  background: var(--ct-selection);
 }

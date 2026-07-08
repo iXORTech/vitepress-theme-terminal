@@ -79,20 +79,20 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Styling
 
-- [ ] **STYLE-001** — Design tokens: Carbon palette + main color
+- [x] **STYLE-001** — Design tokens: Carbon palette + main color
   - **Category:** Styling · **Deps:** INFRA-001, CONF-001
   - **Acceptance criteria:** Carbon palette and the main color exposed as CSS custom
     properties from SCSS; all main-color derivatives (hover/dim/subtle/border/selection)
     computed from the configured value per `docs/design/color-system.md` §3; no
     hardcoded derivative hex values anywhere.
 
-- [ ] **STYLE-002** — Color modes: dark / light / paper
+- [x] **STYLE-002** — Color modes: dark / light / paper
   - **Category:** Styling · **Deps:** STYLE-001
   - **Acceptance criteria:** three switchable modes with dark as default; user choice
     persisted; paper mode reader-optimized and also applied via `@media print`; token
     values per `docs/design/color-system.md` §6.
 
-- [ ] **STYLE-003** — Oxocarbon syntax highlighting
+- [x] **STYLE-003** — Oxocarbon syntax highlighting
   - **Category:** Styling · **Deps:** STYLE-002
   - **Acceptance criteria:** Shiki custom themes wired in the VitePress config:
     oxocarbon.nvim dark/light palettes for dark/light modes, vscode-oxocarbon light
@@ -107,7 +107,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     Shiki-powered with the STYLE-003 palettes; labels localized; styles in dedicated
     SCSS.
 
-- [ ] **STYLE-005** — Base markdown content styling
+- [x] **STYLE-005** — Base markdown content styling
   - **Category:** Styling · **Deps:** STYLE-001, FONT-001
   - **Acceptance criteria:** all standard markdown output (headings, paragraphs,
     lists, tables, blockquotes, rules, links, images, inline code) styled to the
@@ -115,7 +115,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Typography & icons
 
-- [ ] **FONT-001** — IBM Plex font loading
+- [x] **FONT-001** — IBM Plex font loading
   - **Category:** Typography · **Deps:** —
   - **Acceptance criteria:** Plex Sans/Serif/Mono load via stylesheet `<link>`s injected
     into `<head>` from the VitePress config; fallback stacks defined; no npm font

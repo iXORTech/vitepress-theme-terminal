@@ -1,0 +1,48 @@
+// ============================================================================
+// _shell.scss — placeholder layout shell styling
+// ============================================================================
+// Styles the temporary Layout.vue shell used while the styling foundation is
+// built. The real TUI chrome (tool bar / status bar / explorer) replaces this
+// with THEME-001; this file is retired then.
+
+.ct-shell {
+  min-height: 100vh;
+  background: var(--ct-bg);
+}
+
+// Temporary top bar: site name + mode switcher (real tool bar: THEME-001/005)
+.ct-shell__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 72ch;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  font-family: var(--ct-font-mono); // TUI chrome is mono (typography §1)
+  color: var(--ct-text-neutral);
+}
+
+// Temporary color-mode cycle button (STYLE-002 demo control)
+.ct-mode-switch {
+  font-family: var(--ct-font-mono);
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--ct-border-accent);
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  color: var(--ct-text);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-text-strong);
+  }
+}
+
+// The switcher is an on-screen control only — never printed
+@media print {
+  .ct-shell__bar {
+    display: none;
+  }
+}

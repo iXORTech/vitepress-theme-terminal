@@ -82,7 +82,9 @@ footer, and cards — live in [`ui-sketch.md`](ui-sketch.md).
 Preserve the TUI structure but render it with a modern look rather than retro pixel
 fidelity:
 
-- rounded corners on panels and floating windows;
+- rounded corners on panels and floating windows, note that the corner radius SHOULD NOT
+  be too large - the goal is a subtle rounding so the components seems to be composed by
+  text (for TUI feel) and not a separate shape;
 - a floating feel: panels separated by gaps/padding instead of hard full-bleed splits;
 - subtle borders and shadows for depth; small, smooth transitions.
 

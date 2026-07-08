@@ -9,7 +9,9 @@
 ## How to read the sketches
 
 - Rounded frame corners (`╭ ╮ ╰ ╯`) are literal: panels and floating windows have
-  rounded corners.
+  rounded corners. Note that the actual corner radius in finalized website styling
+  SHOULD not be too large (design-language.md §5, modern finish) so that the corners
+  are subtle, not visually distracting, and feels like to be text-composed.
 - The gaps between boxes are literal: panels float with visible spacing between them
   (design-language.md §5), they do not touch edge-to-edge.
 - Glyph placeholders — final glyphs come from Font Awesome / Nerd Font per

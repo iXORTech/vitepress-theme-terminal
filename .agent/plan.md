@@ -53,7 +53,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Infrastructure
 
-- [ ] **INFRA-001** — SCSS toolchain
+- [x] **INFRA-001** — SCSS toolchain
   - **Category:** Infrastructure · **Deps:** —
   - **Acceptance criteria:** `sass` added as a devDependency; `.vitepress/theme/styles/`
     established with a `main.scss` entry imported by the theme; `style.css` retired;

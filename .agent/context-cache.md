@@ -2,14 +2,14 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-07 (design refinements after
-DOC-006: code-block cards, explorer retract/paper behavior).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (INFRA-001: SCSS toolchain —
+`sass` devDep, `styles/main.scss` entry, `style.css` retired).
 
 ## Root
 
-- `package.json` — pnpm project; devDeps only: `vitepress 2.0.0-alpha.18`, `vue ^3.5.39`.
-  Scripts `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in
-  config). No `sass` yet (comes with INFRA-001).
+- `package.json` — pnpm project; devDeps only: `vitepress 2.0.0-alpha.18`,
+  `vue ^3.5.39`, `sass ^1.101.0` (INFRA-001). Scripts `dev`/`build`/`preview` run
+  vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
   `.vitepress/cache`; ignores `themeConfig.mjs` **except**
@@ -26,7 +26,7 @@ DOC-006: code-block cards, explorer retract/paper behavior).
 ## .agent/
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
-  acceptance criteria. DOC-001/003/005/006 done. Roadmap: infra + config (incl.
+  acceptance criteria. DOC-001/003/005/006 and INFRA-001 done. Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -69,13 +69,14 @@ DOC-006: code-block cards, explorer retract/paper behavior).
 - `config.mts` — site config: `srcDir: "src"`, title "VitePress Theme Terminal",
   description. Future home of head injection (fonts/icons), `themeConfig` surface,
   locales, and Shiki theme setup.
-- `theme/index.ts` — theme entry: exports `Layout.vue`, imports `style.css`, empty
-  `enhanceApp`.
+- `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
+  empty `enhanceApp`.
 - `theme/Layout.vue` — placeholder layout: `frontmatter.home` branch renders site
   title/description/starter links, otherwise a Home link + `<Content/>`. Replaced by
   THEME-001.
-- `theme/style.css` — placeholder (only sets `html { font-family: Arial, Helvetica }`).
-  Retired by INFRA-001 in favor of SCSS.
+- `theme/styles/main.scss` — single SCSS entry (INFRA-001); header comment maps the
+  planned partial layout (`_tokens`/`_modes`/`_content`/components, wired via `@use`);
+  currently only a placeholder base font rule until STYLE-001/FONT-001.
 
 ## src/ (site content — VitePress `srcDir`)
 

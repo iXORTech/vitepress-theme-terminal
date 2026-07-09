@@ -155,6 +155,25 @@ $$
 \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
 $$
 
+## Icons (Font Awesome)
+
+Font Awesome Free loads with the theme (FONT-002), so its icons can be used
+directly as inline HTML in any page.
+
+**Input**
+
+```md
+<i class="fa-solid fa-terminal"></i> terminal ·
+<i class="fa-brands fa-github"></i> github ·
+<i class="fa-solid fa-rss"></i> rss
+```
+
+**Output**
+
+<i class="fa-solid fa-terminal"></i> terminal ·
+<i class="fa-brands fa-github"></i> github ·
+<i class="fa-solid fa-rss"></i> rss
+
 ## Callouts
 
 Callout containers render as TUI cards. Default titles are localized and

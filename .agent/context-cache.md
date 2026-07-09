@@ -2,9 +2,10 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (STYLE-006 neutral body
-text, MD-001 plugin suite, MD-002 callouts + left-bar revision; 2026-07-08:
-INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (FONT-002 icon systems,
+MD-003 nerd-font callout glyphs; earlier same day: STYLE-006 neutral body text,
+MD-001 plugin suite, MD-002 callouts + left-bar revision; 2026-07-08: INFRA-001,
+CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 ## Root
 
@@ -30,8 +31,7 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001, I18N-001/002/003/004, MD-001/002, STYLE-006 done (MD-003 nerd-font
-  callout icons pending on FONT-002). Roadmap: config (incl.
+  FONT-001/002, I18N-001/002/003/004, MD-001/002/003, STYLE-006 done. Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -65,9 +65,13 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   main color, `data-ct-mode` + `ct-mode` storage, callout colors, three-theme shiki).
 - `design/typography-and-icons.md` — binding: IBM Plex allocation (Sans = UI/body,
   Serif = paper-mode body, Mono = code + TUI chrome); Font Awesome for most icons, Nerd
-  Font only in TUI chrome; hard rule: load via stylesheets injected in `<head>` from
-  VitePress config, no npm font/icon packages. FONT-001 implementation note: Google
-  Fonts CSS2, weights 400/600/700 (+italic 400), stacks in `_tokens.scss`.
+  Font only in TUI chrome incl. callout chrome (title glyphs + details chevron, MD-003);
+  hard rule: load via stylesheets injected in `<head>` from VitePress config, no npm
+  font/icon packages. FONT-001 note: Google Fonts CSS2, weights 400/600/700 (+italic
+  400), stacks in `_tokens.scss`. FONT-002 note: FA `all.min.css` (cdnjs) + official
+  symbols-only Nerd Font webfont css (family `NerdFontsSymbols Nerd Font`,
+  `--ct-font-nerd`); PUA glyphs gated behind `html[data-ct-nerdfont]` (useNerdFont) —
+  safe fallback: no icon / plain `❯` chevron.
 - `design/ui-sketch.md` — ASCII wireframes (structure binding, details illustrative):
   desktop shell (tool bar / explorer + viewport / status bar), floating find palette,
   mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
@@ -84,12 +88,13 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
   "en-US"` as the default UI language (no VitePress `locales` — I18N-003);
   `themeConfig` demos per-language `title`/`description` maps; `markdown.math: true`
-  (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002). Still to
-  come: Font Awesome/Nerd Font links (FONT-002).
+  (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
-  `<link>`s + preconnects (FONT-001), inline `:root{--ct-main:…}` style from the
-  resolved config (STYLE-001), inline pre-paint script restoring `ct-mode` from
-  localStorage onto `data-ct-mode` with dark default (STYLE-002).
+  `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002: Font
+  Awesome 6 `all.min.css` from cdnjs + nerdfonts.com symbols-only `webfont.css`),
+  inline `:root{--ct-main:…}` style from the resolved config (STYLE-001), inline
+  pre-paint script restoring `ct-mode` from localStorage onto `data-ct-mode` with
+  dark default (STYLE-002).
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin`. Math goes through
@@ -133,6 +138,10 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/composables/useCalloutTitles.ts` — rewrites `[data-ct-callout-title]`
   elements from the locale table on mount, content update, and language switch;
   called once from the layout (MD-002).
+- `theme/composables/useNerdFont.ts` — flags `<html data-ct-nerdfont>` once the CSS
+  Font Loading API confirms `NerdFontsSymbols Nerd Font` is usable (`fonts.ready` →
+  `fonts.load()`, empty result = stylesheet missing); gates all PUA glyphs so a
+  failed stylesheet degrades tofu-free (FONT-002/MD-003); called once from the layout.
 - `theme/composables/useSiteText.ts` — localized site `title`/`description`
   (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
   watchEffect syncs `document.title` (`page | title` pattern) and
@@ -150,7 +159,8 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   temporary top bar (localized site title via `useSiteText()`; actions group with the
   in-place language switcher — buttons per available language, hidden under two — and
   the mode-cycle button, labels via `t()`), and `.ct-content` viewport wrapping the
-  home branch (localized title/description) or `<Content/>`.
+  home branch (localized title/description) or `<Content/>`; calls
+  `useCalloutTitles()` + `useNerdFont()` once.
 - `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/content/code/
   callouts, then base document styles (box-sizing, body bg/color/font via semantic
   tokens, `::selection` from the derived highlight).
@@ -158,7 +168,7 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   specificity so the head-injected `:root` value wins), main-color derivatives via
   `color-mix()` (bright/dim/subtle/border/selection/deep/deeper — no hardcoded
   derivative hex), Carbon grays + semantic colors (incl. purple 40/60 for
-  `--ct-important`), IBM Plex font stacks, radius/gap.
+  `--ct-important`), IBM Plex font stacks + `--ct-font-nerd` (FONT-002), radius/gap.
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
   inline-code/error/warning/info/success/important/font-body`) as mixins per mode;
   body text NEUTRAL everywhere (STYLE-006: dark = gray-10, light/paper = gray-100),
@@ -173,8 +183,10 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   via semantic tokens; 72ch measure; 480px mobile padding tier.
 - `theme/styles/_callouts.scss` — MD-002 callouts, minimal left-bar style (revised
   2026-07-09): 3px accent bar + accent-colored mono uppercase title, no bg/frame;
-  accent per variant from semantic mode tokens; `<details>` variant hides the native
-  marker and animates a rotating `❯` chevron (placeholder until Nerd Font, MD-003).
+  accent + Nerd Font title glyph (nf-fa-* PUA, MD-003) per variant, glyphs gated
+  behind `[data-ct-nerdfont]`; `<details>` variant hides the native marker and
+  animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
+  gated rule via specificity).
 - `theme/styles/_shell.scss` — temporary shell/top-bar/actions/lang-switch/mode-switch
   styling for the placeholder layout; hidden in print; retired by THEME-001.
 
@@ -183,5 +195,6 @@ INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `index.md` — home page stub: only `home: true` frontmatter.
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting, every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
-  deflists, abbr), math, and all 8 callout types + custom-title example (MD-002).
+  deflists, abbr), math, inline Font Awesome icons (FONT-002), and all 8 callout
+  types + custom-title example (MD-002).
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`).

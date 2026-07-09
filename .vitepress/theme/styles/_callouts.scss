@@ -1,13 +1,18 @@
 // ============================================================================
-// _callouts.scss — minimal left-bar callouts (MD-002, revised 2026-07-09)
+// _callouts.scss — minimal left-bar callouts (MD-002, revised 2026-07-09;
+// Nerd Font title glyphs MD-003)
 // ============================================================================
 // Markup from theme/markdown/callouts.ts: `.ct-callout` (div, or <details>
 // for the collapsible variant) with a `.ct-callout__title` line followed by
 // the body. Deliberately minimal by decision: a colored bar on the left and
 // an accent-colored title — no background fill, no frame/outline. Each
-// variant only sets the accent custom property from the semantic mode tokens,
-// so all three color modes work unchanged. Nerd Font glyphs (per-type title
-// icons, details chevron) land with plan task MD-003 once FONT-002 ships.
+// variant only sets accent + glyph custom properties (accents from the
+// semantic mode tokens, so all three color modes work unchanged).
+//
+// Title icons are Nerd Font PUA glyphs, rendered ONLY under
+// `html[data-ct-nerdfont]` — set by useNerdFont() once the symbols font has
+// really loaded — so a failed stylesheet degrades to no icon and the plain
+// `❯` chevron instead of tofu (MD-003 safe fallback).
 
 .ct-callout {
   margin: 1.25rem 0;
@@ -35,20 +40,32 @@
   }
 
   // --------------------------------------------------------------------------
-  // Variants — accent from the Carbon semantic layer (color-system.md §4);
-  // `note` shares info's accent, `caution` shares danger's (plan MD-002).
+  // Variants — accent from the Carbon semantic layer (color-system.md §4) and
+  // a per-type Nerd Font title glyph (nf-fa-* set); `note` shares info's
+  // accent/glyph, `caution` shares danger's (plan MD-002/003). The details
+  // glyph is its chevron, animated below.
   // --------------------------------------------------------------------------
-  &--info { --ct-callout-accent: var(--ct-info); }
-  &--tip { --ct-callout-accent: var(--ct-success); }
-  &--warning { --ct-callout-accent: var(--ct-warning); }
-  &--danger { --ct-callout-accent: var(--ct-error); }
-  &--important { --ct-callout-accent: var(--ct-important); }
-  &--details { --ct-callout-accent: var(--ct-gray-50); }
+  &--info { --ct-callout-accent: var(--ct-info); --ct-callout-glyph: "\f05a"; }             // nf-fa-circle_info
+  &--tip { --ct-callout-accent: var(--ct-success); --ct-callout-glyph: "\f0eb"; }           // nf-fa-lightbulb
+  &--warning { --ct-callout-accent: var(--ct-warning); --ct-callout-glyph: "\f071"; }       // nf-fa-triangle_exclamation
+  &--danger { --ct-callout-accent: var(--ct-error); --ct-callout-glyph: "\f05c"; }          // nf-fa-circle_xmark
+  &--important { --ct-callout-accent: var(--ct-important); --ct-callout-glyph: "\f06a"; }   // nf-fa-circle_exclamation
+  &--details { --ct-callout-accent: var(--ct-gray-50); --ct-callout-glyph: "\f054"; }       // nf-fa-chevron_right
+}
+
+// Per-type title glyphs — gated behind the font-loaded flag (MD-003). For the
+// details variant this same rule upgrades the chevron: its content outranks
+// the fallback `content: "❯"` below by specificity, while the fallback's
+// display/transition still apply, keeping the expand/collapse rotation.
+[data-ct-nerdfont] .ct-callout > .ct-callout__title::before {
+  content: var(--ct-callout-glyph);
+  font-family: var(--ct-font-nerd);
+  margin-right: 0.5em;
 }
 
 // Collapsible variant — <details>/<summary> with an animated chevron: the
-// native marker is hidden and replaced by a rotating glyph (placeholder
-// unicode until the Nerd Font version, MD-003).
+// native marker is hidden and replaced by a rotating glyph (unicode `❯`
+// fallback; the Nerd Font chevron via the gated rule above, MD-003).
 details.ct-callout {
   > summary.ct-callout__title {
     cursor: pointer;

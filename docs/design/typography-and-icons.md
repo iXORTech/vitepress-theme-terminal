@@ -1,7 +1,7 @@
 # Typography & Icons
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-08.
+> Last updated: 2026-07-09.
 
 ## 1. Font families — IBM Plex only
 
@@ -21,7 +21,17 @@
 - **Font Awesome** (Free) is the icon system for most icons — anywhere a
   general-purpose icon is needed, Font Awesome is the default and the tiebreaker.
 - **Nerd Font** glyphs are permitted **only** in TUI-flavored chrome — tool bar, status
-  bar, file explorer — e.g. file-type glyphs and powerline-style separators.
+  bar, file explorer, and callout chrome (the per-type title glyphs and the details
+  chevron, MD-003) — e.g. file-type glyphs and powerline-style separators.
+- **Implemented (FONT-002):** Font Awesome Free `all.min.css` (cdnjs) and the official
+  symbols-only Nerd Font stylesheet (`nerdfonts.com/assets/css/webfont.css`, family
+  `NerdFontsSymbols Nerd Font`) load via `<link>`s built in `theme/head.ts`; the Nerd
+  Font stack is the `--ct-font-nerd` token in `styles/_tokens.scss`.
+- **Safe fallback (MD-003):** Nerd Font glyphs live in Private Use Area codepoints and
+  would render as tofu if the font were missing, so PUA glyphs in CSS are gated behind
+  `html[data-ct-nerdfont]`, set by the `useNerdFont()` composable only after the CSS
+  Font Loading API confirms the face is usable. When the stylesheet fails, callouts
+  degrade to no title icon and the plain `❯` details chevron.
 
 ## 3. Loading rule (hard)
 

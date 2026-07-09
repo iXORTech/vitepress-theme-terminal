@@ -5,6 +5,7 @@
 import { useData } from 'vitepress'
 import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useColorMode } from './composables/useColorMode'
+import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
 import { useThemeLocale } from './composables/useThemeLocale'
 
@@ -24,6 +25,10 @@ const { t, language, languages, setLanguage } = useThemeLocale()
 
 // Re-localize callout default titles on language switch (MD-002)
 useCalloutTitles()
+
+// Flag <html> once the symbols Nerd Font is usable, enabling the callout
+// glyphs with a tofu-safe fallback (FONT-002 / MD-003)
+useNerdFont()
 </script>
 
 <template>

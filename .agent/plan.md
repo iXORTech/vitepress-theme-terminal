@@ -130,7 +130,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     into `<head>` from the VitePress config; fallback stacks defined; no npm font
     packages.
 
-- [ ] **FONT-002** — Icon systems: Font Awesome + Nerd Font
+- [x] **FONT-002** — Icon systems: Font Awesome + Nerd Font
   - **Category:** Typography · **Deps:** —
   - **Acceptance criteria:** Font Awesome `all.css` and a symbols-only Nerd Font
     stylesheet injected into `<head>` from the VitePress config; both render; Nerd Font
@@ -158,7 +158,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (collapsible, with an animated expand/collapse chevron); semantic colors from
     the Carbon layer; default titles localized; custom titles supported.
 
-- [ ] **MD-003** — Nerd Font icons in callouts
+- [x] **MD-003** — Nerd Font icons in callouts
   - **Category:** Markdown · **Deps:** FONT-002, MD-002
   - **Acceptance criteria:** callout title lines gain a per-type Nerd Font glyph,
     and the details chevron's placeholder unicode `❯` is replaced by a Nerd Font

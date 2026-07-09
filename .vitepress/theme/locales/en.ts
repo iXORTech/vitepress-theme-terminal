@@ -19,6 +19,16 @@ export const en = {
 
   // Language switching (I18N-002 temporary switcher; status bar / settings later)
   'lang.switch': 'Switch language',
+
+  // Callout default titles (MD-002)
+  'callout.info': 'Info',
+  'callout.note': 'Note',
+  'callout.tip': 'Tip',
+  'callout.warning': 'Warning',
+  'callout.danger': 'Danger',
+  'callout.caution': 'Caution',
+  'callout.important': 'Important',
+  'callout.details': 'Details',
 } as const satisfies Record<string, string>
 
 /** The complete theme string table — all locales provide exactly these keys. */

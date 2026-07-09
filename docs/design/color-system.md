@@ -82,6 +82,15 @@ must be added to the VitePress config surface and documented (see `AGENTS.md` §
   (dark = default), persisted in `localStorage` key `ct-mode`, restored before first
   paint by an inline head script, and switched via the `useColorMode()` composable.
   `@media print` force-applies the paper tokens over any active mode.
+- **Callout colors (MD-002).** Callouts are deliberately minimal: a colored bar on
+  the left plus an accent-colored title line — no background fill, no frame/outline
+  (decided 2026-07-09). The accent comes from the Carbon semantic layer via mode
+  tokens: info/note → `--ct-info`, tip → `--ct-success`, warning → `--ct-warning`,
+  danger/caution → `--ct-error`, important → `--ct-important` (Carbon purple 40/60
+  per mode), details → neutral gray (collapsible, animated chevron). Default titles
+  are baked in the site's default language at build time and re-localized
+  client-side on language switch (`data-ct-callout-title` + `useCalloutTitles()`).
+  Nerd Font glyphs for callouts follow later (plan MD-003, after FONT-002).
 - **Code highlighting.** Three custom Shiki themes (`theme/shiki/`) are passed as
   `markdown.theme = { light, dark, paper }`: VitePress forwards the object to Shiki
   with `defaultColor: false`, so tokens carry `--shiki-dark/-light/-paper` variables,

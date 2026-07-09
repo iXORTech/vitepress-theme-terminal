@@ -1,0 +1,72 @@
+// ============================================================================
+// _callouts.scss — minimal left-bar callouts (MD-002, revised 2026-07-09)
+// ============================================================================
+// Markup from theme/markdown/callouts.ts: `.ct-callout` (div, or <details>
+// for the collapsible variant) with a `.ct-callout__title` line followed by
+// the body. Deliberately minimal by decision: a colored bar on the left and
+// an accent-colored title — no background fill, no frame/outline. Each
+// variant only sets the accent custom property from the semantic mode tokens,
+// so all three color modes work unchanged. Nerd Font glyphs (per-type title
+// icons, details chevron) land with plan task MD-003 once FONT-002 ships.
+
+.ct-callout {
+  margin: 1.25rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--ct-callout-accent);
+
+  // Title line — TUI chrome, so mono (typography-and-icons.md §1)
+  &__title {
+    margin: 0;
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ct-callout-accent);
+  }
+
+  // Body spacing: tighten toward the title line and the bar's end
+  > .ct-callout__title + * {
+    margin-top: 0.5rem;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  // --------------------------------------------------------------------------
+  // Variants — accent from the Carbon semantic layer (color-system.md §4);
+  // `note` shares info's accent, `caution` shares danger's (plan MD-002).
+  // --------------------------------------------------------------------------
+  &--info { --ct-callout-accent: var(--ct-info); }
+  &--tip { --ct-callout-accent: var(--ct-success); }
+  &--warning { --ct-callout-accent: var(--ct-warning); }
+  &--danger { --ct-callout-accent: var(--ct-error); }
+  &--important { --ct-callout-accent: var(--ct-important); }
+  &--details { --ct-callout-accent: var(--ct-gray-50); }
+}
+
+// Collapsible variant — <details>/<summary> with an animated chevron: the
+// native marker is hidden and replaced by a rotating glyph (placeholder
+// unicode until the Nerd Font version, MD-003).
+details.ct-callout {
+  > summary.ct-callout__title {
+    cursor: pointer;
+    list-style: none; // hide the native disclosure marker
+
+    &::-webkit-details-marker {
+      display: none; // Safari
+    }
+
+    &::before {
+      content: "❯";
+      display: inline-block;
+      margin-right: 0.5em;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &[open] > summary.ct-callout__title::before {
+    transform: rotate(90deg);
+  }
+}

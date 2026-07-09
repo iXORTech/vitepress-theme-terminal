@@ -130,7 +130,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Markdown
 
-- [ ] **MD-001** — markdown-it plugin suite
+- [x] **MD-001** — markdown-it plugin suite
   - **Category:** Markdown · **Deps:** —
   - **Acceptance criteria:** the following plugins are wired into the VitePress
     markdown config and render correctly: markdown-it-emoji, markdown-it-sub,
@@ -140,12 +140,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     plugin. (Plugin packages are regular devDependencies — the no-npm rule covers only
     fonts/icons.)
 
-- [ ] **MD-002** — Callouts (admonition containers)
+- [x] **MD-002** — Callouts (admonition containers)
   - **Category:** Markdown · **Deps:** MD-001, STYLE-001
-  - **Acceptance criteria:** custom containers render TUI-card-style callouts:
-    `info`, `note` (alias of `info`), `tip`, `warning`, `danger`, `caution` (alias of
-    `danger`), `important`, and `details` (collapsible); semantic colors from the
-    Carbon layer; default titles localized; custom titles supported.
+  - **Acceptance criteria:** custom containers render minimal left-bar callouts
+    (revised 2026-07-09: a colored bar on the left with an accent-colored title —
+    no background fill, no frame/outline): `info`, `note` (alias of `info`), `tip`,
+    `warning`, `danger`, `caution` (alias of `danger`), `important`, and `details`
+    (collapsible, with an animated expand/collapse chevron); semantic colors from
+    the Carbon layer; default titles localized; custom titles supported.
+
+- [ ] **MD-003** — Nerd Font icons in callouts
+  - **Category:** Markdown · **Deps:** FONT-002, MD-002
+  - **Acceptance criteria:** callout title lines gain a per-type Nerd Font glyph,
+    and the details chevron's placeholder unicode `❯` is replaced by a Nerd Font
+    chevron (keeping the expand/collapse rotation animation); glyphs render from
+    the FONT-002 symbols-only Nerd Font stylesheet with a safe fallback when it
+    fails to load; `docs/design/typography-and-icons.md` §2 is updated first to
+    extend the Nerd Font scope to callout chrome (currently tool bar / status bar /
+    explorer only).
 
 ### i18n
 

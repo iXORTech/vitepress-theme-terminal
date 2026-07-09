@@ -2,15 +2,17 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (I18N-004: LocalizableText
-config text + localized site title/description; same day: INFRA-001, CONF-001,
-STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (MD-001 plugin suite +
+MD-002 callouts; 2026-07-08: INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001,
+I18N-001/002/003/004).
 
 ## Root
 
-- `package.json` — pnpm project; devDeps only: `vitepress 2.0.0-alpha.18`,
-  `vue ^3.5.39`, `sass ^1.101.0` (INFRA-001). Scripts `dev`/`build`/`preview` run
-  vitepress on the project root (`srcDir` set in config).
+- `package.json` — pnpm project; devDeps: `vitepress 2.0.0-alpha.18`, `vue ^3.5.39`,
+  `sass ^1.101.0` (INFRA-001), and the MD-001 markdown-it suite (emoji, sub, sup,
+  ins, mark, footnote, deflist, abbr, container; mathjax3 pinned ^4 — v5 emits
+  inline <style> per formula, which breaks Vue template compilation). Scripts
+  `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
   `.vitepress/cache`; ignores `themeConfig.mjs` **except**
@@ -28,7 +30,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001, I18N-001/002/003/004 done. Roadmap: config (incl.
+  FONT-001, I18N-001/002/003/004, MD-001/002 done. Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -79,13 +81,23 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
   "en-US"` as the default UI language (no VitePress `locales` — I18N-003);
-  `themeConfig` demos a per-language `description` map and a `zh-CN`
-  `localeStrings` override (`mode.paper` → 阅读). Still to come: Font Awesome/Nerd
-  Font links (FONT-002).
+  `themeConfig` demos per-language `title`/`description` maps; `markdown.math: true`
+  (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002). Still to
+  come: Font Awesome/Nerd Font links (FONT-002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), inline `:root{--ct-main:…}` style from the
   resolved config (STYLE-001), inline pre-paint script restoring `ct-mode` from
   localStorage onto `data-ct-mode` with dark default (STYLE-002).
+- `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
+  `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
+  sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin`. Math goes through
+  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead.
+- `theme/markdown/callouts.ts` — MD-002 containers: overrides VitePress's built-in
+  info/tip/warning/danger/details renderer rules and registers note/caution/important
+  fresh; emits `.ct-callout .ct-callout--<kind>` cards with `.ct-callout__title`
+  (details → `<details>/<summary>`); default titles from the locale table for the
+  build `lang`, tagged `data-ct-callout-title` for client re-localization; custom
+  titles render inline markdown untagged. Aliases: note→info, caution→danger.
 - `theme/shiki/oxocarbon.ts` — builds `oxocarbon-dark`/`oxocarbon-light` shiki themes
   from the oxocarbon.nvim palettes (treesitter groups transcribed to TextMate scopes;
   MIT attribution in header) and re-exports the vendored paper theme.
@@ -99,8 +111,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
   can also add whole languages; feature toggles land here), `themeConfigDefaults`,
   `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
-  for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch` —
-  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey` types.
+  for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
+  `callout.*` ×8 — grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-CN.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
 - `theme/locales/index.ts` — framework-free registry (`en`, `zh-CN`) for the
@@ -116,6 +128,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
   `lang`), `languages`, `setLanguage()` (updates `<html lang>`, persists to
   localStorage `ct-lang`; restored post-mount to avoid hydration mismatch); the only
   way components obtain UI text.
+- `theme/composables/useCalloutTitles.ts` — rewrites `[data-ct-callout-title]`
+  elements from the locale table on mount, content update, and language switch;
+  called once from the layout (MD-002).
 - `theme/composables/useSiteText.ts` — localized site `title`/`description`
   (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
   watchEffect syncs `document.title` (`page | title` pattern) and
@@ -134,27 +149,35 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
   in-place language switcher — buttons per available language, hidden under two — and
   the mode-cycle button, labels via `t()`), and `.ct-content` viewport wrapping the
   home branch (localized title/description) or `<Content/>`.
-- `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/content/code, then
-  base document styles (box-sizing, body bg/color/font via semantic tokens,
-  `::selection` from the derived highlight).
+- `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/content/code/
+  callouts, then base document styles (box-sizing, body bg/color/font via semantic
+  tokens, `::selection` from the derived highlight).
 - `theme/styles/_tokens.scss` — primitives: `--ct-main` fallback on `html` (lower
   specificity so the head-injected `:root` value wins), main-color derivatives via
   `color-mix()` (bright/dim/subtle/border/selection/deep/deeper — no hardcoded
-  derivative hex), Carbon grays + semantic colors, IBM Plex font stacks, radius/gap.
+  derivative hex), Carbon grays + semantic colors (incl. purple 40/60 for
+  `--ct-important`), IBM Plex font stacks, radius/gap.
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
-  inline-code/error…/font-body`) as mixins per mode; `:root` = dark (default),
-  `[data-ct-mode=light|paper]` overrides, `@media print` force-applies paper tokens.
+  inline-code/error/warning/info/success/important/font-body`) as mixins per mode;
+  `:root` = dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
+  force-applies paper tokens.
 - `theme/styles/_code.scss` — code blocks: `div[class*=language-]` frame (hides
   default-theme copy/lang leftovers pending STYLE-004), `pre.shiki` basics, per-mode
   selection of `--shiki-dark/-light/-paper` token variables incl. print.
 - `theme/styles/_content.scss` — STYLE-005: `.ct-content` markdown styling (headings,
   text, links, lists, blockquotes, tables w/ overflow-x scroll, hr, img, inline code)
   via semantic tokens; 72ch measure; 480px mobile padding tier.
+- `theme/styles/_callouts.scss` — MD-002 callouts, minimal left-bar style (revised
+  2026-07-09): 3px accent bar + accent-colored mono uppercase title, no bg/frame;
+  accent per variant from semantic mode tokens; `<details>` variant hides the native
+  marker and animates a rotating `❯` chevron (placeholder until Nerd Font, MD-003).
 - `theme/styles/_shell.scss` — temporary shell/top-bar/actions/lang-switch/mode-switch
   styling for the placeholder layout; hidden in print; retired by THEME-001.
 
 ## src/ (site content — VitePress `srcDir`)
 
 - `index.md` — home page stub: only `home: true` frontmatter.
-- `markdown-examples.md` — VitePress starter demo of markdown features.
+- `markdown-examples.md` — input/output demo of the theme markdown pipeline:
+  Shiki highlighting, every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
+  deflists, abbr), math, and all 8 callout types + custom-title example (MD-002).
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`).

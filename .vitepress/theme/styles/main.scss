@@ -11,6 +11,7 @@
 @use "shell";   // placeholder layout shell (retired by THEME-001)
 @use "content"; // base markdown content styling (STYLE-005)
 @use "code";    // code blocks & Shiki mode switching (STYLE-003)
+@use "callouts"; // TUI-card callout containers (MD-002)
 
 // ----------------------------------------------------------------------------
 // Base document styles

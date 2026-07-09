@@ -1,11 +1,16 @@
 import { defineConfigWithTheme } from "vitepress";
 import type { TerminalThemeConfig } from "./theme/config";
 import { themeHead } from "./theme/head";
+import { createMarkdownConfig } from "./theme/markdown";
 import {
   oxocarbonDark,
   oxocarbonLight,
   oxocarbonPaper,
 } from "./theme/shiki/oxocarbon";
+
+// Default UI language (I18N-003): SSR text and build-time markdown defaults
+// (e.g. callout titles) render in this language; the client switches in place.
+const lang = "en-US";
 
 // Theme options — the user configuration surface. Every option is optional;
 // defaults live in `.vitepress/theme/config.ts` (schema: TerminalThemeConfig).
@@ -56,9 +61,13 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
   // (I18N-003, design-language.md §9). The default follows `lang`; the
   // switcher offers the built-in tables (en, zh-CN) plus any language added
   // via `themeConfig.localeStrings`.
-  lang: "en-US",
+  lang,
 
   markdown: {
     theme: shikiThemes,
+    // Math formulas via VitePress's built-in markdown-it-mathjax3 wiring (MD-001)
+    math: true,
+    // Plugin suite (MD-001) + callout containers (MD-002)
+    config: createMarkdownConfig(lang),
   },
 });

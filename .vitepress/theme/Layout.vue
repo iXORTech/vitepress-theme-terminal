@@ -3,6 +3,7 @@
 // provides what the styling foundation needs to be exercised: a mode switcher
 // (STYLE-002) and a `.ct-content` wrapper for markdown styling (STYLE-005).
 import { useData } from 'vitepress'
+import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useColorMode } from './composables/useColorMode'
 import { useSiteText } from './composables/useSiteText'
 import { useThemeLocale } from './composables/useThemeLocale'
@@ -20,6 +21,9 @@ const { title, description } = useSiteText()
 // Language switching is in-place — same URL, no /<lang>/ trees (I18N-003).
 const { mode, cycleMode } = useColorMode()
 const { t, language, languages, setLanguage } = useThemeLocale()
+
+// Re-localize callout default titles on language switch (MD-002)
+useCalloutTitles()
 </script>
 
 <template>

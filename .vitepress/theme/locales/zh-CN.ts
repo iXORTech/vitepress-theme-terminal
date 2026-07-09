@@ -19,4 +19,14 @@ export const zhCN: ThemeLocaleStrings = {
 
   // Language switching
   'lang.switch': '切换语言',
+
+  // Callout default titles
+  'callout.info': '信息',
+  'callout.note': '备注',
+  'callout.tip': '提示',
+  'callout.warning': '警告',
+  'callout.danger': '危险',
+  'callout.caution': '注意',
+  'callout.important': '重要',
+  'callout.details': '详情',
 }

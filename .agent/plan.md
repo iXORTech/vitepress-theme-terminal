@@ -113,6 +113,15 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     lists, tables, blockquotes, rules, links, images, inline code) styled to the
     design language across the three color modes; readable measure; mobile-safe.
 
+- [x] **STYLE-006** — Neutral body text; main color as emphasis only (rework)
+  - **Category:** Styling · **Deps:** STYLE-002, STYLE-005
+  - **Acceptance criteria:** body text renders in neutral Carbon colors in every mode
+    (near-white on dark, near-black on light/paper) — never in the main color; the
+    main color (or its contrast-safe derivatives) appears only on emphasis and
+    visual-appeal elements: links, bold, headings, inline code, buttons,
+    active/selected states, selection highlight; `docs/design/color-system.md` §2/§6
+    and `docs/design/ui-sketch.md` record the decision.
+
 ### Typography & icons
 
 - [x] **FONT-001** — IBM Plex font loading

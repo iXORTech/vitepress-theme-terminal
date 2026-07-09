@@ -4,6 +4,8 @@ This page demonstrates the markdown extensions provided by the theme: the
 markdown-it plugin suite (MD-001), math formulas, and the callout containers
 (MD-002), alongside VitePress's built-in Shiki syntax highlighting.
 
+The basic Markdown syntax, *emphasis*, **strong**, `inline code`, [links](https://vitepress.dev/), and lists are supported as usual. The following sections show the theme's extensions or enhancements on a certain feature.
+
 ## Syntax Highlighting
 
 Code blocks are highlighted by Shiki with the Oxocarbon palettes, following

@@ -1,7 +1,7 @@
 # Color System
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-08.
+> Last updated: 2026-07-09.
 
 ## 1. Three layers
 
@@ -13,13 +13,14 @@
 
 - A single user-configurable color, set in `.vitepress/config.mts` (`themeConfig`);
   default **`#80E0A7`**.
-- It is **dominant** in the UI — especially for text content: in dark mode, body text
-  itself renders in the main color (green-phosphor terminal feel with the default value).
-- It also styles visuals and emphasis: buttons, links, bold text, active/selected
-  states, highlights.
+- **It is an accent, not the body-text color** (decided 2026-07-09, superseding the
+  earlier main-colored-body rule): most text renders in **normal neutral colors**
+  from the Carbon layer — near-white on dark, near-black on light/paper. The main
+  color is reserved for **emphasis and visual appeal**: links, bold text, headings,
+  buttons, active/selected states, highlights, selection, accents in chrome.
 - In light and paper modes, contrast comes first: where the raw value lacks contrast,
-  use **derived** (darkened/adjusted) variants of the main color — still generated from
-  it, never a second configured constant (§3).
+  emphasis uses **derived** (darkened/adjusted) variants of the main color — still
+  generated from it, never a second configured constant (§3).
 
 ## 3. Derivation rule (hard)
 
@@ -56,8 +57,8 @@ Implementation goes through custom Shiki themes configured in the VitePress conf
 
 | Mode | Priority | Surfaces | Text | Notes |
 | --- | --- | --- | --- | --- |
-| **Dark** | Default; design here first | Carbon dark layers (gray-90/100 family) | Main color dominant | The terminal-authentic mode |
-| **Light** | Second | Carbon light layers (white/gray-10 family) | Darkened main-color derivatives and Carbon neutrals, main-color accents | Must be designed, not just inverted |
+| **Dark** | Default; design here first | Carbon dark layers (gray-90/100 family) | Neutral near-white body (Carbon gray-10); main color for emphasis (links, bold, headings) | The terminal-authentic mode |
+| **Light** | Second | Carbon light layers (white/gray-10 family) | Neutral near-black body (Carbon gray-100); darkened main-color derivatives for emphasis | Must be designed, not just inverted |
 | **Paper / reader / print** | Special | Paper white, minimal chrome | Near-black body text; main-color accents used sparingly | Serif body (see [typography-and-icons.md](typography-and-icons.md)), print-friendly syntax palette; also applied via `@media print` |
 
 ## 7. Configuration surface

@@ -73,7 +73,7 @@
   border: 1px solid var(--ct-border-accent);
   border-radius: var(--ct-radius-small);
   background: transparent;
-  color: var(--ct-text);
+  color: var(--ct-link); // controls take the accent (color-system.md §2)
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 

@@ -2,9 +2,9 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (MD-001 plugin suite +
-MD-002 callouts; 2026-07-08: INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001,
-I18N-001/002/003/004).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (STYLE-006 neutral body
+text, MD-001 plugin suite, MD-002 callouts + left-bar revision; 2026-07-08:
+INFRA-001, CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 ## Root
 
@@ -30,7 +30,8 @@ I18N-001/002/003/004).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001, I18N-001/002/003/004, MD-001/002 done. Roadmap: config (incl.
+  FONT-001, I18N-001/002/003/004, MD-001/002, STYLE-006 done (MD-003 nerd-font
+  callout icons pending on FONT-002). Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -57,10 +58,11 @@ I18N-001/002/003/004).
   LocalizableText pattern for all config text (I18N-004); I18N-001/003
   implementation notes (tables, resolution order, `useThemeLocale()`).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
-  dominant esp. for text; hard rule that all auxiliary colors are derived from it; IBM
-  Carbon as supporting palette; Oxocarbon (nvim for dark/light, vscode variant for
-  paper) for code; three-mode table; §8 implementation reference (`--ct-` tokens,
-  head-injected main color, `data-ct-mode` + `ct-mode` storage, three-theme shiki).
+  is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
+  modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
+  from it; IBM Carbon supporting palette; Oxocarbon (nvim dark/light, vscode PRINT
+  for paper) for code; §8 implementation reference (`--ct-` tokens, head-injected
+  main color, `data-ct-mode` + `ct-mode` storage, callout colors, three-theme shiki).
 - `design/typography-and-icons.md` — binding: IBM Plex allocation (Sans = UI/body,
   Serif = paper-mode body, Mono = code + TUI chrome); Font Awesome for most icons, Nerd
   Font only in TUI chrome; hard rule: load via stylesheets injected in `<head>` from
@@ -159,7 +161,9 @@ I18N-001/002/003/004).
   `--ct-important`), IBM Plex font stacks, radius/gap.
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
   inline-code/error/warning/info/success/important/font-body`) as mixins per mode;
-  `:root` = dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
+  body text NEUTRAL everywhere (STYLE-006: dark = gray-10, light/paper = gray-100),
+  main color only on emphasis tokens (strong/heading/link/inline-code); `:root` =
+  dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
   force-applies paper tokens.
 - `theme/styles/_code.scss` — code blocks: `div[class*=language-]` frame (hides
   default-theme copy/lang leftovers pending STYLE-004), `pre.shiki` basics, per-mode

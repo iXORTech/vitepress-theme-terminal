@@ -4,7 +4,7 @@
 > regions, their roles, and their responsive behavior follow
 > [`design-language.md`](design-language.md) §4–§8 and are binding. Exact glyphs,
 > labels, spacing, and copy in these sketches are placeholders, not pixel specs.
-> Last updated: 2026-07-07.
+> Last updated: 2026-07-09.
 
 ## How to read the sketches
 
@@ -21,7 +21,8 @@
   `v` / `>` expanded / collapsed tree node.
 - `READ` in the status bar is an illustrative mode indicator (modal-editor flavor
   without third-party branding, see design-language.md §3).
-- Sketches depict **dark mode**, the default; body text renders in the main color
+- Sketches depict **dark mode**, the default; body text is neutral near-white, with
+  the main color reserved for emphasis — links, bold, headings, accents
   ([`color-system.md`](color-system.md) §2).
 
 ## 1. Desktop layout
@@ -34,7 +35,7 @@
 │ v posts/           │  │                                                  │
 │   v 2026/          │  │  # Post title                                    │
 │     - hello-world  │  │                                                  │
-│     - second-post  │  │  Body text rendered in the main color (dark).    │
+│     - second-post  │  │  Body text in neutral near-white (dark mode).    │
 │   > drafts/        │  │  Bold, links and buttons take accent styling.    │
 │ - about            │  │                                                  │
 │                    │  │   1 │ code block · oxocarbon palette             │

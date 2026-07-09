@@ -3,10 +3,14 @@
 // ============================================================================
 // Each mode assigns the same set of SEMANTIC tokens (--ct-bg, --ct-text, …)
 // from the primitives in _tokens.scss, per docs/design/color-system.md §6:
-//   - dark  (default): Carbon dark layers, main color dominant — body text
-//     itself renders in the main color (§2).
-//   - light: light layers; text uses darkened main-color derivatives so
-//     contrast comes first — still derived, never a second constant (§2).
+// body text is NEUTRAL in every mode (near-white on dark, near-black on
+// light/paper) — the main color appears only on emphasis and visual-appeal
+// elements (links, bold, headings, controls; §2, decided 2026-07-09):
+//   - dark  (default): Carbon dark layers, gray-10 body text, raw main-color
+//     accents.
+//   - light: light layers, gray-100 body text; accents use darkened
+//     main-color derivatives so contrast comes first — still derived, never
+//     a second constant (§2).
 //   - paper: reader/print mode — near-black serif body on paper white, main
 //     color only as sparing accent; also applied via @media print.
 // The active mode lives on <html data-ct-mode="…">, set before first paint by
@@ -24,10 +28,11 @@
   --ct-surface: var(--ct-gray-90);
   --ct-surface-2: var(--ct-gray-80);
 
-  --ct-text: var(--ct-main); // main color dominant (color-system.md §2)
-  --ct-text-strong: var(--ct-main-bright);
-  --ct-text-dim: var(--ct-main-dim);
-  --ct-text-neutral: var(--ct-gray-30); // neutral tier for chrome/secondary UI
+  // Neutral body text; main color only for emphasis (color-system.md §2)
+  --ct-text: var(--ct-gray-10);
+  --ct-text-strong: var(--ct-main); // bold/emphasis takes the accent
+  --ct-text-dim: var(--ct-gray-40);
+  --ct-text-neutral: var(--ct-gray-30); // secondary chrome tier
   --ct-heading: var(--ct-main-bright);
 
   --ct-link: var(--ct-main);
@@ -56,10 +61,11 @@
   --ct-surface: var(--ct-gray-10);
   --ct-surface-2: var(--ct-gray-20);
 
-  // Darkened main-color derivatives: contrast first, still derived (§2).
-  --ct-text: var(--ct-main-deep);
+  // Neutral body text; emphasis uses darkened main derivatives — contrast
+  // first, still derived (§2).
+  --ct-text: var(--ct-gray-100);
   --ct-text-strong: var(--ct-main-deeper);
-  --ct-text-dim: color-mix(in srgb, var(--ct-main-deep) 65%, transparent);
+  --ct-text-dim: var(--ct-gray-60);
   --ct-text-neutral: var(--ct-gray-70);
   --ct-heading: var(--ct-main-deeper);
 

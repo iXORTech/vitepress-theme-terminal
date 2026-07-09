@@ -11,7 +11,22 @@ import {
 // defaults live in `.vitepress/theme/config.ts` (schema: TerminalThemeConfig).
 const themeConfig: TerminalThemeConfig = {
   // mainColor: "#80E0A7", // the one accent color; all variants derive from it
-  // localeStrings: {},    // per-site overrides of theme UI strings (I18N-001)
+
+  // User-facing config text is LocalizableText: a plain string for all
+  // languages, or a per-language map resolved against the active UI language
+  // (I18N-004). Unset title/description fall back to the site values below.
+  title: {
+    en: "VitePress Theme Terminal",
+    "zh-CN": "VitePress 终端主题",
+  },
+  description: {
+    en: "A TUI-inspired VitePress Theme for Blog and Personal Website",
+    "zh-CN": "一个受 TUI 界面风格启发的 VitePress 博客与个人网站主题",
+  },
+
+  // Per-language theme-string overrides; a complete table under a new tag
+  // adds a whole language to the switcher (I18N-003).
+  // localeStrings: { "zh-CN": { "mode.paper": "阅读" } },
 };
 
 // Shiki themes for the three color modes (STYLE-003). VitePress registers
@@ -36,6 +51,12 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
   head: themeHead(themeConfig),
 
   themeConfig,
+
+  // UI language is a client-side preference — no /<lang>/ URL trees
+  // (I18N-003, design-language.md §9). The default follows `lang`; the
+  // switcher offers the built-in tables (en, zh-CN) plus any language added
+  // via `themeConfig.localeStrings`.
+  lang: "en-US",
 
   markdown: {
     theme: shikiThemes,

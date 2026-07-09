@@ -12,19 +12,18 @@
 // and client code. Components access the resolved config through the
 // `useThemeConfig()` composable in `composables/useThemeConfig.ts`.
 
+import type { LocaleOverrides, LocalizableText } from './locales'
+
+export type {
+  LocaleOverrides,
+  LocalizableText,
+  ThemeLocaleKey,
+  ThemeLocaleStrings,
+} from './locales'
+
 // -----------------------------------------------------------------------------
 // Schema
 // -----------------------------------------------------------------------------
-
-/**
- * Locale-string overrides: a flat map of theme string key → replacement text.
- * The built-in locale layer (I18N-001) resolves every UI string through its
- * built-in locale files first, then applies these per-site overrides on top.
- * Because VitePress resolves `themeConfig` per locale, a multi-language site
- * can supply different overrides under each entry of its `locales` config.
- * The concrete string keys are defined as theme strings appear (I18N-001).
- */
-export type ThemeLocaleStrings = Record<string, string>
 
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
@@ -36,8 +35,27 @@ export interface TerminalThemeConfig {
    */
   mainColor?: string
 
-  /** Per-site overrides of theme UI strings (see {@link ThemeLocaleStrings}). */
-  localeStrings?: ThemeLocaleStrings
+  /**
+   * Localized site title, shown in theme chrome and the browser tab. Falls
+   * back to the site config's `title` (which also remains the server-rendered
+   * default). Plain string or per-language map (I18N-004).
+   */
+  title?: LocalizableText
+
+  /**
+   * Localized site description; same fallback rules as {@link title}, against
+   * the site config's `description`.
+   */
+  description?: LocalizableText
+
+  /**
+   * Per-language overrides of theme UI strings, keyed by BCP 47 tag:
+   * `{ "zh-CN": { "mode.paper": "阅读" } }`. Applied on top of the built-in
+   * tables (theme/locales/) for the active UI language — a complete table
+   * under a new tag adds a whole language to the switcher (I18N-003; no
+   * `/<lang>/` URL trees, design-language.md §9).
+   */
+  localeStrings?: LocaleOverrides
 
   // Feature toggles are added here as their features land (e.g. CONF-002
   // author & license, POST-002 series inclusion, SEARCH-001 DocSearch keys).
@@ -53,6 +71,9 @@ export type ResolvedTerminalThemeConfig = Required<TerminalThemeConfig>
 /** Theme defaults, used wherever the user leaves an option unset. */
 export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   mainColor: '#80E0A7',
+  // Empty text = unset: consumers fall back to the site config's title/description.
+  title: '',
+  description: '',
   localeStrings: {},
 }
 
@@ -66,6 +87,8 @@ export function resolveThemeConfig(
 ): ResolvedTerminalThemeConfig {
   const resolved = { ...themeConfigDefaults }
   if (user?.mainColor) resolved.mainColor = user.mainColor
+  if (user?.title) resolved.title = user.title
+  if (user?.description) resolved.description = user.description
   if (user?.localeStrings) resolved.localeStrings = user.localeStrings
   return resolved
 }

@@ -2,9 +2,9 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (styling foundation batch:
-STYLE-001/002/003/005 + FONT-001 — tokens, modes, oxocarbon shiki, content styling,
-IBM Plex; earlier same day: INFRA-001, CONF-001).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-08 (I18N-004: LocalizableText
+config text + localized site title/description; same day: INFRA-001, CONF-001,
+STYLE-001/002/003/005, FONT-001, I18N-001/002/003).
 
 ## Root
 
@@ -28,7 +28,7 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001 done. Roadmap: config (incl.
+  FONT-001, I18N-001/002/003/004 done. Roadmap: config (incl.
   CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
   chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
   explorer, palette, footer + custom pre-footer section, tool bar extras, settings
@@ -50,7 +50,10 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
   shell-prompt decoration (prompt user = normalized author username; prompt marks
   featured content; code blocks are card-style windows with a file/lang title bar +
   COPY button, no prompt), explorer retractable on desktop & absent in paper mode,
-  modern finish, mode list, keyboard/mobile/i18n principles.
+  modern finish, mode list, keyboard/mobile/i18n principles; §9: hard rule — no
+  `/<lang>/` URL trees, UI language is a client-side preference (`ct-lang`);
+  LocalizableText pattern for all config text (I18N-004); I18N-001/003
+  implementation notes (tables, resolution order, `useThemeLocale()`).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   dominant esp. for text; hard rule that all auxiliary colors are derived from it; IBM
   Carbon as supporting palette; Oxocarbon (nvim for dark/light, vscode variant for
@@ -74,8 +77,11 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
   `srcDir: "src"`, title, description; `themeConfig` const with commented option
   examples; `head: themeHead(themeConfig)` (fonts + main color + mode restore);
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
-  `paper` key is forwarded to shiki and loaded lazily as a raw object). Still to come:
-  Font Awesome/Nerd Font links (FONT-002), locales (I18N-001).
+  `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
+  "en-US"` as the default UI language (no VitePress `locales` — I18N-003);
+  `themeConfig` demos a per-language `description` map and a `zh-CN`
+  `localeStrings` override (`mode.paper` → 阅读). Still to come: Font Awesome/Nerd
+  Font links (FONT-002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), inline `:root{--ct-main:…}` style from the
   resolved config (STYLE-001), inline pre-paint script restoring `ct-mode` from
@@ -87,10 +93,33 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
   nyoom-engineering/oxocarbon-vscode (MIT), renamed `oxocarbon-paper`; grayscale
   ink-on-white print palette used for paper mode.
 - `theme/config.ts` — CONF-001 configuration surface, framework-free (importable from
-  the Node-side config): `TerminalThemeConfig` schema (`mainColor` default `#80E0A7`,
-  `localeStrings` override hook for I18N-001; feature toggles land here),
-  `themeConfigDefaults`, `resolveThemeConfig()` (per-option fallback, survives
-  explicit `undefined`).
+  the Node-side config): `TerminalThemeConfig` schema (`mainColor` default `#80E0A7`;
+  `title`/`description` as `LocalizableText` falling back to the site config values;
+  `localeStrings?: LocaleOverrides` — per-language map `{ tag: partial table }` that
+  can also add whole languages; feature toggles land here), `themeConfigDefaults`,
+  `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
+- `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
+  for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch` —
+  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey` types.
+- `theme/locales/zh-CN.ts` — built-in Chinese (Simplified) table, typed
+  `ThemeLocaleStrings` so drift from the key set is a type error.
+- `theme/locales/index.ts` — framework-free registry (`en`, `zh-CN`) for the
+  URL-free language system (I18N-003): `resolveLocaleStrings(tag, overrides?)`
+  (English ← built-in match: exact ci tag, then primary subtag ← per-language
+  `localeStrings[tag]`), `availableLanguages(overrides?)` (built-ins ∪ config-added
+  tags, labeled by `lang.label`), `matchLanguageTag()` (canonicalizes e.g. `en-US` →
+  `en`), `LocalizableText` (`string | { tag: string }`) + `resolveLocalizedText()`
+  (exact → primary → `en` → first entry; the pattern for all config text, I18N-004);
+  `LocaleOverrides`/`ThemeLanguage` types.
+- `theme/composables/useThemeLocale.ts` — client composable & language state
+  (singleton): `strings`/`t(key)`, `language` (canonical tag; preference ?? site
+  `lang`), `languages`, `setLanguage()` (updates `<html lang>`, persists to
+  localStorage `ct-lang`; restored post-mount to avoid hydration mismatch); the only
+  way components obtain UI text.
+- `theme/composables/useSiteText.ts` — localized site `title`/`description`
+  (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
+  watchEffect syncs `document.title` (`page | title` pattern) and
+  `meta[name=description]` with the active language (SSR head keeps defaults).
 - `theme/composables/useThemeConfig.ts` — client composable: `useThemeConfig()` wraps
   `useData()` + `resolveThemeConfig()`; components read all user options through it,
   honoring per-locale `themeConfig`.
@@ -101,8 +130,10 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
 - `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
   empty `enhanceApp`.
 - `theme/Layout.vue` — placeholder layout (replaced by THEME-001): `.ct-shell` with a
-  temporary top bar (site title + mode-cycle button showing the raw mode key) and
-  `.ct-content` viewport wrapping the home branch or `<Content/>`.
+  temporary top bar (localized site title via `useSiteText()`; actions group with the
+  in-place language switcher — buttons per available language, hidden under two — and
+  the mode-cycle button, labels via `t()`), and `.ct-content` viewport wrapping the
+  home branch (localized title/description) or `<Content/>`.
 - `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/content/code, then
   base document styles (box-sizing, body bg/color/font via semantic tokens,
   `::selection` from the derived highlight).
@@ -119,8 +150,8 @@ IBM Plex; earlier same day: INFRA-001, CONF-001).
 - `theme/styles/_content.scss` — STYLE-005: `.ct-content` markdown styling (headings,
   text, links, lists, blockquotes, tables w/ overflow-x scroll, hr, img, inline code)
   via semantic tokens; 72ch measure; 480px mobile padding tier.
-- `theme/styles/_shell.scss` — temporary shell/top-bar/mode-switch styling for the
-  placeholder layout; hidden in print; retired by THEME-001.
+- `theme/styles/_shell.scss` — temporary shell/top-bar/actions/lang-switch/mode-switch
+  styling for the placeholder layout; hidden in print; retired by THEME-001.
 
 ## src/ (site content — VitePress `srcDir`)
 

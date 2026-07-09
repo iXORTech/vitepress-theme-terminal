@@ -22,6 +22,49 @@
   color: var(--ct-text-neutral);
 }
 
+// Right-side action group of the temporary bar
+.ct-shell__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+// Temporary language switcher (I18N-002/003; permanent home: status bar/
+// settings). In-place switching: options are buttons, not links.
+.ct-lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+
+  &__option {
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-family: var(--ct-font-mono);
+    font-size: inherit;
+    color: var(--ct-link);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      color: var(--ct-link-hover);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    // The active language is shown dimmed and inert
+    &--active,
+    &:disabled {
+      color: var(--ct-text-dim);
+      cursor: default;
+    }
+  }
+
+  &__sep {
+    color: var(--ct-text-dim);
+  }
+}
+
 // Temporary color-mode cycle button (STYLE-002 demo control)
 .ct-mode-switch {
   font-family: var(--ct-font-mono);

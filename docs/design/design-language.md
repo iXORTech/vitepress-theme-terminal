@@ -2,7 +2,7 @@
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-07.
+> Last updated: 2026-07-08.
 
 ## 1. Identity
 
@@ -115,5 +115,31 @@ The site must work well on mobile; components **adapt**, they don't just shrink:
 ## 9. i18n by design
 
 Internationalization is built in from the start: every user-facing string in theme
-components is localizable, integrated with VitePress `locales`. Adding a language must
-not require editing components.
+components is localizable. Adding a language must not require editing components.
+
+**No locale path prefixes (hard).** The theme does **not** use VitePress's path-based
+`locales` trees: there is no `/<lang>/` segment in URLs. The UI language is a
+**client-side preference** — switching it changes the theme strings in place on the
+same URL, exactly like the color mode: persisted in `localStorage` (`ct-lang`),
+defaulting to the site's `lang` value. Page *content* is whatever the author wrote;
+only theme UI strings switch.
+
+**Localizable config text (I18N-004).** Every user-facing text value in the
+configuration surface is a `LocalizableText`: either a plain string (used for all
+languages) or a per-language map `{ "en": …, "zh-CN": … }`, resolved against the
+active UI language (exact tag → primary subtag → `en` → first entry). The theme's
+`themeConfig.title`/`.description` follow this pattern, defaulting to the site
+config's `title`/`description`; the browser tab title and meta description follow the
+active language client-side, while the server-rendered head keeps the site-config
+defaults. All future config text (nav labels, footer text, series metadata, …) must
+use `LocalizableText`.
+
+**Implemented (I18N-001/003):** built-in string tables live in `theme/locales/`
+(English = canonical key set; Chinese (Simplified) ships with the theme), typed so
+translations cannot drift from the key set; each table names itself via the
+`lang.label` key. Per string, resolution is: English → built-in table matching the
+active UI language (exact tag, then primary subtag) → `themeConfig.localeStrings[tag]`
+overrides. Components read strings only through the `useThemeLocale()` composable
+(`t('key')`), which also exposes the active language, the available-language list,
+and `setLanguage()`. Adding a language = one data file + a registry entry — or purely
+from site config via a complete `localeStrings` entry.

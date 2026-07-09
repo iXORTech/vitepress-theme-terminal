@@ -149,11 +149,46 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### i18n
 
-- [ ] **I18N-001** — Locale system scaffolding
+- [x] **I18N-001** — Locale system scaffolding
   - **Category:** i18n · **Deps:** CONF-001
   - **Acceptance criteria:** all theme UI strings resolve through a locale layer
     integrated with VitePress `locales`; English defaults built in; adding a locale
     requires no component edits. The theme also ships with Chinese (Simplified) locale.
+
+- [x] **I18N-002** — Temporary language switcher (placeholder shell)
+  - **Category:** i18n · **Deps:** I18N-001
+  - **Acceptance criteria:** the demo site configures VitePress `locales` (root
+    `en-US` + `zh` with `lang: zh-CN`); the placeholder shell shows a language
+    switcher when two or more locales are configured (hidden otherwise), with labels
+    taken from the locale config and a localized `aria-label`; switching navigates to
+    the equivalent path under the target locale (best effort — untranslated pages may
+    404, as in the default theme); the built `/zh/` page renders the built-in zh-CN
+    theme strings. Temporary: retired when the permanent switcher lands in the status
+    bar (THEME-001, design-language.md §4) and settings panel (THEME-007).
+
+- [x] **I18N-003** — URL-free language switching (rework of I18N-001/002 integration)
+  - **Category:** i18n · **Deps:** I18N-001, I18N-002
+  - **Acceptance criteria:** no `/<lang>/` URL segment anywhere — the VitePress
+    `locales` trees and `src/zh/` are removed; the UI language is a client-side
+    preference persisted in `localStorage` (`ct-lang`), defaulting to the site `lang`;
+    switching updates theme strings in place (and `<html lang>`) with no navigation;
+    `themeConfig.localeStrings` becomes a per-language map (`{ [tag]: partial table }`)
+    so config can override or add whole languages; locale tables self-describe via a
+    `lang.label` key; the temporary switcher operates on this mechanism; documented in
+    design-language.md §9.
+
+- [x] **I18N-004** — Localizable site/config text
+  - **Category:** i18n · **Deps:** I18N-003
+  - **Acceptance criteria:** a `LocalizableText` type (`string | { [tag]: string }`)
+    with a resolver (exact tag → primary subtag → `en` → first entry) is the
+    documented pattern for every user-facing text value in the config surface;
+    `themeConfig.title`/`.description` accept it, falling back to the site config's
+    `title`/`description` when unset; the shell and home placeholder render the
+    localized values, and `document.title` + `meta[name=description]` follow the
+    active language client-side (best effort — SSR head keeps the site-config
+    defaults); the demo config exercises a per-language description; the misplaced
+    top-level `localeStrings` is moved into `themeConfig`; recorded in
+    design-language.md §9.
 
 ### Theme components
 

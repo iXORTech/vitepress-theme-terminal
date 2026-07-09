@@ -50,7 +50,7 @@ export interface TerminalThemeConfig {
 
   /**
    * Per-language overrides of theme UI strings, keyed by BCP 47 tag:
-   * `{ "zh-CN": { "mode.paper": "阅读" } }`. Applied on top of the built-in
+   * `{ "zh-Hans": { "mode.paper": "阅读" } }`. Applied on top of the built-in
    * tables (theme/locales/) for the active UI language — a complete table
    * under a new tag adds a whole language to the switcher (I18N-003; no
    * `/<lang>/` URL trees, design-language.md §9).

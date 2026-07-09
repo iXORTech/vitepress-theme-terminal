@@ -14,7 +14,7 @@
 
 import { en } from './en'
 import type { ThemeLocaleKey, ThemeLocaleStrings } from './en'
-import { zhCN } from './zh-CN'
+import { zhHans } from './zh-Hans'
 
 export type { ThemeLocaleKey, ThemeLocaleStrings }
 
@@ -30,18 +30,21 @@ export type LocalizableText = string | Record<string, string>
 
 /** A language offered by the switcher. */
 export interface ThemeLanguage {
-  /** BCP 47 tag (`en`, `zh-CN`, …). */
+  /** BCP 47 tag (`en`, `zh-Hans`, …). */
   tag: string
   /** Self-described display name (the table's `lang.label`). */
   label: string
 }
 
 // -----------------------------------------------------------------------------
-// Registry — keys are BCP 47 tags, matched case-insensitively
+// Registry — keys are BCP 47 tags, matched case-insensitively. Tag rule
+// (I18N-005): the minimal canonical tag — language subtag plus a script
+// subtag only where the script disambiguates (`zh-Hans`), never a region
+// (English's suppressed script Latn makes it bare `en`).
 // -----------------------------------------------------------------------------
 export const builtInLocales: Record<string, ThemeLocaleStrings> = {
   en,
-  'zh-CN': zhCN,
+  'zh-Hans': zhHans,
 }
 
 // -----------------------------------------------------------------------------
@@ -57,7 +60,7 @@ function findTag<T>(record: Record<string, T>, tag: string): T | undefined {
 
 /**
  * Pick the built-in table for a language tag: exact match first
- * (case-insensitive), then primary-subtag match (`zh-Hans-CN` → `zh-CN`),
+ * (case-insensitive), then primary-subtag match (`zh-CN` → `zh-Hans`),
  * falling back to English.
  */
 function matchBuiltInLocale(tag: string): ThemeLocaleStrings {

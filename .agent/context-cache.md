@@ -2,7 +2,8 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (THEME-001 TUI shell:
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (I18N-005 canonical
+locale tags: zh-CN → zh-Hans, site lang en-US → en; THEME-001 TUI shell:
 tool bar / viewport / status bar; THEME-008 fixed shell frame with
 viewport-contained scrolling; THEME-009 back-to-top button; THEME-010 statusline
 separators, mode indicator + tool-bar switcher; earlier same day:
@@ -42,7 +43,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001/002, I18N-001/002/003/004, MD-001/002/003, STYLE-006,
+  FONT-001/002, I18N-001/002/003/004/005, MD-001/002/003, STYLE-006,
   THEME-001/008/009/010 done (THEME-001 retired the I18N-002 temporary switcher;
   THEME-008 = fixed shell frame rework; THEME-009 = back-to-top button;
   THEME-010 = statusline separators + mode switcher moved to tool bar, which
@@ -102,7 +103,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   examples; `head: themeHead(themeConfig)` (fonts + main color + mode restore);
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
-  "en-US"` as the default UI language (no VitePress `locales` — I18N-003);
+  "en"` as the default UI language (minimal canonical tag, I18N-005; no
+  VitePress `locales` — I18N-003);
   `themeConfig` demos per-language `title`/`description` maps; `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
@@ -137,14 +139,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009) —
   grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
-- `theme/locales/zh-CN.ts` — built-in Chinese (Simplified) table, typed
+- `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
-- `theme/locales/index.ts` — framework-free registry (`en`, `zh-CN`) for the
+- `theme/locales/index.ts` — framework-free registry (`en`, `zh-Hans`; tag rule
+  I18N-005: minimal canonical tag — script subtag only when it disambiguates,
+  never a region) for the
   URL-free language system (I18N-003): `resolveLocaleStrings(tag, overrides?)`
   (English ← built-in match: exact ci tag, then primary subtag ← per-language
   `localeStrings[tag]`), `availableLanguages(overrides?)` (built-ins ∪ config-added
   tags, labeled by `lang.label`), `matchLanguageTag()` (canonicalizes e.g. `en-US` →
-  `en`), `LocalizableText` (`string | { tag: string }`) + `resolveLocalizedText()`
+  `en`, `zh-CN` → `zh-Hans`), `LocalizableText` (`string | { tag: string }`) +
+  `resolveLocalizedText()`
   (exact → primary → `en` → first entry; the pattern for all config text, I18N-004);
   `LocaleOverrides`/`ThemeLanguage` types.
 - `theme/composables/useThemeLocale.ts` — client composable & language state

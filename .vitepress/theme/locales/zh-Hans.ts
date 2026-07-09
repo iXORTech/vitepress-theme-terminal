@@ -1,5 +1,5 @@
 // =============================================================================
-// zh-CN.ts — built-in Chinese (Simplified) locale (I18N-001)
+// zh-Hans.ts — built-in Chinese (Simplified) locale (I18N-001)
 // =============================================================================
 // Ships with the theme (plan I18N-001). Typed against the English table, so a
 // missing or extra key is a type error — translations can never drift from
@@ -7,7 +7,7 @@
 
 import type { ThemeLocaleStrings } from './en'
 
-export const zhCN: ThemeLocaleStrings = {
+export const zhHans: ThemeLocaleStrings = {
   // Self-description
   'lang.label': '简体中文',
 

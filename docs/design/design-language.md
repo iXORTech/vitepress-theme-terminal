@@ -132,13 +132,21 @@ only theme UI strings switch.
 
 **Localizable config text (I18N-004).** Every user-facing text value in the
 configuration surface is a `LocalizableText`: either a plain string (used for all
-languages) or a per-language map `{ "en": …, "zh-CN": … }`, resolved against the
+languages) or a per-language map `{ "en": …, "zh-Hans": … }`, resolved against the
 active UI language (exact tag → primary subtag → `en` → first entry). The theme's
 `themeConfig.title`/`.description` follow this pattern, defaulting to the site
 config's `title`/`description`; the browser tab title and meta description follow the
 active language client-side, while the server-rendered head keeps the site-config
 defaults. All future config text (nav labels, footer text, series metadata, …) must
 use `LocalizableText`.
+
+**Locale tag rule (I18N-005).** Built-in locale tags are the **minimal canonical
+BCP 47 tag**: the language subtag plus a script subtag only where the script
+disambiguates — never a region subtag. Hence `zh-Hans` (Simplified vs. Traditional
+is a script distinction, not a regional one) and bare `en` (Latin is English's
+suppressed script). Region-tagged inputs (a site `lang` of `zh-CN` or `en-US`, a
+visitor preference) still resolve to the right table through primary-subtag
+matching.
 
 **Implemented (I18N-001/003):** built-in string tables live in `theme/locales/`
 (English = canonical key set; Chinese (Simplified) ships with the theme), typed so

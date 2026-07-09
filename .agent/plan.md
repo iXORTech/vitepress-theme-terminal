@@ -212,6 +212,16 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     top-level `localeStrings` is moved into `themeConfig`; recorded in
     design-language.md §9.
 
+- [x] **I18N-005** — Canonical locale tags (`zh-CN` → `zh-Hans`, `en-US` → `en`)
+  - **Category:** i18n · **Deps:** I18N-004
+  - **Acceptance criteria:** built-in locale tags follow one rule — the minimal
+    canonical BCP 47 tag: language subtag plus script subtag only where the script
+    disambiguates (`zh-Hans`), never a region subtag (English's suppressed script
+    makes it bare `en`); the Chinese table file, export, and registry key are renamed
+    to `zh-Hans`; the demo site `lang` and per-language config maps use `en` /
+    `zh-Hans`; region-tagged inputs (`zh-CN`, `en-US`) still resolve to the right
+    table via the existing primary-subtag matching; docs and examples updated.
+
 ### Theme components
 
 - [x] **THEME-001** — Layout shell: tool bar · viewport · status bar

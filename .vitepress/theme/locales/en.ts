@@ -17,8 +17,17 @@ export const en = {
   'mode.paper': 'Paper',
   'mode.switch': 'Switch color mode',
 
-  // Language switching (I18N-002 temporary switcher; status bar / settings later)
+  // Language switching (status bar switcher, THEME-001; settings panel later)
   'lang.switch': 'Switch language',
+
+  // Tool bar navigation (THEME-001; configurable entries: THEME-005)
+  'nav.label': 'Site navigation',
+  'nav.home': 'home',
+
+  // Status bar segments (THEME-001/009)
+  'status.read': 'READ',
+  'status.progress': 'Reading progress',
+  'status.backToTop': 'Back to top',
 
   // Callout default titles (MD-002)
   'callout.info': 'Info',

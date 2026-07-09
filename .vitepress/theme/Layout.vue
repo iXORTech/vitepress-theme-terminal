@@ -1,86 +1,61 @@
 <script setup lang="ts">
-// Placeholder layout — replaced by the real TUI shell in THEME-001. It only
-// provides what the styling foundation needs to be exercised: a mode switcher
-// (STYLE-002) and a `.ct-content` wrapper for markdown styling (STYLE-005).
+// ============================================================================
+// Layout.vue — the TUI shell: tool bar · viewport · status bar (THEME-001)
+// ============================================================================
+// Composes the persistent terminal chrome around the page content
+// (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the floating
+// content viewport, and the bottom status bar. The explorer sidebar
+// (THEME-002), floating utilities (THEME-003), and in-viewport footer
+// (THEME-004/006) attach to this frame later.
+import { ref } from 'vue'
 import { useData } from 'vitepress'
+import StatusBar from './components/StatusBar.vue'
+import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
-import { useColorMode } from './composables/useColorMode'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
-import { useThemeLocale } from './composables/useThemeLocale'
+import { useViewportScroll } from './composables/useViewportScroll'
 
-// https://vitepress.dev/reference/runtime-api#usedata
 const { frontmatter } = useData()
+
+// The viewport panel is the scroll container of the fixed shell frame
+// (THEME-008); this wires the router-facing scroll behaviors onto it.
+const viewport = ref<HTMLElement | null>(null)
+useViewportScroll(viewport)
 
 // Localized site title/description (I18N-004); also syncs the browser tab.
 const { title, description } = useSiteText()
 
-// Temporary switch controls; the permanent color-mode switcher lands in the
-// tool bar (THEME-005), the permanent language switcher in the status bar
-// (THEME-001) and settings panel (THEME-007). Labels resolve through the
-// locale layer (I18N-001) — no hardcoded UI strings (AGENTS.md §6.7).
-// Language switching is in-place — same URL, no /<lang>/ trees (I18N-003).
-const { mode, cycleMode } = useColorMode()
-const { t, language, languages, setLanguage } = useThemeLocale()
-
 // Re-localize callout default titles on language switch (MD-002)
 useCalloutTitles()
 
-// Flag <html> once the symbols Nerd Font is usable, enabling the callout
-// glyphs with a tofu-safe fallback (FONT-002 / MD-003)
+// Flag <html> once the symbols Nerd Font is usable — gates the PUA glyphs in
+// callouts and TUI chrome with a tofu-safe fallback (FONT-002 / MD-003)
 useNerdFont()
 </script>
 
 <template>
   <div class="ct-shell">
-    <!-- Temporary chrome placeholder — real tool bar comes with THEME-001 -->
-    <header class="ct-shell__bar">
-      <span>{{ title }}</span>
-      <div class="ct-shell__actions">
-        <!-- Temporary language switcher (I18N-002/003): switches in place -->
-        <nav
-          v-if="languages.length > 1"
-          class="ct-lang-switch"
-          :aria-label="t('lang.switch')"
-        >
-          <template v-for="(lang, i) in languages" :key="lang.tag">
-            <span v-if="i" class="ct-lang-switch__sep" aria-hidden="true">·</span>
-            <button
-              class="ct-lang-switch__option"
-              :class="{ 'ct-lang-switch__option--active': lang.tag === language }"
-              :disabled="lang.tag === language"
-              @click="setLanguage(lang.tag)"
-            >
-              {{ lang.label }}
-            </button>
-          </template>
-        </nav>
+    <!-- Top tool bar / tabline -->
+    <ToolBar />
 
-        <button
-          class="ct-mode-switch"
-          :title="t('mode.switch')"
-          :aria-label="t('mode.switch')"
-          @click="cycleMode"
-        >
-          ◐ {{ t(`mode.${mode}`) }}
-        </button>
+    <!-- Content viewport — the floating editor panel and scroll container -->
+    <main ref="viewport" class="ct-viewport">
+      <div class="ct-content">
+        <template v-if="frontmatter.home">
+          <!-- Placeholder home content until the home page lands (PAGE-001) -->
+          <h1>{{ title }}</h1>
+          <p>{{ description }}</p>
+          <ul>
+            <li><a href="/markdown-examples.html">Markdown Examples</a></li>
+            <li><a href="/api-examples.html">API Examples</a></li>
+          </ul>
+        </template>
+        <Content v-else />
       </div>
-    </header>
-
-    <!-- Content viewport -->
-    <main class="ct-content">
-      <template v-if="frontmatter.home">
-        <h1>{{ title }}</h1>
-        <p>{{ description }}</p>
-        <ul>
-          <li><a href="/markdown-examples.html">Markdown Examples</a></li>
-          <li><a href="/api-examples.html">API Examples</a></li>
-        </ul>
-      </template>
-      <template v-else>
-        <p><a href="/">~/home</a></p>
-        <Content />
-      </template>
     </main>
+
+    <!-- Bottom status bar / statusline -->
+    <StatusBar />
   </div>
 </template>

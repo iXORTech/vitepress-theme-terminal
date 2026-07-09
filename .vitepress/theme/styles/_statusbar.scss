@@ -1,0 +1,118 @@
+// ============================================================================
+// _statusbar.scss — bottom status bar / statusline (THEME-001)
+// ============================================================================
+// The statusline: editor-mode chip + current location on the left; reading
+// progress and the language / color-mode switcher controls on the right.
+// A fixed floating panel at the bottom of the shell frame (THEME-008), mono
+// like all TUI chrome; drops to a reduced segment set on mobile
+// (design-language.md §8).
+
+.ct-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.375rem 1rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 -2px 8px rgb(0 0 0 / 12%); // subtle depth (design-language.md §5)
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  color: var(--ct-text-neutral);
+}
+
+// A segment group (left / right side). Every top-level segment after the
+// first draws a thin divider — the statusline separator (THEME-010). The
+// divider is a ::before pseudo-element (not a border) so it can't collide
+// with the buttons' own border reset, and hover backgrounds stay on the
+// segment itself.
+.ct-statusbar__group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+
+  > * + * {
+    position: relative;
+    margin-left: 0.75rem; // with the gap: 1.5rem total, divider centered
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -0.75rem;
+      top: 15%;
+      height: 70%;
+      border-left: 1px solid var(--ct-border);
+    }
+  }
+}
+
+// Segments that belong together (reading progress + back-to-top) sit in one
+// tight cluster: small gap, no divider inside (THEME-010)
+.ct-statusbar__cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+// Editor-mode chip — inverted accent block, statusline flavor. Near-black
+// text on the raw main color keeps contrast in every mode (the main color is
+// an accent by design, color-system.md §2).
+.ct-statusbar__chip {
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--ct-radius-small);
+  background: var(--ct-main);
+  color: var(--ct-gray-100);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+// Current location (home-relative path); truncates rather than wrapping
+.ct-statusbar__location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Text-button controls: the language & color-mode switchers take the accent
+// (controls are emphasis elements, color-system.md §2)
+.ct-statusbar__control {
+  padding: 0.1rem 0.4rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+
+  // Icon-only control (back-to-top, THEME-009): Font Awesome glyph, slightly
+  // smaller than the text controls; hugs its cluster neighbor (THEME-010)
+  &--icon {
+    padding: 0.1rem 0.35rem;
+    font-size: 0.75rem;
+    line-height: inherit;
+  }
+}
+
+// Mobile: reduced segments — the location crumb goes first
+// (design-language.md §8; full pass in MOBILE-001)
+@media (max-width: 640px) {
+  .ct-statusbar__location {
+    display: none;
+  }
+}
+
+// On-screen chrome only — never printed
+@media print {
+  .ct-statusbar {
+    display: none;
+  }
+}

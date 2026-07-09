@@ -8,7 +8,9 @@
 
 @use "tokens";  // Carbon palette, main-color derivatives, fonts (STYLE-001/FONT-001)
 @use "modes";   // dark / light / paper semantic tokens (STYLE-002)
-@use "shell";   // placeholder layout shell (retired by THEME-001)
+@use "shell";   // TUI shell frame: floating panel arrangement (THEME-001)
+@use "toolbar"; // top tool bar / tabline (THEME-001)
+@use "statusbar"; // bottom status bar / statusline (THEME-001)
 @use "content"; // base markdown content styling (STYLE-005)
 @use "code";    // code blocks & Shiki mode switching (STYLE-003)
 @use "callouts"; // TUI-card callout containers (MD-002)

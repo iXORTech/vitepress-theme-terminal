@@ -2,7 +2,7 @@
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-08.
+> Last updated: 2026-07-09.
 
 ## 1. Identity
 
@@ -28,8 +28,8 @@ UI text, default content, or shipped assets.
 
 | Editor/TUI element | Role in the theme |
 | --- | --- |
-| Tool bar / tabline (top) | Site navigation, page tabs |
-| Status bar (bottom) | State/mode indicator, current location (breadcrumb), reading progress, color-mode and language switchers |
+| Tool bar / tabline (top) | Site navigation, page tabs, global action icons (color-mode switcher; more via THEME-005) |
+| Status bar (bottom) | State/mode indicator, current location (breadcrumb), reading progress + back-to-top (one tight cluster), color-mode **indicator** (read-only — switching lives in the tool bar), language switcher; thin separators divide top-level segments |
 | File explorer (side tree) | Site/content navigation sidebar — retractable on desktop; not part of the UI in paper mode |
 | Floating windows | Utilities: search / command palette / pickers, settings |
 | Editor viewport | The content area (article body) |
@@ -86,7 +86,13 @@ fidelity:
   be too large - the goal is a subtle rounding so the components seems to be composed by
   text (for TUI feel) and not a separate shape;
 - a floating feel: panels separated by gaps/padding instead of hard full-bleed splits;
-- subtle borders and shadows for depth; small, smooth transitions.
+- subtle borders and shadows for depth; small, smooth transitions;
+- **a fixed shell frame** (2026-07-09): the tool bar, the status bar, and the viewport
+  panel's frame never move — the page itself does not scroll. Article content scrolls
+  *inside* the viewport panel and clips at its edges, exactly like an editor buffer
+  inside its window: content must never be visible in the gaps between panels or
+  behind the chrome. Printing is exempt — the frame releases its fixed height so the
+  whole article prints.
 
 Think “modern, carefully customized terminal setup”, not an ANSI museum piece.
 

@@ -1,0 +1,121 @@
+// ============================================================================
+// _toolbar.scss — top tool bar / tabline (THEME-001)
+// ============================================================================
+// The editor-style top bar: brand + navigation tabs, a fixed floating panel
+// at the top of the shell frame (content scrolls inside the viewport panel,
+// never behind the chrome — THEME-008). TUI chrome is set in mono
+// (typography-and-icons.md §1); the brand glyph is a Nerd Font PUA glyph
+// gated behind html[data-ct-nerdfont] with a plain-text fallback (§2).
+
+.ct-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%); // subtle depth (design-language.md §5)
+  font-family: var(--ct-font-mono);
+  font-size: 0.875rem;
+}
+
+// Brand: decorative glyph + site title, links home
+.ct-toolbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--ct-text-strong);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover .ct-toolbar__title {
+    color: var(--ct-link-hover);
+  }
+}
+
+.ct-toolbar__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+// Brand glyph: plain `::` fallback, upgraded to the Nerd Font terminal glyph
+// once the symbols font is confirmed usable (FONT-002 tofu-safe gating)
+.ct-toolbar__glyph::before {
+  content: "::";
+  color: var(--ct-link);
+}
+
+html[data-ct-nerdfont] .ct-toolbar__glyph::before {
+  content: "\f120"; // nf-fa-terminal
+  font-family: var(--ct-font-nerd);
+}
+
+// Navigation as editor tabs; the active tab carries the accent
+.ct-toolbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ct-toolbar__tab {
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--ct-radius-small);
+  color: var(--ct-text-neutral);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+
+  &--active {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link);
+  }
+}
+
+// Global action icons, pushed to the right edge (THEME-010; more slots land
+// with THEME-003/005)
+.ct-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+// Icon-only action button — controls take the accent (color-system.md §2)
+.ct-toolbar__action {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+}
+
+// Mobile: the tool bar condenses — the tabs retire until the explorer drawer
+// takes over navigation (design-language.md §8, THEME-002)
+@media (max-width: 640px) {
+  .ct-toolbar__nav {
+    display: none;
+  }
+}
+
+// On-screen chrome only — never printed
+@media print {
+  .ct-toolbar {
+    display: none;
+  }
+}

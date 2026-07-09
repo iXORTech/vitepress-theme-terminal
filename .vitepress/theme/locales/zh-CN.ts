@@ -20,6 +20,15 @@ export const zhCN: ThemeLocaleStrings = {
   // Language switching
   'lang.switch': '切换语言',
 
+  // Tool bar navigation
+  'nav.label': '站点导航',
+  'nav.home': '主页',
+
+  // Status bar segments
+  'status.read': '阅读',
+  'status.progress': '阅读进度',
+  'status.backToTop': '返回顶部',
+
   // Callout default titles
   'callout.info': '信息',
   'callout.note': '备注',

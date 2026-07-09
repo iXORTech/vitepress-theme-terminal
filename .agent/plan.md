@@ -186,6 +186,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     404, as in the default theme); the built `/zh/` page renders the built-in zh-CN
     theme strings. Temporary: retired when the permanent switcher lands in the status
     bar (THEME-001, design-language.md §4) and settings panel (THEME-007).
+    *Retired 2026-07-09: THEME-001's status-bar language switcher replaced it.*
 
 - [x] **I18N-003** — URL-free language switching (rework of I18N-001/002 integration)
   - **Category:** i18n · **Deps:** I18N-001, I18N-002
@@ -213,7 +214,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Theme components
 
-- [ ] **THEME-001** — Layout shell: tool bar · viewport · status bar
+- [x] **THEME-001** — Layout shell: tool bar · viewport · status bar
   - **Category:** Theme · **Deps:** STYLE-001, FONT-001, FONT-002, I18N-001
   - **Acceptance criteria:** top tool bar, content viewport, and bottom status bar per
     `docs/design/design-language.md` §4–5 (rounded, floating finish); no third-party
@@ -249,7 +250,8 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 - [ ] **THEME-005** — Tool bar configurability & extras
   - **Category:** Theme · **Deps:** THEME-001, CONF-001
   - **Acceptance criteria:** navigation entries are easy to configure via
-    `themeConfig`; the color-mode (theme) switcher lives in the tool bar; an
+    `themeConfig`; the color-mode (theme) switcher lives in the tool bar
+    (landed early via THEME-010); an
     extensible icon-slot mechanism lets extra feature icons (e.g. search trigger,
     important social links) be added from configuration without component edits.
 
@@ -264,6 +266,36 @@ parallel; tick `[x]` only when every acceptance criterion is met.
   - **Acceptance criteria:** a hovering TUI-window settings panel **without** shell
     prompt; the first version only offers font configuration and language switching;
     choices persisted; full/near-full-screen sheet on mobile; strings localized.
+
+- [x] **THEME-008** — Fixed shell frame: viewport-contained scrolling (THEME-001 fix)
+  - **Category:** Theme · **Deps:** THEME-001
+  - **Acceptance criteria:** the shell is a fixed full-height frame — the tool
+    bar, the status bar, and the viewport panel's rounded frame never scroll;
+    article content scrolls **inside** `.ct-viewport` and clips at its edges,
+    never showing through the gaps between panels; reading progress tracks the
+    panel scroll; navigating resets the panel to the top, and URL-hash /
+    in-page anchor links scroll to their target inside the panel; printing
+    still outputs the full article (the frame releases its fixed height);
+    decision recorded in design-language.md §5.
+
+- [x] **THEME-009** — Status bar: back-to-top button
+  - **Category:** Theme · **Deps:** THEME-001, THEME-008
+  - **Acceptance criteria:** an icon-only button (Font Awesome, general-icon
+    context per `docs/design/typography-and-icons.md` §2) in the status bar's
+    right segment cluster smooth-scrolls the viewport panel back to the top;
+    accessible name/tooltip localized (`status.backToTop`); styled in the
+    status bar's dedicated SCSS; remains available in the reduced mobile
+    segment set; recorded in `design-language.md` §4 (status bar role).
+
+- [x] **THEME-010** — Status bar polish & tool-bar mode switcher (rework)
+  - **Category:** Theme · **Deps:** THEME-001, THEME-009
+  - **Acceptance criteria:** thin visual separators divide the top-level
+    segments of both status-bar clusters; the reading-progress % and the
+    back-to-top button form one tight sub-cluster with no divider between
+    them; the status bar's color-mode element becomes a non-interactive
+    indicator; an icon-only color-mode cycle button lives in the tool bar's
+    right action area (its permanent home per THEME-005), localized;
+    `design-language.md` §4 table rows updated for both bars.
 
 ### Components
 

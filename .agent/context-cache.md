@@ -2,10 +2,14 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (FONT-002 icon systems,
-MD-003 nerd-font callout glyphs; earlier same day: STYLE-006 neutral body text,
-MD-001 plugin suite, MD-002 callouts + left-bar revision; 2026-07-08: INFRA-001,
-CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (THEME-001 TUI shell:
+tool bar / viewport / status bar; THEME-008 fixed shell frame with
+viewport-contained scrolling; THEME-009 back-to-top button; THEME-010 statusline
+separators, mode indicator + tool-bar switcher; earlier same day:
+FONT-002 icon systems,
+MD-003 nerd-font callout glyphs, STYLE-006 neutral body text, MD-001 plugin
+suite, MD-002 callouts + left-bar revision; 2026-07-08: INFRA-001, CONF-001,
+STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 ## Root
 
@@ -22,6 +26,13 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   context-cache rules, compliance code, engineering conventions (hard rules), repo map.
 - `CLAUDE.md` — pure pointer to `AGENTS.md` (read by Claude Code). No content.
 
+## .claude/
+
+- `skills/verify/SKILL.md` — repo verification recipe for coding agents: build +
+  `pnpm preview`, drive the rendered site headless (temp-dir playwright, system
+  Chromium fallback), and the UI flows worth exercising (modes, language, shell
+  chrome, mobile, print, Nerd Font gating).
+
 ## .github/
 
 - `copilot-instructions.md` — pure pointer to `AGENTS.md` (read by GitHub Copilot). No
@@ -31,10 +42,13 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
-  FONT-001/002, I18N-001/002/003/004, MD-001/002/003, STYLE-006 done. Roadmap: config (incl.
-  CONF-002 author & license system), styling (tokens, modes, oxocarbon, code-block
-  chrome, markdown styling), markdown plugin suite + callouts, theme chrome (shell,
-  explorer, palette, footer + custom pre-footer section, tool bar extras, settings
+  FONT-001/002, I18N-001/002/003/004, MD-001/002/003, STYLE-006,
+  THEME-001/008/009/010 done (THEME-001 retired the I18N-002 temporary switcher;
+  THEME-008 = fixed shell frame rework; THEME-009 = back-to-top button;
+  THEME-010 = statusline separators + mode switcher moved to tool bar, which
+  pre-satisfies that part of THEME-005). Roadmap: config (incl.
+  CONF-002 author & license system), code-block card chrome (STYLE-004), theme chrome
+  (explorer, palette, footer + custom pre-footer section, tool bar extras, settings
   panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
   Waline comments), content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
@@ -47,7 +61,9 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   rules; clarifies `docs/` is repo documentation, not site content.
 - `design/design-language.md` — binding: identity, NeoVim/LazyVim-inspired TUI design
   language, hard no-branding rule, iconic components table (tool bar, status bar,
-  explorer, floating windows), footer spec (custom Vue section on top · separator ·
+  explorer, floating windows), fixed shell frame — page never scrolls, content
+  scrolls inside the viewport panel and clips at its edges (§5, THEME-008),
+  footer spec (custom Vue section on top · separator ·
   copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
   author/license from CONF-002; attribution row lighter on desktop), cards &
   shell-prompt decoration (prompt user = normalized author username; prompt marks
@@ -119,7 +135,8 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
-  `callout.*` ×8 — grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
+  `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009) —
+  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-CN.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
 - `theme/locales/index.ts` — framework-free registry (`en`, `zh-CN`) for the
@@ -142,6 +159,15 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   Font Loading API confirms `NerdFontsSymbols Nerd Font` is usable (`fonts.ready` →
   `fonts.load()`, empty result = stylesheet missing); gates all PUA glyphs so a
   failed stylesheet degrades tofu-free (FONT-002/MD-003); called once from the layout.
+- `theme/composables/useReadingProgress.ts` — scroll progress as an integer % for
+  the status bar (THEME-001/008): tracks the `.ct-viewport` panel (the shell's
+  only scroll container), 100 when the page fits inside it; updates on
+  scroll/resize + `onContentUpdated`; SSR-safe (starts at 0, listeners on mount).
+- `theme/composables/useViewportScroll.ts` — router-facing scroll behaviors for
+  the fixed frame (THEME-008), wired to the viewport ref from Layout: on
+  `onContentUpdated` jumps to the URL-hash target or resets the panel to top
+  (VitePress's own window.scrollTo is a no-op); a panel click listener scrolls
+  same-page anchor targets (footnotes/header anchors) smoothly into view.
 - `theme/composables/useSiteText.ts` — localized site `title`/`description`
   (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
   watchEffect syncs `document.title` (`page | title` pattern) and
@@ -155,15 +181,27 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `ct-mode`; SSR-safe.
 - `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
   empty `enhanceApp`.
-- `theme/Layout.vue` — placeholder layout (replaced by THEME-001): `.ct-shell` with a
-  temporary top bar (localized site title via `useSiteText()`; actions group with the
-  in-place language switcher — buttons per available language, hidden under two — and
-  the mode-cycle button, labels via `t()`), and `.ct-content` viewport wrapping the
-  home branch (localized title/description) or `<Content/>`; calls
-  `useCalloutTitles()` + `useNerdFont()` once.
-- `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/content/code/
-  callouts, then base document styles (box-sizing, body bg/color/font via semantic
-  tokens, `::selection` from the derived highlight).
+- `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
+  `<ToolBar/>`, the `.ct-viewport` panel (template ref wired to
+  `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
+  localized title/description, PAGE-001 pending — or `<Content/>`), and
+  `<StatusBar/>`; calls `useCalloutTitles()` + `useNerdFont()` once.
+- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): brand
+  (gated Nerd Font glyph + localized site title, links home via `withBase`), a
+  `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
+  state — and the right-side action icons: the color-mode cycle button (FA
+  half-circle, `mode.switch`); configurable entries/more actions come with
+  THEME-005, search trigger with THEME-003.
+- `theme/components/StatusBar.vue` — bottom statusline (THEME-001/009/010): left
+  `READ` chip (`status.read`) + current location as a home-relative path from
+  `page.relativePath`; right a tight progress-% + back-to-top cluster (FA
+  arrow-up smooth-scrolls `.ct-viewport` to 0), the permanent in-place language
+  switcher (cycles `languages`, hidden under two), and a read-only color-mode
+  indicator span (switching lives in the tool bar); replaces the I18N-002
+  placeholder controls.
+- `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/toolbar/
+  statusbar/content/code/callouts, then base document styles (box-sizing, body
+  bg/color/font via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_tokens.scss` — primitives: `--ct-main` fallback on `html` (lower
   specificity so the head-injected `:root` value wins), main-color derivatives via
   `color-mix()` (bright/dim/subtle/border/selection/deep/deeper — no hardcoded
@@ -187,8 +225,24 @@ CONF-001, STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   behind `[data-ct-nerdfont]`; `<details>` variant hides the native marker and
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity).
-- `theme/styles/_shell.scss` — temporary shell/top-bar/actions/lang-switch/mode-switch
-  styling for the placeholder layout; hidden in print; retired by THEME-001.
+- `theme/styles/_shell.scss` — THEME-001/008 shell frame: `.ct-shell` FIXED
+  100dvh flex column with `--ct-gap` gaps/padding; `.ct-viewport` bordered
+  rounded panel is the only scroll container (`flex: 1; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain; scroll-padding-top`) — content
+  clips at its edges, the frame never scrolls; print releases the fixed height
+  and drops padding/border so the full article prints.
+- `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
+  + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
+  `[data-ct-nerdfont]`; editor-tab links with accent hover/active; right-aligned
+  `__actions` group with accent icon buttons (mode switcher, THEME-010); tabs
+  hidden ≤640px (drawer takes over in THEME-002); hidden in print.
+- `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
+  same panel finish, mono small; inverted accent `READ` chip (main-color bg,
+  gray-100 text), truncating location, accent text-button controls + `--icon`
+  modifier (back-to-top, THEME-009); THEME-010: `::before` pseudo-element
+  dividers between top-level group segments (pseudo, not border — survives the
+  buttons' border reset) and a tight `__cluster` (progress + back-to-top, no
+  divider inside); location hidden ≤640px; hidden in print.
 
 ## src/ (site content — VitePress `srcDir`)
 

@@ -244,8 +244,14 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 - [ ] **THEME-003** — Floating-window utilities (search / command palette)
   - **Category:** Theme · **Deps:** THEME-001
-  - **Acceptance criteria:** floating panel with content search; keyboard shortcut to
-    open and `Esc` to dismiss; presents as a full/near-full-screen sheet on mobile.
+  - **Acceptance criteria:** floating panel component for search, command center, or other
+    utilities; TUI-window look with rounded/floating finish; a single instance of (this type
+    of) component is shared across all utilities; the component is hidden by default and can
+    be opened programmatically; the component is dismissible via an explicit close control,
+    clicking outside, or pressing `Esc`; presents as a full/near-full-screen sheet on mobile.
+    This task only includes the implementation of the floating-window visual component
+    and its interative behavior. Add a demo page that can be opened via `~` keyboard and
+    a button in the tool bar. No actual logic needed behind the demo.
 
 - [ ] **THEME-004** — Footer component
   - **Category:** Theme · **Deps:** THEME-001, CONF-001, CONF-002
@@ -402,6 +408,15 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     with credentials gets a working DocSearch entry (e.g. via the tool bar search
     icon); the relationship with the find palette (THEME-003) is decided and
     documented.
+
+- [ ] **SEARCH-002** — Find palette (floating window)
+  - **Category:** Search · **Deps:** SEARCH-001, THEME-003
+  - **Acceptance criteria:** a floating-window find palette with a text input and
+    a list of results; keyboard shortcut `/` to open and `Esc` to dismiss; presents
+    as a full/near-full-screen sheet on mobile; the palette's search is wired to the
+    site's Algolia DocSearch index (SEARCH-001) and returns results with titles,
+    snippets, and links; strings localized; styles in dedicated SCSS. Also remove the
+    included floating-window demo (THEME-003) when this lands.
 
 ### Responsive
 

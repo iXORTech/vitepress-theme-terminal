@@ -7,6 +7,10 @@
 // correctly in dark, light, and paper mode. Readable measure, mobile-safe.
 
 .ct-content {
+  // Grow inside the viewport's column so the footer (THEME-004) sits at the
+  // panel's bottom edge even when the page is short (_shell.scss).
+  flex: 1 0 auto;
+  width: 100%;
   max-width: 72ch; // readable measure
   margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;

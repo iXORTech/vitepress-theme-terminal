@@ -4,11 +4,13 @@
 // ============================================================================
 // Composes the persistent terminal chrome around the page content
 // (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the floating
-// content viewport, and the bottom status bar. The explorer sidebar
-// (THEME-002), floating utilities (THEME-003), and in-viewport footer
-// (THEME-004/006) attach to this frame later.
+// content viewport — holding the content column and the in-viewport footer
+// (THEME-004) — and the bottom status bar. The explorer sidebar (THEME-002),
+// floating utilities (THEME-003), and the custom pre-footer section
+// (THEME-006) attach to this frame later.
 import { ref } from 'vue'
 import { useData } from 'vitepress'
+import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
@@ -53,6 +55,10 @@ useNerdFont()
         </template>
         <Content v-else />
       </div>
+
+      <!-- In-viewport footer — scrolls with the content (THEME-004); the
+           user-supplied custom section slots in above it later (THEME-006) -->
+      <SiteFooter />
     </main>
 
     <!-- Bottom status bar / statusline -->

@@ -57,8 +57,27 @@ author in the copyright and the license icons come from the central author & lic
 system (CONF-002; default license CC BY-NC-SA 4.0). Fixed strings are localized; the
 icons are Font Awesome (general-icon context,
 [`typography-and-icons.md`](typography-and-icons.md) §2). On narrow viewports the rows
-stack. Further implementation details are to be specified later (plan tasks THEME-004,
-THEME-006).
+stack. The custom section on top is still to come (plan task THEME-006).
+
+*Implemented (THEME-004):* the footer spans the full width of the viewport panel
+(wider than the 72ch article column, like the sketch's edge-to-edge separator);
+only its text links carry an underline — icon links (social · RSS · license)
+never do, in any state. `themeConfig.footer = { rss?, social? }` — `rss` is the
+feed URL (icon only when set); `social` entries are
+`{ icon: <FA classes>, link, label? }` with a `LocalizableText` label falling back
+to the URL. The localized copyright/attribution strings carry `{year}`/`{author}`
+and `{vitepress}`/`{theme}` placeholders so translations may reorder them; the
+product names render as links. The attribution row's desktop-lighter tone is
+**derived** from the copyright row's color via `color-mix` (color-system.md §3),
+never a second constant. The RSS link renders as its conventional orange icon
+plus an "RSS" wordmark (a proper noun, untranslated) — the orange comes from the
+fixed Carbon layer (`--ct-rss` mode token over Carbon orange 40/60), not from the
+main color; the license glyphs sit as one tight cluster, read as a single mark.
+A custom license without `icons` falls back to a localized "licensed under"
+sentence (`{license}` placeholder) whose license name is a link to the deed —
+underlined like the theme's other text links, unlike the icon cluster; without
+`url` the name renders as plain text. On mobile the cells stack in the order
+copyright · powered-by · social icons · RSS/license icons (ui-sketch.md §5).
 
 **Cards & shell-prompt decoration** — a reusable card component renders as a TUI-style
 floating window (Unicode-frame flavor, with the rounded, floating finish of §5). Each

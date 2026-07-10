@@ -31,6 +31,13 @@ export const zhHans: ThemeLocaleStrings = {
   'status.bottom': '底端',
   'status.backToTop': '返回顶部',
 
+  // In-viewport footer
+  'footer.copyright': '版权所有 © {year} {author}',
+  'footer.poweredBy': '由 {vitepress} 与 {theme} 驱动',
+  'footer.rss': 'RSS 订阅',
+  'footer.license': '许可协议',
+  'footer.licensedUnder': '内容按 {license} 许可协议授权',
+
   // Callout default titles
   'callout.info': '信息',
   'callout.note': '备注',

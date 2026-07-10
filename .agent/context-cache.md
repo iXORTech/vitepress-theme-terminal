@@ -2,7 +2,8 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (CONF-002 author &
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (THEME-004 in-viewport
+footer). Earlier: 2026-07-09 (CONF-002 author &
 license system; I18N-005 canonical
 locale tags: zh-CN → zh-Hans, site lang en-US → en; THEME-001 TUI shell:
 tool bar / viewport / status bar; THEME-008 fixed shell frame with
@@ -50,9 +51,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   THEME-008 = fixed shell frame rework; THEME-009 = back-to-top button;
   THEME-010 = statusline separators + mode switcher moved to tool bar, which
   pre-satisfies that part of THEME-005; CONF-002 = author & license config layer —
-  consumers THEME-004/COMP-001/COMP-003 read it as they land). Roadmap:
+  consumers COMP-001/COMP-003 read it as they land; THEME-004 = in-viewport
+  footer, done 2026-07-10). Roadmap:
   code-block card chrome (STYLE-004), theme chrome
-  (explorer, palette, footer + custom pre-footer section, tool bar extras, settings
+  (explorer, palette, custom pre-footer section, tool bar extras, settings
   panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
   Waline comments), content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
@@ -69,7 +71,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   scrolls inside the viewport panel and clips at its edges (§5, THEME-008),
   footer spec (custom Vue section on top · separator ·
   copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
-  author/license from CONF-002; attribution row lighter on desktop), author &
+  author/license from CONF-002; attribution row lighter on desktop; THEME-004
+  implemented note: `themeConfig.footer` shape, placeholder strings,
+  color-mix-derived lighter tone, mobile stack order), author &
   license system spec (§4: `author.name`/`author.username` + normalization rule,
   `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons), cards &
   shell-prompt decoration (prompt user = normalized author username; prompt marks
@@ -110,7 +114,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
   "en"` as the default UI language (minimal canonical tag, I18N-005; no
   VitePress `locales` — I18N-003);
-  `themeConfig` demos per-language `title`/`description` maps; `markdown.math: true`
+  `themeConfig` demos per-language `title`/`description` maps, an MIT
+  `license` (exercises the footer's icon-less text fallback), and a `footer`
+  block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
+  generated yet); `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002: Font
@@ -144,11 +151,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   exported `normalizeUsername()` when unset, fallback `user`) and `license`
   (default CC BY-NC-SA 4.0 + deed URL + FA CC icons; a custom `name` drops the CC
   url/icons — bring your own); single source for footer/prompt/license-card
-  consumers (THEME-004, COMP-001, COMP-003).
+  consumers (THEME-004, COMP-001, COMP-003). THEME-004: `footer`
+  (`rss` feed URL, default `''`; `social: TerminalSocialLink[]` — FA `icon` +
+  `link` + optional LocalizableText `label`).
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
-  `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009) —
-  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
+  `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009),
+  `footer.*` ×5 with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
+  placeholders (THEME-004) — grows per feature); exports
+  `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
 - `theme/locales/index.ts` — framework-free registry (`en`, `zh-Hans`; tag rule
@@ -199,14 +210,24 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
   `<ToolBar/>`, the `.ct-viewport` panel (template ref wired to
   `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
-  localized title/description, PAGE-001 pending — or `<Content/>`), and
-  `<StatusBar/>`; calls `useCalloutTitles()` + `useNerdFont()` once.
+  localized title/description, PAGE-001 pending — or `<Content/>`, then
+  `<SiteFooter/>` (THEME-004; the THEME-006 custom section slots in above it)),
+  and `<StatusBar/>`; calls `useCalloutTitles()` + `useNerdFont()` once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
   state — and the right-side action icons: the color-mode cycle button (FA
   half-circle, `mode.switch`); configurable entries/more actions come with
   THEME-005, search trigger with THEME-003.
+- `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004): grid of
+  four cells — localized copyright (`{year}`/`{author}`, author from CONF-002) ·
+  social icons (`themeConfig.footer.social`) · powered-by (localized
+  `{vitepress}/{theme}` placeholders split into linked product names) · RSS
+  (orange icon + untranslated "RSS" wordmark, only when `footer.rss` set) +
+  license (CONF-002): icon cluster as one non-underlined link, or — when a
+  custom license ships no icons — the localized `footer.licensedUnder`
+  sentence (`{license}` placeholder) with the name as an underlined deed link
+  (plain text without `url`).
 - `theme/components/StatusBar.vue` — bottom statusline (THEME-001/009/010): left
   `READ` chip (`status.read`) + current location as a home-relative path from
   `page.relativePath`; right a tight progress-% + back-to-top cluster (FA
@@ -215,15 +236,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   indicator span (switching lives in the tool bar); replaces the I18N-002
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/toolbar/
-  statusbar/content/code/callouts, then base document styles (box-sizing, body
-  bg/color/font via semantic tokens, `::selection` from the derived highlight).
+  statusbar/content/footer/code/callouts, then base document styles (box-sizing,
+  body bg/color/font via semantic tokens, `::selection` from the derived
+  highlight).
 - `theme/styles/_tokens.scss` — primitives: `--ct-main` fallback on `html` (lower
   specificity so the head-injected `:root` value wins), main-color derivatives via
   `color-mix()` (bright/dim/subtle/border/selection/deep/deeper — no hardcoded
   derivative hex), Carbon grays + semantic colors (incl. purple 40/60 for
-  `--ct-important`), IBM Plex font stacks + `--ct-font-nerd` (FONT-002), radius/gap.
+  `--ct-important`, orange 40/60 for the footer RSS accent), IBM Plex font
+  stacks + `--ct-font-nerd` (FONT-002), radius/gap.
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
-  inline-code/error/warning/info/success/important/font-body`) as mixins per mode;
+  inline-code/error/warning/info/success/important/rss/font-body`) as mixins per mode;
   body text NEUTRAL everywhere (STYLE-006: dark = gray-10, light/paper = gray-100),
   main color only on emphasis tokens (strong/heading/link/inline-code); `:root` =
   dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
@@ -233,7 +256,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   selection of `--shiki-dark/-light/-paper` token variables incl. print.
 - `theme/styles/_content.scss` — STYLE-005: `.ct-content` markdown styling (headings,
   text, links, lists, blockquotes, tables w/ overflow-x scroll, hr, img, inline code)
-  via semantic tokens; 72ch measure; 480px mobile padding tier.
+  via semantic tokens; 72ch measure; 480px mobile padding tier; `flex: 1 0 auto`
+  so it grows in the viewport column and pins the footer to the panel bottom
+  (THEME-004).
+- `theme/styles/_footer.scss` — THEME-004 in-viewport footer: full panel width
+  (wider than the 72ch article column), border-top separator, mono small
+  `--ct-text-neutral`; 2×2 grid (texts left, icon clusters right); ≥641px the
+  powered/meta row is lightened via `color-mix(… 68%, transparent)` over the
+  row above (derived, color-system §3); ≤640px collapses to one column in
+  sketch-caption order (copyright · powered · social · meta) with left-aligned
+  icons; print drops link underlines. Underline is opt-in for TEXT links only
+  (`__copyright a`/`__powered a`/`__license-text a`) — icon anchors never
+  underline in any state; RSS chip in `--ct-rss` orange (selector doubled
+  `& &__rss` to out-rank `.ct-footer a`'s color inherit), license glyphs one
+  tight 0.125rem cluster; glyph clusters at 0.9375rem, the license text
+  fallback at the regular footer size.
 - `theme/styles/_callouts.scss` — MD-002 callouts, minimal left-bar style (revised
   2026-07-09): 3px accent bar + accent-colored mono uppercase title, no bg/frame;
   accent + Nerd Font title glyph (nf-fa-* PUA, MD-003) per variant, glyphs gated
@@ -244,8 +281,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   100dvh flex column with `--ct-gap` gaps/padding; `.ct-viewport` bordered
   rounded panel is the only scroll container (`flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain; scroll-padding-top`) — content
-  clips at its edges, the frame never scrolls; print releases the fixed height
-  and drops padding/border so the full article prints.
+  clips at its edges, the frame never scrolls; the panel is itself a flex
+  column so the in-viewport footer pins to its bottom edge on short pages
+  (THEME-004); print releases the fixed height and drops padding/border so the
+  full article prints.
 - `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
   + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
   `[data-ct-nerdfont]`; editor-tab links with accent hover/active; right-aligned

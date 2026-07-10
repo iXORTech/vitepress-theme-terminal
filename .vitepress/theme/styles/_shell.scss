@@ -26,6 +26,10 @@
 .ct-viewport {
   flex: 1;
   min-height: 0; // let the panel shrink below its content so it can scroll
+  // Column layout so the in-viewport footer (THEME-004) pins to the panel's
+  // bottom edge on short pages: the content column grows, the footer doesn't.
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overscroll-behavior: contain; // don't chain rubber-banding to the page
   scroll-padding-top: 1rem; // breathing room above anchor-jump targets

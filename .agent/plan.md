@@ -253,7 +253,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     and its interative behavior. Add a demo page that can be opened via `~` keyboard and
     a button in the tool bar. No actual logic needed behind the demo.
 
-- [ ] **THEME-004** — Footer component
+- [x] **THEME-004** — Footer component
   - **Category:** Theme · **Deps:** THEME-001, CONF-001, CONF-002
   - **Acceptance criteria:** footer renders at the bottom of the main viewport, below
     the content, per `docs/design/design-language.md` §4 (footer) and
@@ -266,6 +266,13 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     author & license system (CONF-002). Fixed strings localized; dedicated SCSS; rows
     stack on mobile per the sketch caption. The fully-custom section above the footer
     is THEME-006.
+    *Landed 2026-07-10: `SiteFooter.vue` inside `.ct-viewport` after `.ct-content`
+    (viewport is now a flex column so the footer pins to the panel bottom on short
+    pages); `themeConfig.footer = { rss?, social? }`; localized `{year}/{author}` +
+    `{vitepress}/{theme}` placeholder strings; desktop-lighter attribution tone
+    derived via `color-mix`; styles in `styles/_footer.scss`; RSS renders as an
+    orange icon + "RSS" wordmark (`--ct-rss` over Carbon orange) with the license
+    glyphs as one tight cluster; implemented note in design-language.md §4.*
 
 - [ ] **THEME-005** — Tool bar configurability & extras
   - **Category:** Theme · **Deps:** THEME-001, CONF-001

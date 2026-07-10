@@ -1,0 +1,156 @@
+// ============================================================================
+// _footer.scss — in-viewport footer (THEME-004)
+// ============================================================================
+// The footer lives INSIDE the viewport panel, after the article content, and
+// scrolls with it (design-language.md §4, footer; ui-sketch.md §5). It spans
+// the full panel width — wider than the 72ch article column, like the
+// sketch's edge-to-edge separator. Desktop is a two-row grid —
+// copyright + social icons, then powered-by + RSS/license icons — with the
+// attribution row in a lighter tone DERIVED from the row above it
+// (color-system.md §3: computed, never a second constant). On mobile the
+// cells stack in the sketch-caption order: copyright · powered-by · social ·
+// RSS/license.
+
+.ct-footer {
+  // Full panel width (no article-column cap), with a touch more side padding
+  width: 100%;
+  padding: 1rem 1.5rem 1.5rem;
+  flex-shrink: 0; // sits below the growing content in the viewport column
+
+  // The separator rule between the article/custom section and the footer
+  border-top: 1px solid var(--ct-border);
+
+  // Two-row grid: texts in the left column, icon clusters on the right
+  display: grid;
+  grid-template-areas:
+    "copyright social"
+    "powered   meta";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.375rem 1rem;
+
+  // TUI-chrome text: mono, small, secondary tier
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ct-text-neutral);
+
+  // Links: no underline by default — only the TEXT links (copyright and
+  // attribution rows and text-based license line) opt in below;
+  // icon links never carry one, in any state.
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: var(--ct-link-hover);
+    }
+  }
+
+  &__copyright a,
+  &__powered a,
+  &__license-text a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  // --------------------------------------------------------------------------
+  // Cells
+  // --------------------------------------------------------------------------
+  &__copyright {
+    grid-area: copyright;
+  }
+
+  &__social {
+    grid-area: social;
+  }
+
+  &__powered {
+    grid-area: powered;
+  }
+
+  &__meta {
+    grid-area: meta;
+  }
+
+  // Attribution row, desktop only: lighter than the copyright row, the tone
+  // derived from it via color-mix — never a separately configured constant
+  // (color-system.md §3; ui-sketch.md §5 note).
+  @media (min-width: 641px) {
+    &__powered,
+    &__meta {
+      color: color-mix(in srgb, var(--ct-text-neutral) 68%, transparent);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Icon clusters — social · RSS · license (Font Awesome, general-icon
+  // context per typography-and-icons.md §2)
+  // --------------------------------------------------------------------------
+  &__icons {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+
+  // Glyph clusters sit slightly larger than the footer text; the license
+  // TEXT fallback (`__license-text`) stays at the regular footer size
+  &__icon,
+  &__license {
+    font-size: 0.9375rem;
+  }
+
+  // RSS: conventional orange icon + "RSS" wordmark (mode token --ct-rss,
+  // Carbon orange — a fixed layer constant, not a main-color derivative).
+  // Doubled selector so the orange out-ranks both `.ct-footer a`'s inherit
+  // and the desktop-lightened `__meta` row tone above.
+  & &__rss {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--ct-rss);
+    font-size: 0.9375rem;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--ct-rss); // stays orange; the fade signals hover instead
+      opacity: 0.8;
+    }
+  }
+
+  // The license is one link holding several CC glyphs — one tight cluster,
+  // read as a single mark rather than separate icons
+  &__license {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+  }
+}
+
+// Mobile: the grid collapses to one stacked column in the sketch-caption
+// order — copyright line, powered-by line, social icons, RSS/license icons —
+// and the icon clusters align left with the text.
+@media (max-width: 640px) {
+  .ct-footer {
+    grid-template-areas:
+      "copyright"
+      "powered"
+      "social"
+      "meta";
+    grid-template-columns: 1fr;
+
+    &__icons {
+      justify-content: flex-start;
+    }
+  }
+}
+
+// Print keeps the attribution readable on paper; the derived lighter tone
+// stays (it prints as a light gray), links lose their underline noise.
+@media print {
+  .ct-footer a {
+    text-decoration: none;
+  }
+}

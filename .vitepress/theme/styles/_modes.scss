@@ -50,6 +50,8 @@
   --ct-info: var(--ct-blue-40);
   --ct-success: var(--ct-green-40);
   --ct-important: var(--ct-purple-40);
+  // RSS carries its conventional orange, from the Carbon layer (THEME-004)
+  --ct-rss: var(--ct-orange-40);
 
   --ct-font-body: var(--ct-font-sans);
 }
@@ -84,6 +86,7 @@
   --ct-info: var(--ct-blue-60);
   --ct-success: var(--ct-green-50);
   --ct-important: var(--ct-purple-60);
+  --ct-rss: var(--ct-orange-60);
 
   --ct-font-body: var(--ct-font-sans);
 }
@@ -117,6 +120,7 @@
   --ct-info: var(--ct-blue-60);
   --ct-success: var(--ct-green-50);
   --ct-important: var(--ct-purple-60);
+  --ct-rss: var(--ct-orange-60);
 
   // Serif long-form body in paper mode (typography-and-icons.md §1).
   --ct-font-body: var(--ct-font-serif);

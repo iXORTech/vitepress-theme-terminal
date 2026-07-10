@@ -41,6 +41,20 @@ const themeConfig: TerminalThemeConfig = {
   // as a whole — bring your own url/icons).
   // author: { name: "Ada Lovelace", username: "ada" },
   // license: { name: "MIT", url: "https://opensource.org/license/mit/" },
+
+  // Footer (THEME-004) — the RSS icon renders only when a feed URL is set;
+  // social icons are Font Awesome classes with a localizable label.
+  // The copyright author and the license icons come from `author`/`license`.
+  footer: {
+    rss: "/feed.rss", // demo feed — not actually generated yet
+    social: [
+      {
+        icon: "fa-brands fa-github",
+        link: "https://github.com/iXORTech/vitepress-theme-terminal-reforged",
+        label: "GitHub",
+      },
+    ],
+  },
 };
 
 // Shiki themes for the three color modes (STYLE-003). VitePress registers

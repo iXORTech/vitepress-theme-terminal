@@ -32,6 +32,15 @@ export const en = {
   'status.bottom': 'BOT',
   'status.backToTop': 'Back to top',
 
+  // In-viewport footer (THEME-004). {year}/{author} and {vitepress}/{theme}
+  // are placeholders interpolated by SiteFooter.vue — translations may
+  // reorder them freely.
+  'footer.copyright': 'Copyright © {year} {author}',
+  'footer.poweredBy': 'Powered by {vitepress} and {theme}',
+  'footer.rss': 'RSS feed',
+  'footer.license': 'License',
+  'footer.licensedUnder': 'Content Licensed Under {license} License',
+
   // Callout default titles (MD-002)
   'callout.info': 'Info',
   'callout.note': 'Note',

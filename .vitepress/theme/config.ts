@@ -60,6 +60,38 @@ export interface TerminalLicenseConfig {
   icons?: string[]
 }
 
+/**
+ * One social icon in the footer's copyright row (THEME-004). The list is
+ * plain data so adding/removing an entry never requires component edits.
+ */
+export interface TerminalSocialLink {
+  /** Font Awesome class list, e.g. `fa-brands fa-github`. */
+  icon: string
+
+  /** Destination URL. */
+  link: string
+
+  /**
+   * Accessible name (tooltip / `aria-label`), localizable (I18N-004).
+   * Falls back to the link URL when unset.
+   */
+  label?: LocalizableText
+}
+
+/**
+ * Footer options (THEME-004): the social-icon list and the RSS feed
+ * (design-language.md §4, footer). The copyright author and the license
+ * icons are NOT configured here — they come from the central author &
+ * license system ({@link TerminalAuthorConfig} / {@link TerminalLicenseConfig}).
+ */
+export interface TerminalFooterConfig {
+  /** RSS/Atom feed URL — the footer RSS icon renders only when this is set. */
+  rss?: string
+
+  /** Social icons shown at the right of the copyright row. */
+  social?: TerminalSocialLink[]
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -98,6 +130,9 @@ export interface TerminalThemeConfig {
   /** Content license (CONF-002); see {@link TerminalLicenseConfig}. */
   license?: TerminalLicenseConfig
 
+  /** Footer options (THEME-004); see {@link TerminalFooterConfig}. */
+  footer?: TerminalFooterConfig
+
   // Feature toggles are added here as their features land (e.g. POST-002
   // series inclusion, SEARCH-001 DocSearch keys).
 }
@@ -114,10 +149,11 @@ export interface ResolvedAuthorConfig {
 
 /** {@link TerminalThemeConfig} with every default applied — what components consume. */
 export type ResolvedTerminalThemeConfig = Required<
-  Omit<TerminalThemeConfig, 'author' | 'license'>
+  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer'>
 > & {
   author: ResolvedAuthorConfig
   license: Required<TerminalLicenseConfig>
+  footer: Required<TerminalFooterConfig>
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -139,6 +175,8 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
       'fa-brands fa-creative-commons-sa',
     ],
   },
+  // No feed and no social icons until the user configures them (THEME-004).
+  footer: { rss: '', social: [] },
 }
 
 /**
@@ -203,5 +241,11 @@ export function resolveThemeConfig(
   if (user?.localeStrings) resolved.localeStrings = user.localeStrings
   if (user?.author) resolved.author = resolveAuthor(user.author)
   if (user?.license) resolved.license = resolveLicense(user.license)
+  if (user?.footer) {
+    resolved.footer = {
+      rss: user.footer.rss ?? '',
+      social: user.footer.social ?? [],
+    }
+  }
   return resolved
 }

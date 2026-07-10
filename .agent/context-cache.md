@@ -2,7 +2,8 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (I18N-005 canonical
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-09 (CONF-002 author &
+license system; I18N-005 canonical
 locale tags: zh-CN → zh-Hans, site lang en-US → en; THEME-001 TUI shell:
 tool bar / viewport / status bar; THEME-008 fixed shell frame with
 viewport-contained scrolling; THEME-009 back-to-top button; THEME-010 statusline
@@ -42,13 +43,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## .agent/
 
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
-  acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001, STYLE-001/002/003/005,
+  acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001/002,
+  STYLE-001/002/003/005,
   FONT-001/002, I18N-001/002/003/004/005, MD-001/002/003, STYLE-006,
   THEME-001/008/009/010 done (THEME-001 retired the I18N-002 temporary switcher;
   THEME-008 = fixed shell frame rework; THEME-009 = back-to-top button;
   THEME-010 = statusline separators + mode switcher moved to tool bar, which
-  pre-satisfies that part of THEME-005). Roadmap: config (incl.
-  CONF-002 author & license system), code-block card chrome (STYLE-004), theme chrome
+  pre-satisfies that part of THEME-005; CONF-002 = author & license config layer —
+  consumers THEME-004/COMP-001/COMP-003 read it as they land). Roadmap:
+  code-block card chrome (STYLE-004), theme chrome
   (explorer, palette, footer + custom pre-footer section, tool bar extras, settings
   panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
   Waline comments), content (tags/categories, series), pages (home, projects, about,
@@ -66,7 +69,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   scrolls inside the viewport panel and clips at its edges (§5, THEME-008),
   footer spec (custom Vue section on top · separator ·
   copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
-  author/license from CONF-002; attribution row lighter on desktop), cards &
+  author/license from CONF-002; attribution row lighter on desktop), author &
+  license system spec (§4: `author.name`/`author.username` + normalization rule,
+  `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons), cards &
   shell-prompt decoration (prompt user = normalized author username; prompt marks
   featured content; code blocks are card-style windows with a file/lang title bar +
   COPY button, no prompt), explorer retractable on desktop & absent in paper mode,
@@ -135,6 +140,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `localeStrings?: LocaleOverrides` — per-language map `{ tag: partial table }` that
   can also add whole languages; feature toggles land here), `themeConfigDefaults`,
   `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
+  CONF-002: `author` (`name` LocalizableText + shell-safe `username`, derived via
+  exported `normalizeUsername()` when unset, fallback `user`) and `license`
+  (default CC BY-NC-SA 4.0 + deed URL + FA CC icons; a custom `name` drops the CC
+  url/icons — bring your own); single source for footer/prompt/license-card
+  consumers (THEME-004, COMP-001, COMP-003).
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009) —

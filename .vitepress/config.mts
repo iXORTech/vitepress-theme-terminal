@@ -33,6 +33,14 @@ const themeConfig: TerminalThemeConfig = {
   // Per-language theme-string overrides; a complete table under a new tag
   // adds a whole language to the switcher (I18N-003).
   // localeStrings: { "zh-Hans": { "mode.paper": "阅读" } },
+
+  // Author & license system (CONF-002) — the single source for the footer
+  // copyright & license icons, shell-prompt decorations, and the license
+  // card. `username` is derived shell-safe from `name` when unset; the
+  // license defaults to CC BY-NC-SA 4.0 (a custom name replaces the default
+  // as a whole — bring your own url/icons).
+  // author: { name: "Ada Lovelace", username: "ada" },
+  // license: { name: "MIT", url: "https://opensource.org/license/mit/" },
 };
 
 // Shiki themes for the three color modes (STYLE-003). VitePress registers

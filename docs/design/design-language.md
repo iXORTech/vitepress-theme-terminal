@@ -74,6 +74,24 @@ component, but headed by a title bar (file name when given, plus the language na
 holding a COPY button, **not** by a shell-prompt-like decoration (STYLE-004; wireframe
 in ui-sketch.md §6).
 
+**Author & license system (CONF-002)** — the author identity and the content license
+are configured once, in `themeConfig`, and every consuming surface reads from that
+single source: the footer copyright and license icons (THEME-004), shell-prompt
+decorations (COMP-001), the license card (COMP-003), and any author info display.
+
+- `author.name` — the author's full/display name, a `LocalizableText` (§9).
+- `author.username` — the shell-safe name used as the prompt `user`. When not set
+  explicitly it is **derived** from the name: resolve the localized name (English
+  preferred), Unicode-normalize (NFKD) and strip diacritics, lowercase, collapse
+  whitespace runs to `-`, drop every remaining character outside `a-z 0-9 . _ -`,
+  collapse separator runs, and trim leading/trailing separators. If nothing
+  survives (or no name is set), the username falls back to `user`.
+- `license` — the content license: display `name`, deed `url`, and the Font Awesome
+  `icons` classes shown in the footer. Default: **CC BY-NC-SA 4.0**, linking to the
+  Creative Commons deed, with the CC brand icons (cc · by · nc · sa). Setting a
+  custom `license.name` replaces the default as a whole — the CC url/icons are not
+  inherited, so a custom license supplies its own `url`/`icons` (unset means none).
+
 ASCII wireframes of this layout — desktop, floating window, mobile, paper mode,
 footer, and cards — live in [`ui-sketch.md`](ui-sketch.md).
 

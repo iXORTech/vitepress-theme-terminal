@@ -68,7 +68,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `.vitepress/config.mts`; defaults applied when unset; no user-configurable value
     lives outside the config without a documented reason.
 
-- [ ] **CONF-002** — Author & license system
+- [x] **CONF-002** — Author & license system
   - **Category:** Configuration · **Deps:** CONF-001
   - **Acceptance criteria:** `themeConfig` carries the author identity — full/display
     name plus a username, with a normalized shell-safe username derived automatically
@@ -76,6 +76,10 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     All consuming surfaces read from this single source: footer copyright & license
     icons (THEME-004), author info displays, shell-prompt decorations (COMP-001), and
     the license card (COMP-003).
+    *Landed 2026-07-09: `themeConfig.author`/`.license` + `normalizeUsername()` in
+    `theme/config.ts`; rule documented in design-language.md §4. The consuming
+    surfaces are later tasks — each reads the resolved config via
+    `useThemeConfig()` when it lands.*
 
 ### Styling
 

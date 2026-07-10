@@ -13,6 +13,7 @@
 // `useThemeConfig()` composable in `composables/useThemeConfig.ts`.
 
 import type { LocaleOverrides, LocalizableText } from './locales'
+import { resolveLocalizedText } from './locales'
 
 export type {
   LocaleOverrides,
@@ -24,6 +25,40 @@ export type {
 // -----------------------------------------------------------------------------
 // Schema
 // -----------------------------------------------------------------------------
+
+/**
+ * The site author's identity (CONF-002) — the single source for the footer
+ * copyright, shell-prompt decorations, author displays, and the license card
+ * (docs/design/design-language.md §4, author & license system).
+ */
+export interface TerminalAuthorConfig {
+  /** Full/display name, shown e.g. in the footer copyright (I18N-004 text). */
+  name?: LocalizableText
+
+  /**
+   * Shell-safe username used as the `user` in shell-prompt decorations
+   * (COMP-001). When unset, derived from {@link name} via
+   * {@link normalizeUsername}; falls back to `user`.
+   */
+  username?: string
+}
+
+/**
+ * The content license (CONF-002), consumed by the footer license icons
+ * (THEME-004) and the license card (COMP-003). Default: CC BY-NC-SA 4.0.
+ * A custom `name` replaces the default as a whole — the CC `url`/`icons`
+ * are not inherited (design-language.md §4).
+ */
+export interface TerminalLicenseConfig {
+  /** License display name, e.g. `CC BY-NC-SA 4.0`. */
+  name?: string
+
+  /** URL of the license deed / full text. */
+  url?: string
+
+  /** Font Awesome class lists for the footer license icons. */
+  icons?: string[]
+}
 
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
@@ -57,16 +92,33 @@ export interface TerminalThemeConfig {
    */
   localeStrings?: LocaleOverrides
 
-  // Feature toggles are added here as their features land (e.g. CONF-002
-  // author & license, POST-002 series inclusion, SEARCH-001 DocSearch keys).
+  /** Author identity (CONF-002); see {@link TerminalAuthorConfig}. */
+  author?: TerminalAuthorConfig
+
+  /** Content license (CONF-002); see {@link TerminalLicenseConfig}. */
+  license?: TerminalLicenseConfig
+
+  // Feature toggles are added here as their features land (e.g. POST-002
+  // series inclusion, SEARCH-001 DocSearch keys).
 }
 
 // -----------------------------------------------------------------------------
 // Defaults & resolution
 // -----------------------------------------------------------------------------
 
+/** {@link TerminalAuthorConfig} after resolution: the username is always filled. */
+export interface ResolvedAuthorConfig {
+  name: LocalizableText
+  username: string
+}
+
 /** {@link TerminalThemeConfig} with every default applied — what components consume. */
-export type ResolvedTerminalThemeConfig = Required<TerminalThemeConfig>
+export type ResolvedTerminalThemeConfig = Required<
+  Omit<TerminalThemeConfig, 'author' | 'license'>
+> & {
+  author: ResolvedAuthorConfig
+  license: Required<TerminalLicenseConfig>
+}
 
 /** Theme defaults, used wherever the user leaves an option unset. */
 export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
@@ -75,6 +127,65 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   title: '',
   description: '',
   localeStrings: {},
+  author: { name: 'Admin', username: 'admin' },
+  // Default content license (CONF-002): CC BY-NC-SA 4.0 with the CC brand icons.
+  license: {
+    name: 'CC BY-NC-SA 4.0',
+    url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+    icons: [
+      'fa-brands fa-creative-commons',
+      'fa-brands fa-creative-commons-by',
+      'fa-brands fa-creative-commons-nc',
+      'fa-brands fa-creative-commons-sa',
+    ],
+  },
+}
+
+/**
+ * Derive a shell-safe username from a display name, for the prompt
+ * decoration's `user` (CONF-002; rule in design-language.md §4): strip
+ * diacritics, lowercase, whitespace → `-`, drop everything outside
+ * `a-z 0-9 . _ -`, collapse separator runs, trim edge separators. Empty
+ * input yields `user`.
+ */
+export function normalizeUsername(name: string): string {
+  const normalized = name
+    .normalize('NFKD')
+    .replace(/\p{M}+/gu, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9._-]/g, '')
+    .replace(/([-._])[-._]+/g, '$1')
+    .replace(/^[-._]+|[-._]+$/g, '')
+  return normalized || 'user'
+}
+
+/** Resolve the author block: explicit username wins, else derive from the name. */
+function resolveAuthor(author: TerminalAuthorConfig): ResolvedAuthorConfig {
+  const name = author.name ?? ''
+  const explicit = author.username?.trim()
+  const username =
+    explicit || normalizeUsername(resolveLocalizedText(name, 'en') ?? '')
+  return { name, username }
+}
+
+/**
+ * Resolve the license block. The CC BY-NC-SA defaults for `url`/`icons` only
+ * apply while the license *name* is the default one — a custom license must
+ * bring its own deed URL and icons (unset then means none).
+ */
+function resolveLicense(
+  license: TerminalLicenseConfig,
+): Required<TerminalLicenseConfig> {
+  const fallback = themeConfigDefaults.license
+  if (!license.name || license.name === fallback.name) {
+    return {
+      name: fallback.name,
+      url: license.url ?? fallback.url,
+      icons: license.icons ?? fallback.icons,
+    }
+  }
+  return { name: license.name, url: license.url ?? '', icons: license.icons ?? [] }
 }
 
 /**
@@ -90,5 +201,7 @@ export function resolveThemeConfig(
   if (user?.title) resolved.title = user.title
   if (user?.description) resolved.description = user.description
   if (user?.localeStrings) resolved.localeStrings = user.localeStrings
+  if (user?.author) resolved.author = resolveAuthor(user.author)
+  if (user?.license) resolved.license = resolveLicense(user.license)
   return resolved
 }

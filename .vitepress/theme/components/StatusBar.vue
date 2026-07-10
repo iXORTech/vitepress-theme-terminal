@@ -29,6 +29,13 @@ const location = computed(() => {
   return path ? `~/${path}` : '~'
 })
 
+// Vim-style progress label: TOP at 0%, BOT at 100%, the percentage between.
+const progressLabel = computed(() => {
+  if (progress.value <= 0) return t('status.top')
+  if (progress.value >= 100) return t('status.bottom')
+  return `${progress.value}%`
+})
+
 // The language switcher cycles through the available languages in place
 const cycleLanguage = (): void => {
   const tags = languages.value.map((entry) => entry.tag)
@@ -57,17 +64,17 @@ const scrollToTop = (): void => {
     <div class="ct-statusbar__group">
       <!-- Reading progress and back-to-top belong together: one tight cluster -->
       <span class="ct-statusbar__cluster">
-        <span class="ct-statusbar__segment" :title="t('status.progress')">
-          {{ progress }}%
-        </span>
         <button
           class="ct-statusbar__control ct-statusbar__control--icon"
           :title="t('status.backToTop')"
           :aria-label="t('status.backToTop')"
           @click="scrollToTop"
         >
-          <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+          <i class="fa-solid fa-angle-up" aria-hidden="true"></i>
         </button>
+        <span class="ct-statusbar__segment" :title="t('status.progress')">
+          {{ progressLabel }}
+        </span>
       </span>
 
       <button

@@ -27,6 +27,9 @@ export const en = {
   // Status bar segments (THEME-001/009)
   'status.read': 'READ',
   'status.progress': 'Reading progress',
+  // Vim-style position labels shown instead of 0% / 100%
+  'status.top': 'TOP',
+  'status.bottom': 'BOT',
   'status.backToTop': 'Back to top',
 
   // Callout default titles (MD-002)

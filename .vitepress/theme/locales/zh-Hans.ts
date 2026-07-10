@@ -27,6 +27,8 @@ export const zhHans: ThemeLocaleStrings = {
   // Status bar segments
   'status.read': '阅读',
   'status.progress': '阅读进度',
+  'status.top': '顶端',
+  'status.bottom': '底端',
   'status.backToTop': '返回顶部',
 
   // Callout default titles

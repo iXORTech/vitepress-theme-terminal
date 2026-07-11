@@ -19,6 +19,17 @@
   background: var(--ct-bg);
 }
 
+// Middle row of the frame: the explorer sidebar (THEME-002) beside the
+// viewport panel. The row itself never scrolls — each panel scrolls its own
+// content. A retracted explorer is display:none, so the row gap collapses
+// with it and the viewport takes the full width.
+.ct-main {
+  display: flex;
+  flex: 1;
+  min-height: 0; // let the row shrink below its content so the panels scroll
+  gap: var(--ct-gap);
+}
+
 // The viewport is the floating editor panel and the ONLY scroll container:
 // like an editor buffer inside its window, content scrolls within the panel
 // and is clipped by its border — never visible in the panel gaps (THEME-008).
@@ -45,6 +56,12 @@
   .ct-shell {
     height: auto;
     padding: 0;
+  }
+
+  // The explorer hides itself (_explorer.scss); the viewport flows as a
+  // plain block so the article paginates naturally.
+  .ct-main {
+    display: block;
   }
 
   .ct-viewport {

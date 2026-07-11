@@ -24,6 +24,11 @@ export const en = {
   'nav.label': 'Site navigation',
   'nav.home': 'home',
 
+  // File explorer (THEME-002)
+  'explorer.label': 'Explorer',
+  'explorer.toggle': 'Toggle explorer',
+  'explorer.close': 'Close explorer',
+
   // Status bar segments (THEME-001/009)
   'status.read': 'READ',
   'status.progress': 'Reading progress',

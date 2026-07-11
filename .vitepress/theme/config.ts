@@ -92,6 +92,34 @@ export interface TerminalFooterConfig {
   social?: TerminalSocialLink[]
 }
 
+/**
+ * One node of the explorer navigation tree (THEME-002). A node with `items`
+ * renders as a collapsible folder; a node with `link` navigates; a node may
+ * be both. Plain data, so reorganizing the tree never requires component
+ * edits (design-language.md §4, file explorer).
+ */
+export interface TerminalExplorerItem {
+  /** Label shown in the tree, localizable (I18N-004). */
+  text: LocalizableText
+
+  /**
+   * Destination — a site-absolute path (`/posts/hello`) or an external URL.
+   * On a folder node this is its index page: clicking the label opens it and
+   * expands the folder (THEME-011); the chevron only toggles.
+   */
+  link?: string
+
+  /** Child nodes; their presence makes this node a collapsible folder. */
+  items?: TerminalExplorerItem[]
+
+  /**
+   * Explicit initial state, overriding the depth default (THEME-011: only
+   * first-layer folders start open, deeper ones start collapsed). The
+   * visitor's own toggles are persisted and win over both.
+   */
+  collapsed?: boolean
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -132,6 +160,12 @@ export interface TerminalThemeConfig {
 
   /** Footer options (THEME-004); see {@link TerminalFooterConfig}. */
   footer?: TerminalFooterConfig
+
+  /**
+   * File-explorer navigation tree (THEME-002); see {@link TerminalExplorerItem}.
+   * Unset or empty hides the explorer and its tool-bar toggle entirely.
+   */
+  explorer?: TerminalExplorerItem[]
 
   // Feature toggles are added here as their features land (e.g. POST-002
   // series inclusion, SEARCH-001 DocSearch keys).
@@ -177,6 +211,8 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   },
   // No feed and no social icons until the user configures them (THEME-004).
   footer: { rss: '', social: [] },
+  // No explorer until the user configures a tree (THEME-002).
+  explorer: [],
 }
 
 /**
@@ -247,5 +283,6 @@ export function resolveThemeConfig(
       social: user.footer.social ?? [],
     }
   }
+  if (user?.explorer) resolved.explorer = user.explorer
   return resolved
 }

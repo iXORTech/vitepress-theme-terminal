@@ -235,12 +235,21 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     branding; all strings localized; major sections commented; styles in dedicated SCSS
     files.
 
-- [ ] **THEME-002** — File-explorer navigation sidebar
+- [x] **THEME-002** — File-explorer navigation sidebar
   - **Category:** Theme · **Deps:** THEME-001
   - **Acceptance criteria:** tree-style navigation of site content with TUI look;
     retractable/extendable on desktop via an explicit control, with collapsible tree
     nodes; contents easily configured via `themeConfig`; behaves as an off-canvas
     drawer on mobile; not rendered at all in paper mode.
+    *Landed 2026-07-10: `themeConfig.explorer` tree (`{ text, link?, items?,
+    collapsed? }`, LocalizableText labels); `Explorer.vue` + recursive
+    `ExplorerTree.vue` in a new `.ct-main` shell row beside the viewport;
+    tool-bar `[=]` toggle — desktop retract persisted as `ct-explorer`,
+    ≤640px an off-canvas drawer with backdrop / close button / Esc /
+    navigation dismissal; active page accent-highlighted; chevron & file
+    glyphs Nerd-Font-gated; not rendered at all in paper mode or when
+    unconfigured; styles in `styles/_explorer.scss`, state in
+    `composables/useExplorer.ts`; spec note in design-language.md §4.*
 
 - [ ] **THEME-003** — Floating-window utilities (search / command palette)
   - **Category:** Theme · **Deps:** THEME-001
@@ -323,6 +332,28 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     indicator; an icon-only color-mode cycle button lives in the tool bar's
     right action area (its permanent home per THEME-005), localized;
     `design-language.md` §4 table rows updated for both bars.
+
+- [x] **THEME-011** — Explorer rework: NeoVim-style file browser
+  - **Category:** Theme · **Deps:** THEME-002
+  - **Acceptance criteria:** explorer rows render in the NeoVim file-browser
+    idiom — chevron plus Nerd Font folder (closed/open) and file glyphs, gated
+    behind the font-loaded flag with the plain `❯`/`-` fallback; default
+    expansion is depth-based: first-layer folders open, deeper folders
+    collapsed, unless an explicit `collapsed` is configured; every folder's
+    expanded state is remembered (persisted and restored across reloads); a
+    folder node that carries a `link` (its index page) navigates there **and**
+    expands on label click, while its chevron only toggles; demo pages exercise
+    all of it (a `guide/` section with an index page, a child page, and a
+    nested folder with its own index) and the demo explorer config covers them;
+    documented in design-language.md §4.
+    *Landed 2026-07-10: icon column (`nf-fa-folder`/`folder_open`/`file_o`)
+    NF-gated with the plain-marker fallback; per-folder state store in
+    `useExplorer` persisted as `ct-explorer-nodes` (keyed by raw config-text
+    path, stable across language switches), precedence stored > `collapsed` >
+    depth default; folder-link label click expands (never collapses) while
+    navigating; demo pages `src/guide/{index,getting-started,advanced/index,
+    advanced/deep-dive}.md` + demo tree in config.mts; verified headless
+    25/25.*
 
 ### Components
 

@@ -18,6 +18,12 @@ pnpm preview --port 4310 &      # serves .vitepress/dist with client hydration
 `grep -o 'ct-[a-z_-]*' .vitepress/dist/<page>.html | sort -u` is a quick
 SSR-markup sanity check before launching a browser.
 
+**Restart `pnpm preview` after every rebuild.** Its static server (sirv)
+snapshots the asset list at startup, so a rebuild's re-hashed
+`assets/style.*.css`/JS 404 silently — pages then render with stale or NO
+theme CSS and every style assertion fails confusingly
+(`lsof -ti :4310 | xargs kill` first).
+
 ## Headless browser (gotchas)
 
 - No playwright in this repo. Install it in a temp dir:

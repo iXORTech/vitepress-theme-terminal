@@ -1,0 +1,285 @@
+// ============================================================================
+// _explorer.scss — file-explorer navigation sidebar (THEME-002)
+// ============================================================================
+// The tree-style site navigation panel (ui-sketch.md §1/§3): on desktop a
+// fixed-width floating panel left of the viewport, instantly retracted /
+// extended by the tool-bar toggle (editor-tree style — no width animation);
+// at mobile widths (≤640px, matching useExplorer's DRAWER_QUERY) an
+// off-canvas drawer that slides over a dimmed backdrop. TUI chrome, so mono
+// (typography-and-icons.md §1). Rows follow the NeoVim file-browser idiom
+// (THEME-011): rotating chevron + folder (closed/open) or file glyph + label,
+// all Nerd Font PUA glyphs gated behind html[data-ct-nerdfont] (§2 safe
+// fallback) — without the font the row degrades to the sketch's plain `❯` /
+// `-` markers and no icon column. Paper mode never renders the component
+// (Layout.vue).
+
+.ct-explorer {
+  flex-shrink: 0;
+  width: 15rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain; // don't chain scrolling to the page
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%); // subtle depth (design-language.md §5)
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+}
+
+// Desktop retract state: instant hide — the .ct-main gap collapses with it
+@media (min-width: 641px) {
+  .ct-explorer--closed {
+    display: none;
+  }
+}
+
+// Drawer header — mobile-only title row with the explicit close control
+.ct-explorer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--ct-border);
+}
+
+// The drawer chrome (title + close control) exists only on mobile — this
+// hide must follow the base rule above to win the source-order tie
+@media (min-width: 641px) {
+  .ct-explorer__header {
+    display: none;
+  }
+}
+
+.ct-explorer__title {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ct-text-neutral);
+}
+
+// Close button — accent icon control like the tool-bar actions
+.ct-explorer__close {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Tree
+// ----------------------------------------------------------------------------
+
+.ct-explorer__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// Nested levels indent along a subtle guide line, editor-tree style
+.ct-explorer__children {
+  margin-left: 0.625rem;
+  padding-left: 0.375rem;
+  border-left: 1px solid var(--ct-border);
+}
+
+// One tree row: marker (chevron / leaf dash) + label; the current page's row
+// carries the accent (color-system.md §2, active states)
+.ct-explorer__row {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  border-radius: var(--ct-radius-small);
+
+  &--active {
+    background: var(--ct-main-subtle);
+
+    .ct-explorer__label {
+      color: var(--ct-link);
+    }
+  }
+}
+
+// Folder chevron — plain `❯` rotating open (like the callout details
+// chevron), upgraded to the Nerd Font chevron once the symbols font is
+// confirmed usable (FONT-002 gating; the rotation still applies)
+.ct-explorer__chevron {
+  flex-shrink: 0;
+  width: 1.25rem;
+  padding: 0.2rem 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-align: center;
+  color: var(--ct-text-neutral);
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &::before {
+    content: "❯";
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  &--open::before {
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    color: var(--ct-link-hover);
+  }
+}
+
+html[data-ct-nerdfont] .ct-explorer__chevron::before {
+  content: "\f054"; // nf-fa-chevron_right
+  font-family: var(--ct-font-nerd);
+}
+
+// Leaf marker — the sketch's `-` dash fallback; once the icon column takes
+// over (Nerd Font usable) it becomes a plain spacer aligning files under
+// folder chevrons, nvim-tree style
+.ct-explorer__leaf-mark {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  color: var(--ct-text-dim);
+
+  &::before {
+    content: "-";
+  }
+}
+
+html[data-ct-nerdfont] .ct-explorer__leaf-mark::before {
+  content: "";
+}
+
+// Icon column — Nerd Font folder/file glyphs (NeoVim file-browser flavor,
+// THEME-011). Hidden entirely until the symbols font is confirmed usable, so
+// the fallback look never shows an empty column. Folders take the accent
+// tint, files the dim neutral; the folder glyph switches closed/open with
+// the node state.
+.ct-explorer__icon {
+  display: none;
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+  font-family: var(--ct-font-nerd);
+
+  &--folder,
+  &--folder-open {
+    color: var(--ct-link);
+  }
+
+  &--file {
+    color: var(--ct-text-dim);
+  }
+}
+
+html[data-ct-nerdfont] .ct-explorer__icon {
+  display: inline-block;
+
+  &--folder::before {
+    content: "\f07b"; // nf-fa-folder
+  }
+
+  &--folder-open::before {
+    content: "\f07c"; // nf-fa-folder_open
+  }
+
+  &--file::before {
+    content: "\f016"; // nf-fa-file_o
+  }
+}
+
+// The label — a link when the node has one, a folder toggle button otherwise,
+// a plain span for bare text nodes; folder labels read slightly stronger,
+// like directory names in an editor tree
+.ct-explorer__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.2rem 0.3rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: var(--ct-text-neutral);
+  text-decoration: none;
+
+  &--folder {
+    color: var(--ct-text-strong);
+  }
+
+  // Only interactive labels (links / folder toggles) get hover affordances
+  &:is(a, button) {
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: var(--ct-main-subtle);
+      color: var(--ct-link-hover);
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Mobile: off-canvas drawer over a dimmed backdrop (design-language.md §8)
+// ----------------------------------------------------------------------------
+
+// Backdrop — rendered only while the drawer is open; tap dismisses. Above the
+// shell panels, below the drawer.
+.ct-explorer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgb(0 0 0 / 50%);
+}
+
+@media (min-width: 641px) {
+  // Never dim on desktop, even if a stale drawer state survives a resize
+  .ct-explorer-backdrop {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .ct-explorer {
+    position: fixed;
+    top: var(--ct-gap);
+    bottom: var(--ct-gap);
+    left: var(--ct-gap);
+    z-index: 30;
+    width: min(18rem, 85vw);
+    // Fully off-canvas, including gap and shadow spill
+    transform: translateX(calc(-100% - var(--ct-gap) - 16px));
+    transition: transform 0.2s ease;
+    box-shadow: 4px 0 16px rgb(0 0 0 / 24%);
+
+    &--drawer-open {
+      transform: translateX(0);
+    }
+  }
+}
+
+// On-screen chrome only — never printed (paper mode already skips rendering)
+@media print {
+  .ct-explorer,
+  .ct-explorer-backdrop {
+    display: none;
+  }
+}

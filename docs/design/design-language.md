@@ -2,7 +2,7 @@
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-09.
+> Last updated: 2026-07-10.
 
 ## 1. Identity
 
@@ -36,6 +36,38 @@ UI text, default content, or shipped assets.
 
 Flavor details are welcome where they reinforce the metaphor without hurting usability —
 e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
+
+**File explorer (THEME-002/011)** — the side navigation tree, presented in the
+NeoVim file-browser idiom. Its contents are configured as a tree in
+`themeConfig.explorer`: nodes of `{ text, link?, items?, collapsed? }`, where `text`
+is a `LocalizableText` (§9), a node with `items` is a collapsible folder, and a
+folder node's `link` is understood as its **index page**. An unset or empty tree
+removes the explorer — and its toggle — entirely.
+
+Expansion rules (THEME-011): by default only the **first layer** of folders starts
+open — every deeper folder starts collapsed; an explicit `collapsed: true/false` on
+a node overrides the depth default. Every folder's expanded state is **remembered**:
+toggles persist in `localStorage` (`ct-explorer-nodes`, keyed by the node's raw
+config-text path so labels may localize freely) and win over the defaults on the
+next visit. Clicking the **label** of a folder that has an index page navigates to
+that page **and expands** the folder (never collapses); the chevron is the pure
+expand/collapse toggle and never navigates.
+
+*Implemented (THEME-002, reworked THEME-011):* on desktop the explorer is a
+fixed-width floating panel left of the viewport with its own scroll; the explicit
+retract/extend control is the `[=]` toggle at the left of the tool bar, and the
+choice persists in `localStorage` (`ct-explorer`, alongside `ct-mode`/`ct-lang`).
+The retract is instant — editor-tree style — while the mobile drawer slides. At
+mobile widths (≤640px) the same toggle opens the tree as an off-canvas drawer over
+a dimmed backdrop, dismissed by its explicit close button, tapping the backdrop,
+`Esc` (§7), or navigating. The current page's row is accent-highlighted (links
+resolved against the page's `relativePath`, so the `base` never matters). Rows use
+Nerd Font glyphs behind the font-loaded gate (typography-and-icons.md §2): a
+rotating chevron plus a folder icon that switches closed/open on folders (accent
+tint), and a file icon on leaves (dim tint); when the symbols font is unavailable
+the row degrades to the sketch's plain `❯` / `-` markers with no icon column. In
+paper mode the explorer and its toggle are **not rendered at all** (this section's
+table; ui-sketch.md §4), and neither prints.
 
 **Footer** — sits at the bottom of the main viewport, inside the content panel: it
 scrolls with the article and is **not** a separate floating bar. Structure, top to

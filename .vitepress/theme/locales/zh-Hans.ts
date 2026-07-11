@@ -24,6 +24,11 @@ export const zhHans: ThemeLocaleStrings = {
   'nav.label': '站点导航',
   'nav.home': '主页',
 
+  // File explorer
+  'explorer.label': '资源管理器',
+  'explorer.toggle': '切换资源管理器',
+  'explorer.close': '关闭资源管理器',
+
   // Status bar segments
   'status.read': '阅读',
   'status.progress': '阅读进度',

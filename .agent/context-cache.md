@@ -2,7 +2,10 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (THEME-004 in-viewport
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (THEME-011 nvim-style
+explorer rework: NF folder/file icons, depth defaults + persisted node states,
+folder-index click, guide demo pages; earlier same day THEME-002 file
+explorer, THEME-004 in-viewport
 footer). Earlier: 2026-07-09 (CONF-002 author &
 license system; I18N-005 canonical
 locale tags: zh-CN → zh-Hans, site lang en-US → en; THEME-001 TUI shell:
@@ -32,9 +35,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## .claude/
 
 - `skills/verify/SKILL.md` — repo verification recipe for coding agents: build +
-  `pnpm preview`, drive the rendered site headless (temp-dir playwright, system
-  Chromium fallback), and the UI flows worth exercising (modes, language, shell
-  chrome, mobile, print, Nerd Font gating).
+  `pnpm preview` (must be RESTARTED after each rebuild — sirv snapshots the
+  asset list, so re-hashed assets 404), drive the rendered site headless
+  (temp-dir playwright, system Chromium fallback), and the UI flows worth
+  exercising (modes, language, shell chrome, mobile, print, Nerd Font gating).
 
 ## .github/
 
@@ -52,9 +56,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   THEME-010 = statusline separators + mode switcher moved to tool bar, which
   pre-satisfies that part of THEME-005; CONF-002 = author & license config layer —
   consumers COMP-001/COMP-003 read it as they land; THEME-004 = in-viewport
-  footer, done 2026-07-10). Roadmap:
+  footer + THEME-002 = file-explorer sidebar + THEME-011 = nvim-style explorer
+  rework, done 2026-07-10). Roadmap:
   code-block card chrome (STYLE-004), theme chrome
-  (explorer, palette, custom pre-footer section, tool bar extras, settings
+  (palette, custom pre-footer section, tool bar extras, settings
   panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
   Waline comments), content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
@@ -69,6 +74,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   language, hard no-branding rule, iconic components table (tool bar, status bar,
   explorer, floating windows), fixed shell frame — page never scrolls, content
   scrolls inside the viewport panel and clips at its edges (§5, THEME-008),
+  file-explorer spec + THEME-002/011 implemented note (§4: `themeConfig.explorer`
+  tree `{ text, link?, items?, collapsed? }`, folder `link` = its index page
+  (label click navigates AND expands; chevron pure toggle); depth default =
+  first layer open / deeper collapsed, toggles remembered in
+  `ct-explorer-nodes`; NF chevron + folder/file icon row with plain-marker
+  fallback; tool-bar `[=]` toggle,
+  `ct-explorer` persistence, ≤640px drawer, paper mode = not rendered),
   footer spec (custom Vue section on top · separator ·
   copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
   author/license from CONF-002; attribution row lighter on desktop; THEME-004
@@ -115,9 +127,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   "en"` as the default UI language (minimal canonical tag, I18N-005; no
   VitePress `locales` — I18N-003);
   `themeConfig` demos per-language `title`/`description` maps, an MIT
-  `license` (exercises the footer's icon-less text fallback), and a `footer`
+  `license` (exercises the footer's icon-less text fallback), a `footer`
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
-  generated yet); `markdown.math: true`
+  generated yet), and an `explorer` tree (home + a "guide" folder with index
+  page, child page, and nested "advanced" folder — the THEME-011 demo — + an
+  "examples" folder, localized labels); `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002: Font
@@ -153,10 +167,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   url/icons — bring your own); single source for footer/prompt/license-card
   consumers (THEME-004, COMP-001, COMP-003). THEME-004: `footer`
   (`rss` feed URL, default `''`; `social: TerminalSocialLink[]` — FA `icon` +
-  `link` + optional LocalizableText `label`).
+  `link` + optional LocalizableText `label`). THEME-002/011: `explorer:
+  TerminalExplorerItem[]` tree (`{ text: LocalizableText, link?, items?,
+  collapsed? }`; a folder's `link` is its index page; `collapsed` overrides
+  the depth default; default `[]` = no explorer rendered).
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009),
+  `explorer.*` ×3 — label/toggle/close (THEME-002),
   `footer.*` ×5 with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
   placeholders (THEME-004) — grows per feature); exports
   `ThemeLocaleStrings`/`ThemeLocaleKey`.
@@ -185,6 +203,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   Font Loading API confirms `NerdFontsSymbols Nerd Font` is usable (`fonts.ready` →
   `fonts.load()`, empty result = stylesheet missing); gates all PUA glyphs so a
   failed stylesheet degrades tofu-free (FONT-002/MD-003); called once from the layout.
+- `theme/composables/useExplorer.ts` — explorer state singleton (THEME-002/011):
+  `available` (tree configured ∧ mode ≠ paper), `desktopOpen` (persisted to
+  localStorage `ct-explorer`, restored post-mount), transient `drawerOpen`;
+  `toggle()` drives the drawer under the 640px matchMedia query, the desktop
+  retract above it; `closeDrawer()`. THEME-011: per-folder expanded store —
+  `isNodeExpanded(key, defaultOpen)` / `setNodeExpanded(key, open)` over a
+  `nodeStates` map holding only touched folders, persisted as JSON in
+  `ct-explorer-nodes` and restored post-mount.
 - `theme/composables/useReadingProgress.ts` — scroll progress as an integer % for
   the status bar (THEME-001/008): tracks the `.ct-viewport` panel (the shell's
   only scroll container), 100 when the page fits inside it; updates on
@@ -208,17 +234,37 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
   empty `enhanceApp`.
 - `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
-  `<ToolBar/>`, the `.ct-viewport` panel (template ref wired to
+  `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when `useExplorer().available`
+  (THEME-002: tree configured ∧ not paper mode; truly unrendered otherwise)
+  beside the `.ct-viewport` panel (template ref wired to
   `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
   localized title/description, PAGE-001 pending — or `<Content/>`, then
-  `<SiteFooter/>` (THEME-004; the THEME-006 custom section slots in above it)),
+  `<SiteFooter/>` (THEME-004; the THEME-006 custom section slots in above it)) —
   and `<StatusBar/>`; calls `useCalloutTitles()` + `useNerdFont()` once.
-- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): brand
+- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
+  explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
+  exist — THEME-002), brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
   state — and the right-side action icons: the color-mode cycle button (FA
   half-circle, `mode.switch`); configurable entries/more actions come with
   THEME-005, search trigger with THEME-003.
+- `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002): `<nav>`
+  panel with mobile-only header (localized EXPLORER title + FA close button)
+  and the recursive tree; `--closed`/`--drawer-open` classes from
+  `useExplorer()`; drawer dismissed via close button, backdrop tap (sibling
+  `.ct-explorer-backdrop` div), `Esc` (window keydown), or navigation (watch
+  `page.relativePath`).
+- `theme/components/ExplorerTree.vue` — one recursive tree level
+  (THEME-002/011), nvim-tree row anatomy: chevron (folders; pure toggle) or
+  dash spacer (leaves) + NF folder/file icon span + label. Expanded state
+  from the `useExplorer()` store keyed by `parentKey + '/' + raw config
+  text` (language-stable); default = explicit `collapsed`, else `depth === 0`.
+  A folder-with-link label click navigates AND `expandNode()`s (never
+  collapses); link nodes are anchors (`withBase`; external `_blank
+  noreferrer`); the active row matched by mapping the link to
+  `page.relativePath` form (base- and clean-URL-proof); labels via
+  `resolveLocalizedText` against the active language.
 - `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004): grid of
   four cells — localized copyright (`{year}`/`{author}`, author from CONF-002) ·
   social icons (`themeConfig.footer.social`) · powered-by (localized
@@ -236,7 +282,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   indicator span (switching lives in the tool bar); replaces the I18N-002
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s tokens/modes/shell/toolbar/
-  statusbar/content/footer/code/callouts, then base document styles (box-sizing,
+  explorer/statusbar/content/footer/code/callouts, then base document styles (box-sizing,
   body bg/color/font via semantic tokens, `::selection` from the derived
   highlight).
 - `theme/styles/_tokens.scss` — primitives: `--ct-main` fallback on `html` (lower
@@ -278,18 +324,33 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity).
 - `theme/styles/_shell.scss` — THEME-001/008 shell frame: `.ct-shell` FIXED
-  100dvh flex column with `--ct-gap` gaps/padding; `.ct-viewport` bordered
+  100dvh flex column with `--ct-gap` gaps/padding; `.ct-main` middle flex row
+  (explorer beside viewport, THEME-002 — a retracted explorer is display:none
+  so the row gap collapses); `.ct-viewport` bordered
   rounded panel is the only scroll container (`flex: 1; min-height: 0;
   overflow-y: auto; overscroll-behavior: contain; scroll-padding-top`) — content
   clips at its edges, the frame never scrolls; the panel is itself a flex
   column so the in-viewport footer pins to its bottom edge on short pages
-  (THEME-004); print releases the fixed height and drops padding/border so the
-  full article prints.
+  (THEME-004); print releases the fixed height, drops padding/border, and
+  flattens `.ct-main` to a block so the full article prints.
 - `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
   + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
   `[data-ct-nerdfont]`; editor-tab links with accent hover/active; right-aligned
   `__actions` group with accent icon buttons (mode switcher, THEME-010); tabs
-  hidden ≤640px (drawer takes over in THEME-002); hidden in print.
+  hidden ≤640px (the explorer drawer takes over, THEME-002); hidden in print.
+- `theme/styles/_explorer.scss` — THEME-002/011 file-explorer sidebar: desktop
+  15rem surface panel with own scroll (`--closed` = display:none, instant
+  editor-tree retract, ≥641px only); mono TUI chrome. Rows nvim-tree style
+  behind `[data-ct-nerdfont]`: NF chevron `\f054` (rotates open), icon column
+  (`__icon--folder \f07b` / `--folder-open \f07c` accent-tinted, `--file
+  \f016` dim; display:none without the gate) with the leaf dash becoming a
+  spacer; fallback = plain `❯` / `-`, no icon column. Folder labels
+  `--ct-text-strong`; nested levels indent along a border-left guide; active
+  row = `--ct-main-subtle` bg + accent label; ≤640px = fixed off-canvas
+  drawer (`translateX` slide, `--drawer-open`, z-30) over the
+  `.ct-explorer-backdrop` dim layer (z-20, desktop-hidden), drawer-only
+  header; hidden in print. The drawer breakpoint must match useExplorer's
+  `DRAWER_QUERY`.
 - `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
   same panel finish, mono small; inverted accent `READ` chip (main-color bg,
   gray-100 text), truncating location, accent text-button controls + `--icon`
@@ -301,6 +362,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## src/ (site content — VitePress `srcDir`)
 
 - `index.md` — home page stub: only `home: true` frontmatter.
+- `guide/index.md`, `guide/getting-started.md`, `guide/advanced/index.md`,
+  `guide/advanced/deep-dive.md` — THEME-011 explorer demo section: a folder
+  with an index page, a leaf page (shows the explorer config snippet), and a
+  nested second-layer folder with its own index + leaf; the pages narrate the
+  depth-default, remembered-state, and folder-index-click behaviors they
+  demonstrate.
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting, every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
   deflists, abbr), math, inline Font Awesome icons (FONT-002), and all 8 callout

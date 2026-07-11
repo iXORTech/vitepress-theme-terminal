@@ -3,22 +3,28 @@
 // Layout.vue — the TUI shell: tool bar · viewport · status bar (THEME-001)
 // ============================================================================
 // Composes the persistent terminal chrome around the page content
-// (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the floating
-// content viewport — holding the content column and the in-viewport footer
-// (THEME-004) — and the bottom status bar. The explorer sidebar (THEME-002),
-// floating utilities (THEME-003), and the custom pre-footer section
-// (THEME-006) attach to this frame later.
+// (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the middle
+// row — explorer sidebar (THEME-002) beside the floating content viewport,
+// which holds the content column and the in-viewport footer (THEME-004) —
+// and the bottom status bar. Floating utilities (THEME-003) and the custom
+// pre-footer section (THEME-006) attach to this frame later.
 import { ref } from 'vue'
 import { useData } from 'vitepress'
+import Explorer from './components/Explorer.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
+import { useExplorer } from './composables/useExplorer'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
 import { useViewportScroll } from './composables/useViewportScroll'
 
 const { frontmatter } = useData()
+
+// The explorer exists only when a tree is configured and the mode isn't
+// paper (THEME-002) — then it is not rendered at all, not merely hidden.
+const { available: explorerAvailable } = useExplorer()
 
 // The viewport panel is the scroll container of the fixed shell frame
 // (THEME-008); this wires the router-facing scroll behaviors onto it.
@@ -41,25 +47,32 @@ useNerdFont()
     <!-- Top tool bar / tabline -->
     <ToolBar />
 
-    <!-- Content viewport — the floating editor panel and scroll container -->
-    <main ref="viewport" class="ct-viewport">
-      <div class="ct-content">
-        <template v-if="frontmatter.home">
-          <!-- Placeholder home content until the home page lands (PAGE-001) -->
-          <h1>{{ title }}</h1>
-          <p>{{ description }}</p>
-          <ul>
-            <li><a href="/markdown-examples.html">Markdown Examples</a></li>
-            <li><a href="/api-examples.html">API Examples</a></li>
-          </ul>
-        </template>
-        <Content v-else />
-      </div>
+    <!-- Middle row: explorer sidebar beside the content viewport -->
+    <div class="ct-main">
+      <!-- File-explorer navigation — absent in paper mode and when
+           unconfigured (THEME-002) -->
+      <Explorer v-if="explorerAvailable" />
 
-      <!-- In-viewport footer — scrolls with the content (THEME-004); the
-           user-supplied custom section slots in above it later (THEME-006) -->
-      <SiteFooter />
-    </main>
+      <!-- Content viewport — the floating editor panel and scroll container -->
+      <main ref="viewport" class="ct-viewport">
+        <div class="ct-content">
+          <template v-if="frontmatter.home">
+            <!-- Placeholder home content until the home page lands (PAGE-001) -->
+            <h1>{{ title }}</h1>
+            <p>{{ description }}</p>
+            <ul>
+              <li><a href="/markdown-examples.html">Markdown Examples</a></li>
+              <li><a href="/api-examples.html">API Examples</a></li>
+            </ul>
+          </template>
+          <Content v-else />
+        </div>
+
+        <!-- In-viewport footer — scrolls with the content (THEME-004); the
+             user-supplied custom section slots in above it later (THEME-006) -->
+        <SiteFooter />
+      </main>
+    </div>
 
     <!-- Bottom status bar / statusline -->
     <StatusBar />

@@ -3,14 +3,16 @@
 // ToolBar.vue — top tool bar / tabline (THEME-001)
 // ============================================================================
 // The editor-style top bar of the TUI shell (design-language.md §4–5,
-// ui-sketch.md §1): brand glyph + localized site title on the left, site
-// navigation rendered as editor tabs beside it, and the global action icons
-// on the right — currently the color-mode switcher (THEME-010; the status
-// bar only indicates the mode). Configurable nav entries and extra action
-// icons arrive with THEME-005; the search trigger with THEME-003.
+// ui-sketch.md §1): the explorer toggle (THEME-002) and brand glyph +
+// localized site title on the left, site navigation rendered as editor tabs
+// beside it, and the global action icons on the right — currently the
+// color-mode switcher (THEME-010; the status bar only indicates the mode).
+// Configurable nav entries and extra action icons arrive with THEME-005; the
+// search trigger with THEME-003.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { useColorMode } from '../composables/useColorMode'
+import { useExplorer } from '../composables/useExplorer'
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
@@ -18,6 +20,10 @@ const { page } = useData()
 
 // Color-mode cycling — the switcher's permanent home is the tool bar
 const { cycleMode } = useColorMode()
+
+// Explorer toggle (THEME-002): retract/extend on desktop, drawer on mobile;
+// hidden entirely when the explorer doesn't exist (no tree / paper mode).
+const { available: explorerAvailable, toggle: toggleExplorer } = useExplorer()
 
 // Localized site title (I18N-004)
 const { title } = useSiteText()
@@ -32,6 +38,18 @@ const isHome = computed(() => page.value.relativePath === 'index.md')
 
 <template>
   <header class="ct-toolbar">
+    <!-- Explorer toggle — the explicit retract/extend control on desktop,
+         the drawer trigger on mobile (THEME-002, ui-sketch.md §3 `[=]`) -->
+    <button
+      v-if="explorerAvailable"
+      class="ct-toolbar__action"
+      :title="t('explorer.toggle')"
+      :aria-label="t('explorer.toggle')"
+      @click="toggleExplorer"
+    >
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+
     <!-- Brand: decorative TUI glyph + localized site title, links home -->
     <a class="ct-toolbar__brand" :href="withBase('/')">
       <span class="ct-toolbar__glyph" aria-hidden="true"></span>

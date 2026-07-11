@@ -56,6 +56,35 @@ html {
   --ct-orange-40: #ff832b; // RSS accent on dark (THEME-004 footer)
   --ct-orange-60: #ba4e00; // RSS accent on light/paper
 
+  // Oxocarbon syntax-role primitives reused by shell-prompt chrome
+  // (color-system.md §5; dark/light from oxocarbon.nvim, paper from PRINT).
+  --ct-oxocarbon-dark-bg: #161616;
+  --ct-oxocarbon-dark-text: #dde1e6;
+  --ct-oxocarbon-dark-punctuation: #3ddbd9;
+  --ct-oxocarbon-dark-user: #42be65;
+  --ct-oxocarbon-dark-host: #08bdba;
+  --ct-oxocarbon-dark-path: #82cfff;
+  --ct-oxocarbon-dark-command: #ff7eb6;
+  --ct-oxocarbon-dark-args: #be95ff;
+
+  --ct-oxocarbon-light-bg: #ffffff;
+  --ct-oxocarbon-light-text: #37474f;
+  --ct-oxocarbon-light-punctuation: #ff7eb6;
+  --ct-oxocarbon-light-user: #42be65;
+  --ct-oxocarbon-light-host: #08bdba;
+  --ct-oxocarbon-light-path: #ffab91;
+  --ct-oxocarbon-light-command: #673ab7;
+  --ct-oxocarbon-light-args: #be95ff;
+
+  --ct-oxocarbon-paper-bg: #ffffff;
+  --ct-oxocarbon-paper-text: #0d0b07;
+  --ct-oxocarbon-paper-punctuation: #727272;
+  --ct-oxocarbon-paper-user: #393939;
+  --ct-oxocarbon-paper-host: #575757;
+  --ct-oxocarbon-paper-path: #221e19;
+  --ct-oxocarbon-paper-command: #0d0b07;
+  --ct-oxocarbon-paper-args: #575757;
+
   // --------------------------------------------------------------------------
   // Font stacks — IBM Plex with system fallbacks (typography-and-icons.md §1)
   // --------------------------------------------------------------------------

@@ -1,0 +1,116 @@
+// ============================================================================
+// _card.scss — TUI floating card component (COMP-001)
+// ============================================================================
+// Reusable cards keep the shell's Unicode-frame flavor while using the
+// modern finish shared by the tool bar, viewport, and status bar: subtle
+// rounding, a floating gap, a quiet border, and restrained depth. The
+// optional prompt line is TUI chrome and therefore uses the mono face.
+
+.ct-card {
+  width: 100%;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-text) 6%, transparent);
+  color: var(--ct-text);
+
+  // --------------------------------------------------------------------------
+  // Optional shell-prompt header
+  // --------------------------------------------------------------------------
+  &__prompt {
+    display: flex;
+    align-items: baseline;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--ct-border);
+    background: var(--ct-prompt-bg);
+    color: var(--ct-prompt-text);
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    scrollbar-width: thin;
+
+    > * {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__prompt-punctuation {
+    color: var(--ct-prompt-punctuation);
+  }
+
+  &__prompt-user {
+    color: var(--ct-prompt-user);
+    font-weight: 600;
+  }
+
+  &__prompt-host {
+    color: var(--ct-prompt-host);
+  }
+
+  &__prompt-path {
+    color: var(--ct-prompt-path);
+  }
+
+  &__prompt--path-ellipsis &__prompt-path {
+    min-width: 3ch;
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__prompt-command {
+    color: var(--ct-prompt-command);
+    white-space: pre;
+  }
+
+  &__prompt-args {
+    color: var(--ct-prompt-args);
+    white-space: pre;
+  }
+
+  // --------------------------------------------------------------------------
+  // Consumer content
+  // --------------------------------------------------------------------------
+  &__body {
+    min-width: 0;
+    padding: 1.25rem;
+    overflow-wrap: anywhere;
+
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Keep cards usable at the narrow mobile width without allowing a long shell
+// command or body content to widen the page.
+@media (max-width: 640px) {
+  .ct-card {
+    margin: 1rem 0;
+
+    &__prompt {
+      padding-inline: 0.75rem;
+    }
+
+    &__body {
+      padding: 1rem;
+    }
+  }
+}
+
+// Cards remain framed in print, but their screen-only depth is unnecessary.
+@media print {
+  .ct-card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

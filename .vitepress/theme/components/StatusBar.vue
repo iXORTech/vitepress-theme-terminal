@@ -14,6 +14,7 @@ import { useData } from 'vitepress'
 import { useColorMode } from '../composables/useColorMode'
 import { useReadingProgress } from '../composables/useReadingProgress'
 import { useThemeLocale } from '../composables/useThemeLocale'
+import { formatPageLocation } from '../utils/pagePath'
 
 const { page } = useData()
 const { mode } = useColorMode() // indicator only — the switcher is in the tool bar
@@ -22,12 +23,7 @@ const progress = useReadingProgress()
 
 // Current location as a home-relative TUI path: index.md → ~, otherwise
 // ~/<path without extension> (path data, not translatable UI text).
-const location = computed(() => {
-  const path = page.value.relativePath
-    .replace(/(^|\/)index\.md$/, '')
-    .replace(/\.md$/, '')
-  return path ? `~/${path}` : '~'
-})
+const location = computed(() => formatPageLocation(page.value.relativePath))
 
 // Vim-style progress label: TOP at 0%, BOT at 100%, the percentage between.
 const progressLabel = computed(() => {

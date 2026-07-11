@@ -1,13 +1,14 @@
 # Color System
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-09.
+> Last updated: 2026-07-10.
 
 ## 1. Three layers
 
 1. **Main color** — one configurable accent, default `#80E0A7`. The protagonist.
 2. **IBM Carbon palette** — the supporting structure and design enhancement.
-3. **Oxocarbon** — code syntax highlighting (itself Carbon-derived).
+3. **Oxocarbon** — code syntax highlighting and shell-prompt roles (itself
+   Carbon-derived).
 
 ## 2. Main color
 
@@ -41,7 +42,7 @@ provides everything that is not the main color: background layers and surfaces, 
 text tiers, borders, and semantic colors (error/warning/info/success). Carbon enhances
 the design; it must never compete with the main color for attention.
 
-## 5. Oxocarbon for code
+## 5. Oxocarbon for code and shell prompts
 
 Syntax highlighting uses nyoom-engineering's **Oxocarbon**:
 
@@ -52,6 +53,12 @@ Syntax highlighting uses nyoom-engineering's **Oxocarbon**:
   [VSCode variant](https://github.com/nyoom-engineering/vscode-oxocarbon).
 
 Implementation goes through custom Shiki themes configured in the VitePress config.
+
+TUI shell-prompt decorations reuse the same Oxocarbon role language: dark/light
+prompt segments map to the corresponding Oxocarbon syntax roles, while paper/print
+uses the print palette's grayscale roles. The prompt header background and base text
+also follow the active Oxocarbon surface/foreground pair rather than the main-color
+accent.
 
 ## 6. The three modes
 
@@ -98,3 +105,7 @@ must be added to the VitePress config surface and documented (see `AGENTS.md` §
   selected per mode in `styles/_code.scss`. Dark/light transcribe the oxocarbon.nvim
   highlight groups to TextMate scopes; paper is the vendored print theme
   (`PRINT.json`, MIT) from nyoom-engineering/oxocarbon-vscode.
+- **Shell-prompt decorations.** Card prompt segments consume mode-specific
+  `--ct-prompt-*` semantic tokens mapped to the Oxocarbon syntax roles; paper uses
+  the print theme's grayscale values. The prompt surface and base text use the
+  corresponding Oxocarbon editor background and foreground.

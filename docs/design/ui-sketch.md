@@ -156,9 +156,11 @@ to visually separate the two rows. Apply only on desktop.*
 ## 6. Card component — floating window with shell prompt
 
 The reusable card (design-language.md §4, cards) is a TUI-style floating window. The
-prompt line is optional and configured per use: `admin` here is the normalized author
-username from the author & license configuration (CONF-002); host, path, and command
-are chosen by the consuming component.
+prompt line is optional and enabled per use with `showPrompt`; `admin` here is the
+normalized author username from the author & license configuration (CONF-002), and
+`vitepress-theme-terminal` is the shell-normalized site title used as the host.
+When no path is supplied, the card uses the current page's home-relative path;
+host, path, command, and optional args may all be overridden.
 
 ```
 ╭─ card ───────────────────────────────────────────────────────────────────╮

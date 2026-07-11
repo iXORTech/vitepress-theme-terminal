@@ -2,7 +2,10 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (THEME-015 removal of
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (FIX-002 progressive
+prompt overflow; FIX-001 argument spacing; COMP-001 Oxocarbon prompt styling and softer card
+shadow; DEMO-002 override demo;
+COMP-001 current-page prompt path default; DEMO-002 card demo; COMP-001 reusable card component; THEME-015 removal of
 explicit folder collapsed configuration; THEME-014 transient route-aware
 explorer expansion; FONT-003 reliable Nerd
 Font readiness; THEME-013 source-local JSON folder metadata and index-less
@@ -56,19 +59,20 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `plan.md` — task board: tasks with `TYPE-###` IDs, categories, dependencies,
   acceptance criteria. DOC-001/003/005/006, INFRA-001, CONF-001/002,
   STYLE-001/002/003/005,
-  FONT-001/002, I18N-001/002/003/004/005, MD-001/002/003, STYLE-006,
+  FONT-001/002, I18N-001/002/003/004/005, MD-001/002/003, STYLE-006, DEMO-002,
   THEME-001/008/009/010 done (THEME-001 retired the I18N-002 temporary switcher;
   THEME-008 = fixed shell frame rework; THEME-009 = back-to-top button;
   THEME-010 = statusline separators + mode switcher moved to tool bar, which
   pre-satisfies that part of THEME-005; CONF-002 = author & license config layer —
-  consumers COMP-001/COMP-003 read it as they land; THEME-004 = in-viewport
+  COMP-001/COMP-003 consume it for prompts and the license card; THEME-004 =
+  in-viewport
   footer + THEME-002 = file-explorer sidebar + THEME-011 = nvim-style explorer
   rework, THEME-012 auto-discovered source explorer and I18N-006 localized
   labels done 2026-07-10. Roadmap:
   code-block card chrome (STYLE-004), theme chrome
   (palette, custom pre-footer section, tool bar extras, settings
-  panel), components (card w/ shell prompt, Fancybox/Swiper images, license card,
-  Waline comments), content (tags/categories, series), pages (home, projects, about,
+  panel), components (Fancybox/Swiper images, license card, Waline comments),
+  content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
@@ -100,9 +104,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   color-mix-derived lighter tone, mobile stack order), author &
   license system spec (§4: `author.name`/`author.username` + normalization rule,
   `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons), cards &
-  shell-prompt decoration (prompt user = normalized author username; prompt marks
-  featured content; code blocks are card-style windows with a file/lang title bar +
-  COPY button, no prompt), explorer retractable on desktop & absent in paper mode,
+  shell-prompt decoration (explicit `showPrompt`; prompt user = normalized author
+  username; host defaults to normalized active site title; path defaults to the
+  current page location; host/path/command/args remain overridable; prompt marks
+  featured content; constrained prompts progressively hide host, reduce the path
+  to its last section, and apply an end ellipsis; code blocks are card-style
+  windows with a file/lang title bar + COPY button, no prompt), explorer retractable
+  on desktop & absent in paper mode,
   modern finish, mode list, keyboard/mobile/i18n principles; §9: hard rule — no
   `/<lang>/` URL trees, UI language is a client-side preference (`ct-lang`);
   LocalizableText pattern for all config text (I18N-004); I18N-001/003
@@ -113,8 +121,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
   modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
   from it; IBM Carbon supporting palette; Oxocarbon (nvim dark/light, vscode PRINT
-  for paper) for code; §8 implementation reference (`--ct-` tokens, head-injected
-  main color, `data-ct-mode` + `ct-mode` storage, callout colors, three-theme shiki).
+  for paper) for code and shell prompts; §8 implementation reference (`--ct-`
+  tokens, head-injected main color, `data-ct-mode` + `ct-mode` storage, callout
+  colors, three-theme shiki, and mode-aware prompt roles).
 - `design/typography-and-icons.md` — binding: IBM Plex allocation (Sans = UI/body,
   Serif = paper-mode body, Mono = code + TUI chrome); Font Awesome for most icons, Nerd
   Font only in TUI chrome incl. callout chrome (title glyphs + details chevron, MD-003);
@@ -130,8 +139,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   desktop shell (tool bar / explorer + viewport / status bar), floating find palette,
   mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
   hides explorer/utility panels), in-viewport footer (attribution row lighter on
-  desktop), card component with shell prompt + code-block variant with file/lang/COPY
-  title bar (§6); legend of placeholder glyphs and a region → spec → build-task map.
+  desktop), card component with explicit `showPrompt`, normalized site-title host,
+  and code-block variant with file/lang/COPY title bar (§6); legend of placeholder
+  glyphs and a region → spec → build-task map.
 
 ## .vitepress/
 
@@ -179,7 +189,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   can also add whole languages; feature toggles land here), `themeConfigDefaults`,
   `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
   CONF-002: `author` (`name` LocalizableText + shell-safe `username`, derived via
-  exported `normalizeUsername()` when unset, fallback `user`) and `license`
+  exported `normalizeUsername()` when unset, fallback `user`); the shared
+  `normalizeShellIdentifier()` helper also normalizes the site-title host used by
+  COMP-001. `license`
   (default CC BY-NC-SA 4.0 + deed URL + FA CC icons; a custom `name` drops the CC
   url/icons — bring your own); single source for footer/prompt/license-card
   consumers (THEME-004, COMP-001, COMP-003). THEME-004: `footer`
@@ -254,8 +266,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `mode`/`setMode`/`cycleMode` over `'dark'|'light'|'paper'`; mirrors the
   `data-ct-mode` attribute set pre-paint by head.ts, persists to localStorage
   `ct-mode`; SSR-safe.
-- `theme/index.ts` — theme entry: exports `Layout.vue`, imports `styles/main.scss`,
-  empty `enhanceApp`.
+- `theme/index.ts` — theme entry: exports `Layout.vue` and the reusable `Card`
+  component, imports `styles/main.scss`, and keeps the default `enhanceApp` hook
+  empty.
 - `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
   `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when `useExplorer().available`
   (THEME-002: tree configured ∧ not paper mode; truly unrendered otherwise)
@@ -290,6 +303,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `page.relativePath` form (base- and clean-URL-proof); active-route ancestors
   expand temporarily without storage writes; labels via `resolveLocalizedText`
   against the active language.
+- `theme/components/Card.vue` — reusable TUI floating card (COMP-001) with an
+  explicit `showPrompt` flag and a typed `prompt` object (`command`, optional
+  `host`/`path`/`args`). The prompt user comes from
+  `useThemeConfig().author.username`; host defaults to the normalized active site
+  title and path to the current page location, with every value overridable.
+  Prompt markup separates host, path, command, and args so each can use an
+  Oxocarbon role token; command and args preserve their explicit leading
+  separators in the flex prompt layout. A resize-aware staged fitter hides the
+  host, reduces the path to its last section, and then enables path ellipsis.
 - `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004): grid of
   four cells — localized copyright (`{year}`/`{author}`, author from CONF-002) ·
   social icons (`themeConfig.footer.social`) · powered-by (localized
@@ -300,16 +322,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   sentence (`{license}` placeholder) with the name as an underlined deed link
   (plain text without `url`).
 - `theme/components/StatusBar.vue` — bottom statusline (THEME-001/009/010): left
-  `READ` chip (`status.read`) + current location as a home-relative path from
-  `page.relativePath`; right a tight progress-% + back-to-top cluster (FA
+  `READ` chip (`status.read`) + current location from the shared `formatPageLocation`
+  helper; right a tight progress-% + back-to-top cluster (FA
   arrow-up smooth-scrolls `.ct-viewport` to 0), the permanent in-place language
   switcher (cycles `languages`, hidden under two), and a read-only color-mode
   indicator span (switching lives in the tool bar); replaces the I18N-002
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
-  (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/content/footer/
-  code/callouts, then base document styles (box-sizing, body bg/color/font via
-  semantic tokens, `::selection` from the derived highlight).
+  (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/content/card/
+  footer/code/callouts, then base document styles (box-sizing, body bg/color/font
+  via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_fonts.scss` — registers the current jsDelivr
   `SymbolsNerdFont-Regular.ttf` under `NerdFontsSymbols Nerd Font Terminal`,
   compensating for the generated CSS's missing legacy `/fonts/` source path
@@ -319,13 +341,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `color-mix()` (bright/dim/subtle/border/selection/deep/deeper — no hardcoded
   derivative hex), Carbon grays + semantic colors (incl. purple 40/60 for
   `--ct-important`, orange 40/60 for the footer RSS accent), IBM Plex font
-  stacks + the aliased `--ct-font-nerd` (FONT-002/004), radius/gap.
+  stacks + the aliased `--ct-font-nerd` (FONT-002/004), fixed Oxocarbon prompt
+  primitives, radius/gap.
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
   inline-code/error/warning/info/success/important/rss/font-body`) as mixins per mode;
   body text NEUTRAL everywhere (STYLE-006: dark = gray-10, light/paper = gray-100),
   main color only on emphasis tokens (strong/heading/link/inline-code); `:root` =
   dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
-  force-applies paper tokens.
+  force-applies paper tokens; maps `--ct-prompt-*` to the active Oxocarbon role set.
 - `theme/styles/_code.scss` — code blocks: `div[class*=language-]` frame (hides
   default-theme copy/lang leftovers pending STYLE-004), `pre.shiki` basics, per-mode
   selection of `--shiki-dark/-light/-paper` token variables incl. print.
@@ -334,6 +357,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   via semantic tokens; 72ch measure; 480px mobile padding tier; `flex: 1 0 auto`
   so it grows in the viewport column and pins the footer to the panel bottom
   (THEME-004).
+- `theme/styles/_card.scss` — COMP-001 floating-card chrome: subtle rounded
+  border, low-opacity 4px/12px shadow, semantic surface tokens, a monospace
+  shell-prompt header with Oxocarbon segment roles, body spacing, narrow-screen
+  overflow protection, explicit command/argument whitespace preservation, staged
+  path ellipsis, and print-safe shadow removal.
 - `theme/styles/_footer.scss` — THEME-004 in-viewport footer: full panel width
   (wider than the 72ch article column), border-top separator, mono small
   `--ct-text-neutral`; 2×2 grid (texts left, icon clusters right); ≥641px the
@@ -352,6 +380,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   behind `[data-ct-nerdfont]`; `<details>` variant hides the native marker and
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity).
+- `theme/utils/pagePath.ts` — framework-free `formatPageLocation()` helper shared
+  by the status bar and card prompt defaults; maps `relativePath` to `~` or a
+  home-relative path without the Markdown extension.
 - `theme/styles/_shell.scss` — THEME-001/008 shell frame: `.ct-shell` FIXED
   100dvh flex column with `--ct-gap` gaps/padding; `.ct-main` middle flex row
   (explorer beside viewport, THEME-002 — a retracted explorer is display:none
@@ -400,6 +431,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting, every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
   deflists, abbr), math, inline Font Awesome icons (FONT-002), all 8 callout
-  types + custom-title example (MD-002), and localized explorer title metadata.
+  types + custom-title example (MD-002), the defaulted, fully overridden, and
+  prompt-free COMP-001 card demo (including current-page path defaults and a long
+  overridden path for prompt-overflow behavior), and localized explorer title
+  metadata.
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`) with
   localized explorer title metadata.

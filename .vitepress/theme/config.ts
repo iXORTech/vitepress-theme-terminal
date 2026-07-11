@@ -214,14 +214,15 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
 }
 
 /**
- * Derive a shell-safe username from a display name, for the prompt
- * decoration's `user` (CONF-002; rule in design-language.md §4): strip
- * diacritics, lowercase, whitespace → `-`, drop everything outside
- * `a-z 0-9 . _ -`, collapse separator runs, trim edge separators. Empty
- * input yields `user`.
+ * Normalize a display string for a shell prompt segment: strip diacritics,
+ * lowercase, whitespace → `-`, drop everything outside `a-z 0-9 . _ -`,
+ * collapse separator runs, and trim edge separators.
  */
-export function normalizeUsername(name: string): string {
-  const normalized = name
+export function normalizeShellIdentifier(
+  value: string,
+  fallback = 'user',
+): string {
+  const normalized = value
     .normalize('NFKD')
     .replace(/\p{M}+/gu, '')
     .toLowerCase()
@@ -229,7 +230,12 @@ export function normalizeUsername(name: string): string {
     .replace(/[^a-z0-9._-]/g, '')
     .replace(/([-._])[-._]+/g, '$1')
     .replace(/^[-._]+|[-._]+$/g, '')
-  return normalized || 'user'
+  return normalized || fallback
+}
+
+/** Derive the shell-safe author username used by prompt decorations. */
+export function normalizeUsername(name: string): string {
+  return normalizeShellIdentifier(name)
 }
 
 /** Resolve the author block: explicit username wins, else derive from the name. */

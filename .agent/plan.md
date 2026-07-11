@@ -449,15 +449,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Components
 
-- [ ] **COMP-001** — Card component: TUI floating window + shell-prompt decoration
+- [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration
   - **Category:** Components · **Deps:** STYLE-001, FONT-001, FONT-002, CONF-002
   - **Acceptance criteria:** a reusable card styled as a TUI floating window
     (Unicode-frame flavor, rounded/floating finish) per
     `docs/design/design-language.md` §4 (cards) and `docs/design/ui-sketch.md` §6; an
     optional shell-prompt decoration line (`user@host:path$ command args`) is
-    configurable per use, where `user` is the normalized author username from
-    CONF-002 and host/path/command are chosen by the consuming component; serves as
+    enabled explicitly with `showPrompt`; `prompt` supplies the required command
+    and optional host/path/args, `user` is the normalized author username from
+    CONF-002, `host` defaults to the shell-normalized active site title, and `path`
+    defaults to the current page's home-relative location; all prompt values remain
+    overridable; prompt segments use mode-aware Oxocarbon role tokens; serves as
     the base for the license card, comment card, and page cards/grids.
+    *Landed 2026-07-10: `theme/components/Card.vue` accepts `showPrompt` plus a
+    typed `prompt` object (`command`, optional `host`/`path`/`args`), derives the
+    normalized prompt user from `useThemeConfig().author.username`, default host
+    from the active site title, and default path from the current page; exports the
+    reusable component; `styles/_card.scss` provides the responsive floating-window
+    finish, softened shadow, and mode-aware Oxocarbon prompt coloring.*
 
 - [ ] **COMP-002** — Image containers: lightbox + Swiper
   - **Category:** Components · **Deps:** MD-001, STYLE-001
@@ -528,6 +537,16 @@ parallel; tick `[x]` only when every acceptance criterion is met.
   - **Acceptance criteria:** demo files show markdown sources alongside their rendered
     results, covering standard markdown, the plugin suite (MD-001), and callouts
     (MD-002); reachable from the site navigation.
+
+- [x] **DEMO-002** — Card component demo
+  - **Category:** Content · **Deps:** COMP-001
+  - **Acceptance criteria:** `src/markdown-examples.md` imports and renders the
+    reusable card with a shell-prompt example, documents `showPrompt`, prompt
+    defaults, and overrides, and shows that the prompt is optional; the rendered
+    demo remains mobile-safe.
+    *Landed 2026-07-10: the page imports `Card.vue` and shows defaulted,
+    fully overridden, and prompt-free cards with source snippets and rendered
+    output.*
 
 ### Search
 

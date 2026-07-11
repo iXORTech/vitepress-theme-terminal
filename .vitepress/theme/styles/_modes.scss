@@ -53,6 +53,16 @@
   // RSS carries its conventional orange, from the Carbon layer (THEME-004)
   --ct-rss: var(--ct-orange-40);
 
+  // Oxocarbon shell-prompt roles (color-system.md §5).
+  --ct-prompt-bg: var(--ct-oxocarbon-dark-bg);
+  --ct-prompt-text: var(--ct-oxocarbon-dark-text);
+  --ct-prompt-punctuation: var(--ct-oxocarbon-dark-punctuation);
+  --ct-prompt-user: var(--ct-oxocarbon-dark-user);
+  --ct-prompt-host: var(--ct-oxocarbon-dark-host);
+  --ct-prompt-path: var(--ct-oxocarbon-dark-path);
+  --ct-prompt-command: var(--ct-oxocarbon-dark-command);
+  --ct-prompt-args: var(--ct-oxocarbon-dark-args);
+
   --ct-font-body: var(--ct-font-sans);
 }
 
@@ -88,6 +98,16 @@
   --ct-important: var(--ct-purple-60);
   --ct-rss: var(--ct-orange-60);
 
+  // Oxocarbon shell-prompt roles (color-system.md §5).
+  --ct-prompt-bg: var(--ct-oxocarbon-light-bg);
+  --ct-prompt-text: var(--ct-oxocarbon-light-text);
+  --ct-prompt-punctuation: var(--ct-oxocarbon-light-punctuation);
+  --ct-prompt-user: var(--ct-oxocarbon-light-user);
+  --ct-prompt-host: var(--ct-oxocarbon-light-host);
+  --ct-prompt-path: var(--ct-oxocarbon-light-path);
+  --ct-prompt-command: var(--ct-oxocarbon-light-command);
+  --ct-prompt-args: var(--ct-oxocarbon-light-args);
+
   --ct-font-body: var(--ct-font-sans);
 }
 
@@ -121,6 +141,16 @@
   --ct-success: var(--ct-green-50);
   --ct-important: var(--ct-purple-60);
   --ct-rss: var(--ct-orange-60);
+
+  // Print-friendly Oxocarbon shell-prompt roles (color-system.md §5).
+  --ct-prompt-bg: var(--ct-oxocarbon-paper-bg);
+  --ct-prompt-text: var(--ct-oxocarbon-paper-text);
+  --ct-prompt-punctuation: var(--ct-oxocarbon-paper-punctuation);
+  --ct-prompt-user: var(--ct-oxocarbon-paper-user);
+  --ct-prompt-host: var(--ct-oxocarbon-paper-host);
+  --ct-prompt-path: var(--ct-oxocarbon-paper-path);
+  --ct-prompt-command: var(--ct-oxocarbon-paper-command);
+  --ct-prompt-args: var(--ct-oxocarbon-paper-args);
 
   // Serif long-form body in paper mode (typography-and-icons.md §1).
   --ct-font-body: var(--ct-font-serif);

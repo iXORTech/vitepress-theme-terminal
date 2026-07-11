@@ -4,6 +4,10 @@ title:
   zh-Hans: "Markdown 示例"
 ---
 
+<script setup lang="ts">
+import Card from '../.vitepress/theme/components/Card.vue'
+</script>
+
 # Markdown Extension Examples
 
 This page demonstrates the markdown extensions provided by the theme: the
@@ -179,6 +183,84 @@ directly as inline HTML in any page.
 <i class="fa-solid fa-terminal"></i> terminal ·
 <i class="fa-brands fa-github"></i> github ·
 <i class="fa-solid fa-rss"></i> rss
+
+## Card component
+
+The reusable card is a floating window with an optional shell-prompt
+decoration. Set `showPrompt` to `true` to render it. The `prompt` object accepts
+optional `host` and `path`, required `command`, and optional `args`; omitted
+values default to the normalized site title and current page path. All values
+remain overridable.
+
+**Input**
+
+````md
+<script setup lang="ts">
+import Card from '../.vitepress/theme/components/Card.vue'
+</script>
+
+<Card
+  :show-prompt="true"
+  :prompt="{
+    command: 'card',
+    args: '~/markdown-examples',
+  }"
+>
+  <p>A card can hold any consuming component's content.</p>
+</Card>
+
+<Card
+  :show-prompt="true"
+  :prompt="{
+    host: 'docs-terminal',
+    path: '~/docs/override',
+    command: 'open',
+    args: '--readonly',
+  }"
+>
+  <p>Host, path, command, and args can all be overridden.</p>
+</Card>
+
+<Card :show-prompt="false">
+  <p>The shell-prompt decoration is optional.</p>
+</Card>
+
+<Card>
+  <p>And is off by default.</p>
+</Card>
+````
+
+**Output**
+
+<Card
+  :show-prompt="true"
+  :prompt="{
+    command: 'card',
+    args: '~/markdown-examples',
+  }"
+>
+  <p>A card can hold any consuming component's content.</p>
+</Card>
+
+<Card
+  :show-prompt="true"
+  :prompt="{
+    host: 'docs-terminal',
+    path: '~/docs/override',
+    command: 'open',
+    args: '--readonly',
+  }"
+>
+  <p>Host, path, command, and args can all be overridden.</p>
+</Card>
+
+<Card :show-prompt="false">
+  <p>The shell-prompt decoration is optional.</p>
+</Card>
+
+<Card>
+  <p>And is off by default.</p>
+</Card>
 
 ## Callouts
 

@@ -1,11 +1,11 @@
 // =============================================================================
 // config.ts — theme configuration surface (CONF-001)
 // =============================================================================
-// The single source of user configuration for the theme. Users configure the
-// theme exclusively through `themeConfig` in `.vitepress/config.mts`
-// (AGENTS.md §6.5); components never read user options from anywhere else.
-// Every option is optional in the site config — defaults are applied here at
-// resolution time.
+// The single source of user-facing theme options. Users configure theme
+// behavior through `themeConfig` in `.vitepress/config.mts`; auto-discovered
+// explorer metadata is intentionally authored beside source pages instead.
+// Every theme option is optional in the site config — defaults are applied
+// here at resolution time.
 //
 // This module is intentionally framework-free (no vue/vitepress imports) so it
 // can be imported from both the Node-side site config (`.vitepress/config.mts`)
@@ -112,13 +112,10 @@ export interface TerminalExplorerItem {
   /** Child nodes; their presence makes this node a collapsible folder. */
   items?: TerminalExplorerItem[]
 
-  /**
-   * Explicit initial state, overriding the depth default (THEME-011: only
-   * first-layer folders start open, deeper ones start collapsed). The
-   * visitor's own toggles are persisted and win over both.
-   */
-  collapsed?: boolean
 }
+
+/** Explorer source: an explicit tree or every Markdown page under `src/`. */
+export type TerminalExplorerConfig = TerminalExplorerItem[] | 'auto'
 
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
@@ -163,9 +160,10 @@ export interface TerminalThemeConfig {
 
   /**
    * File-explorer navigation tree (THEME-002); see {@link TerminalExplorerItem}.
+   * Set to `"auto"` to discover Markdown pages below `src/`.
    * Unset or empty hides the explorer and its tool-bar toggle entirely.
    */
-  explorer?: TerminalExplorerItem[]
+  explorer?: TerminalExplorerConfig
 
   // Feature toggles are added here as their features land (e.g. POST-002
   // series inclusion, SEARCH-001 DocSearch keys).

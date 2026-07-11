@@ -64,10 +64,10 @@ html {
   --ct-font-serif: "IBM Plex Serif", ui-serif, georgia, serif;
   --ct-font-mono: "IBM Plex Mono", ui-monospace, sfmono-regular, menlo,
     consolas, monospace;
-  // Symbols-only Nerd Font (FONT-002) — TUI chrome glyphs only
+  // Symbols-only Nerd Font (FONT-002/004) — TUI chrome glyphs only
   // (typography-and-icons.md §2). PUA glyphs are additionally gated behind
   // html[data-ct-nerdfont] (useNerdFont), so the mono fallback never shows tofu.
-  --ct-font-nerd: "NerdFontsSymbols Nerd Font", var(--ct-font-mono);
+  --ct-font-nerd: "NerdFontsSymbols Nerd Font Terminal", var(--ct-font-mono);
 
   // --------------------------------------------------------------------------
   // Shape & spacing — subtle rounding + floating gaps (design-language.md §5)

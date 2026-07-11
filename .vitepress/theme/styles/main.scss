@@ -6,6 +6,7 @@
 // component — and is wired in here with `@use`. Never style in Vue SFC <style>
 // blocks or plain CSS files (AGENTS.md §6.3).
 
+@use "fonts";   // working Nerd Font face (FONT-004)
 @use "tokens";  // Carbon palette, main-color derivatives, fonts (STYLE-001/FONT-001)
 @use "modes";   // dark / light / paper semantic tokens (STYLE-002)
 @use "shell";   // TUI shell frame: floating panel arrangement (THEME-001)

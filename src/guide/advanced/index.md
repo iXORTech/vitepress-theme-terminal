@@ -1,3 +1,9 @@
+---
+title:
+  en: "Advanced"
+  zh-Hans: "进阶"
+---
+
 # Advanced
 
 The index page of the **nested** `advanced/` folder.

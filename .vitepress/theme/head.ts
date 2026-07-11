@@ -25,12 +25,14 @@ const IBM_PLEX_CSS =
   '&family=IBM+Plex+Serif:ital,wght@0,400;0,600;0,700;1,400' +
   '&display=swap'
 
-// Icon stylesheets (FONT-002, typography-and-icons.md §2–3): Font Awesome
-// Free from cdnjs; the official symbols-only Nerd Font webfont stylesheet
-// (defines family "NerdFontsSymbols Nerd Font", checked by useNerdFont).
+// Icon stylesheets (FONT-002/004, typography-and-icons.md §2–3): Font Awesome
+// Free from cdnjs; the generated symbols-only Nerd Font stylesheet from the
+// latest Nerd Fonts master branch via jsDelivr (defines family
+// "NerdFontsSymbols Nerd Font", checked by useNerdFont).
 const FONT_AWESOME_CSS =
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css'
-const NERD_FONT_CSS = 'https://www.nerdfonts.com/assets/css/webfont.css'
+const NERD_FONT_CSS =
+  'https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@master/css/nerd-fonts-generated.min.css'
 
 // Restores the persisted mode (localStorage `ct-mode`) onto <html> before
 // first paint; falls back to dark, the default mode (color-system.md §6).

@@ -39,19 +39,24 @@ e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
 
 **File explorer (THEME-002/011)** — the side navigation tree, presented in the
 NeoVim file-browser idiom. Its contents are configured as a tree in
-`themeConfig.explorer`: nodes of `{ text, link?, items?, collapsed? }`, where `text`
+`themeConfig.explorer`: nodes of `{ text, link?, items? }`, where `text`
 is a `LocalizableText` (§9), a node with `items` is a collapsible folder, and a
 folder node's `link` is understood as its **index page**. An unset or empty tree
 removes the explorer — and its toggle — entirely.
 
 Expansion rules (THEME-011): by default only the **first layer** of folders starts
-open — every deeper folder starts collapsed; an explicit `collapsed: true/false` on
-a node overrides the depth default. Every folder's expanded state is **remembered**:
+open — every deeper folder starts collapsed. Every folder's expanded state is
+**remembered**:
 toggles persist in `localStorage` (`ct-explorer-nodes`, keyed by the node's raw
 config-text path so labels may localize freely) and win over the defaults on the
 next visit. Clicking the **label** of a folder that has an index page navigates to
-that page **and expands** the folder (never collapses); the chevron is the pure
-expand/collapse toggle and never navigates.
+that page; route awareness then temporarily expands the folder without changing
+the saved tree state. The chevron is the pure expand/collapse toggle and never
+navigates. When navigation opens a page inside a closed folder, the explorer
+temporarily expands the folder and all required ancestors so the active row is
+visible; this route-driven reveal is not written to `ct-explorer-nodes` and is
+recalculated on the next navigation. A visitor's explicit toggle remains the
+persisted user choice for the current view.
 
 *Implemented (THEME-002, reworked THEME-011):* on desktop the explorer is a
 fixed-width floating panel left of the viewport with its own scroll; the explicit
@@ -68,6 +73,19 @@ tint), and a file icon on leaves (dim tint); when the symbols font is unavailabl
 the row degrades to the sketch's plain `❯` / `-` markers with no icon column. In
 paper mode the explorer and its toggle are **not rendered at all** (this section's
 table; ui-sketch.md §4), and neither prints.
+
+*Auto-discovery (THEME-012 / I18N-006 / THEME-013):* `themeConfig.explorer` may be set to
+`"auto"` to derive the tree from every Markdown file below the site's `src/`
+source directory. Directories become folders, `index.md` is the folder's
+optional link, and other Markdown files become leaves; the generated tree is
+sorted deterministically and is available in SSR output as well as client
+navigation. A page label uses frontmatter `explorerTitle`, then a localized
+frontmatter `title`, and finally the normal VitePress title/path fallback. A
+folder may add source-local `explorer.json` beside its Markdown children:
+`title` is a `LocalizableText` override. This metadata intentionally lives with the content,
+not in the VitePress site config, so an index-less folder can still have a
+localized label. The existing explicit explorer-array form remains supported,
+so auto-discovery is opt-in and does not change existing sites.
 
 **Footer** — sits at the bottom of the main viewport, inside the content panel: it
 scrolls with the article and is **not** a separate floating bar. Structure, top to

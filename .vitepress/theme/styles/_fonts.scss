@@ -1,0 +1,16 @@
+// ============================================================================
+// _fonts.scss — working Nerd Font face for TUI glyphs (FONT-004)
+// ============================================================================
+// The generated Nerd Fonts CSS is loaded from jsDelivr in theme/head.ts, but
+// its legacy @font-face points to a release-only /fonts/ path. Register the
+// matching symbols font from the current repository path under a private alias
+// so the theme's PUA glyphs have a reliable source.
+
+@font-face {
+  font-family: "NerdFontsSymbols Nerd Font Terminal";
+  src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@master/patched-fonts/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf")
+    format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

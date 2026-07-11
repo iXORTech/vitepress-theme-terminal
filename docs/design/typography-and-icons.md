@@ -23,15 +23,23 @@
 - **Nerd Font** glyphs are permitted **only** in TUI-flavored chrome — tool bar, status
   bar, file explorer, and callout chrome (the per-type title glyphs and the details
   chevron, MD-003) — e.g. file-type glyphs and powerline-style separators.
-- **Implemented (FONT-002):** Font Awesome Free `all.min.css` (cdnjs) and the official
-  symbols-only Nerd Font stylesheet (`nerdfonts.com/assets/css/webfont.css`, family
-  `NerdFontsSymbols Nerd Font`) load via `<link>`s built in `theme/head.ts`; the Nerd
-  Font stack is the `--ct-font-nerd` token in `styles/_tokens.scss`.
+- **Implemented (FONT-002 / FONT-004):** Font Awesome Free `all.min.css` (cdnjs) and
+  the generated symbols-only Nerd Font stylesheet from jsDelivr
+  (`cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@master/css/nerd-fonts-generated.min.css`)
+  load via `<link>`s built in `theme/head.ts`. The generated CSS's legacy
+  `/fonts/` face URL is not present in the Git repository, so the theme also
+  registers the matching `SymbolsNerdFont-Regular.ttf` from jsDelivr under the
+  private `NerdFontsSymbols Nerd Font Terminal` alias; `--ct-font-nerd` uses that
+  working face.
 - **Safe fallback (MD-003):** Nerd Font glyphs live in Private Use Area codepoints and
   would render as tofu if the font were missing, so PUA glyphs in CSS are gated behind
   `html[data-ct-nerdfont]`, set by the `useNerdFont()` composable only after the CSS
   Font Loading API confirms the face is usable. When the stylesheet fails, callouts
   degrade to no title icon and the plain `❯` details chevron.
+- **Readiness:** the runtime gate waits for the external Nerd Font stylesheet to finish
+  loading before querying the face. This avoids treating an early, pre-`@font-face`
+  check as a permanent load failure while preserving the fallback when the stylesheet
+  or font itself genuinely fails.
 
 ## 3. Loading rule (hard)
 

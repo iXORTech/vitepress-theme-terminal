@@ -1,3 +1,9 @@
+---
+title:
+  en: "Deep Dive"
+  zh-Hans: "深入"
+---
+
 # Deep Dive
 
 A leaf page two folders deep (`guide/advanced/deep-dive`) — the deepest node

@@ -1,28 +1,40 @@
 <script setup lang="ts">
 // ============================================================================
-// Explorer.vue — file-explorer navigation sidebar (THEME-002)
+// Explorer.vue — file-explorer navigation sidebar (THEME-002/014)
 // ============================================================================
 // The tree-style site navigation panel (design-language.md §4, ui-sketch.md
 // §1/§3): on desktop a fixed-width floating panel beside the viewport with
 // its own scroll, retracted/extended by the tool-bar toggle; at mobile widths
 // an off-canvas drawer over a dimmed backdrop, dismissed by its explicit
 // close control, tapping the backdrop, `Esc` (design-language.md §7), or
-// navigating. Contents come from `themeConfig.explorer`; the layout does not
-// render this component at all in paper mode or when the tree is empty.
+// navigating. Contents come from `themeConfig.explorer` (explicit or
+// auto-discovered); the layout does not render this component at all in paper
+// mode or when the tree is empty.
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 import { useData } from 'vitepress'
 import ExplorerTree from './ExplorerTree.vue'
 import { useExplorer } from '../composables/useExplorer'
-import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
-const config = useThemeConfig()
 const { t } = useThemeLocale()
-const { desktopOpen, drawerOpen, closeDrawer } = useExplorer()
+const {
+  desktopOpen,
+  drawerOpen,
+  closeDrawer,
+  clearTransientNodeStates,
+  items,
+} = useExplorer()
 
-// Navigating closes the drawer — the target page is behind it
+// Navigating closes the drawer and clears route-local folder overrides. The
+// active route then derives its own temporary ancestor expansion in ExplorerTree.
 const { page } = useData()
-watch(() => page.value.relativePath, closeDrawer)
+watch(
+  () => page.value.relativePath,
+  () => {
+    closeDrawer()
+    clearTransientNodeStates()
+  },
+)
 
 // `Esc` dismisses the drawer (keyboard-friendly UX, design-language.md §7)
 function onKeydown(event: KeyboardEvent): void {
@@ -58,6 +70,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
     </div>
 
     <!-- The navigation tree (recursive) -->
-    <ExplorerTree :items="config.explorer" />
+    <ExplorerTree :items="items" />
   </nav>
 </template>

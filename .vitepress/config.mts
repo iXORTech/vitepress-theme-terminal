@@ -42,45 +42,11 @@ const themeConfig: TerminalThemeConfig = {
   // author: { name: "Ada Lovelace", username: "ada" },
   // license: { name: "MIT", url: "https://opensource.org/license/mit/" },
 
-  // File-explorer navigation tree (THEME-002/011) — nodes are
-  // { text, link?, items?, collapsed? } with LocalizableText labels; nodes
-  // with `items` render as collapsible folders and their `link` is the
-  // folder's index page (label click opens it and expands). Only the first
-  // layer of folders starts open; deeper folders start collapsed unless
-  // `collapsed` says otherwise, and the visitor's toggles are remembered.
-  // Unset/empty hides the explorer (and its tool-bar toggle) entirely.
-  explorer: [
-    { text: { en: "home", "zh-Hans": "主页" }, link: "/" },
-    {
-      // Folder with an index page + a nested second-layer folder — the
-      // THEME-011 demo section (src/guide/).
-      text: { en: "guide", "zh-Hans": "指南" },
-      link: "/guide/",
-      items: [
-        {
-          text: { en: "getting-started", "zh-Hans": "快速上手" },
-          link: "/guide/getting-started",
-        },
-        {
-          text: { en: "advanced", "zh-Hans": "进阶" },
-          link: "/guide/advanced/",
-          items: [
-            {
-              text: { en: "deep-dive", "zh-Hans": "深入" },
-              link: "/guide/advanced/deep-dive",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      text: { en: "examples", "zh-Hans": "示例" },
-      items: [
-        { text: "markdown-examples", link: "/markdown-examples" },
-        { text: "api-examples", link: "/api-examples" },
-      ],
-    },
-  ],
+  // Auto-discover every Markdown file below src/. Folder index pages become
+  // folder links; page labels come from frontmatter title metadata. An
+  // index-less folder can keep its localized label and initial state in an
+  // adjacent src/**/explorer.json file.
+  explorer: "auto",
 
   // Footer (THEME-004) — the RSS icon renders only when a feed URL is set;
   // social icons are Font Awesome classes with a localizable label.

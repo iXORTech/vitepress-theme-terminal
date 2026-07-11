@@ -1,3 +1,9 @@
+---
+title:
+  en: "Guide"
+  zh-Hans: "指南"
+---
+
 # Guide
 
 This is the **index page of the `guide/` folder** — a demo of the explorer's

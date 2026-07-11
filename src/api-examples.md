@@ -1,5 +1,8 @@
 ---
 outline: deep
+title:
+  en: "Runtime API Examples"
+  zh-Hans: "运行时 API 示例"
 ---
 
 # Runtime API Examples

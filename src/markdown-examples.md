@@ -1,3 +1,9 @@
+---
+title:
+  en: "Markdown Examples"
+  zh-Hans: "Markdown 示例"
+---
+
 # Markdown Extension Examples
 
 This page demonstrates the markdown extensions provided by the theme: the

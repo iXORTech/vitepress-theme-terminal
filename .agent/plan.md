@@ -141,6 +141,32 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     use restricted to TUI chrome per `docs/design/typography-and-icons.md` §2; no npm
     icon packages.
 
+- [x] **FONT-003** — Reliable Nerd Font readiness
+  - **Category:** Typography · **Deps:** FONT-002
+  - **Acceptance criteria:** the runtime Nerd Font gate waits until the external
+    symbols stylesheet has had an opportunity to register its face before checking
+    the CSS Font Loading API; a temporarily early check cannot permanently leave
+    explorer/callout icons in fallback mode; failed font loads still preserve the
+    tofu-safe fallback; the behavior is covered by repeated rendered-surface checks.
+    *Landed 2026-07-10: `useNerdFont()` waits for the Nerd Font stylesheet's
+    load/error lifecycle before calling `document.fonts.ready/load`, preventing
+    an early empty-face result from becoming permanent; repeated browser loads
+    show explorer icons consistently and a blocked stylesheet retains the
+    fallback glyphs.*
+
+- [x] **FONT-004** — jsDelivr Nerd Font stylesheet
+  - **Category:** Typography · **Deps:** FONT-003
+  - **Acceptance criteria:** the theme loads the generated Nerd Font stylesheet
+    from jsDelivr's GitHub mirror of `ryanoasis/nerd-fonts` at the latest
+    `master` revision; runtime stylesheet detection matches the new URL; the
+    documented family and fallback behavior remain unchanged; the generated
+    stylesheet's legacy missing font path is paired with a working jsDelivr
+    Symbols font face so the icons still render.
+    *Landed 2026-07-10: the generated CSS now loads from jsDelivr's `master`
+    branch, and `_fonts.scss` supplies a valid jsDelivr Symbols font face under
+    the theme alias used by the CSS gate and TUI tokens; repeated browser loads
+    show explorer icons consistently.*
+
 ### Markdown
 
 - [x] **MD-001** — markdown-it plugin suite
@@ -226,6 +252,18 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `zh-Hans`; region-tagged inputs (`zh-CN`, `en-US`) still resolve to the right
     table via the existing primary-subtag matching; docs and examples updated.
 
+- [x] **I18N-006** — Localized auto-explorer titles
+  - **Category:** i18n · **Deps:** THEME-012
+  - **Acceptance criteria:** auto-discovered labels resolve `LocalizableText`
+    from source-local JSON metadata first, then a page's frontmatter title
+    metadata; plain VitePress string titles remain valid; resolution follows
+    the existing exact-tag → primary-subtag → English → first-entry fallback,
+    and no component contains hardcoded page labels.
+    *Landed 2026-07-10: adjacent `explorer.json` metadata supplies folder
+    overrides; localized `title` frontmatter is read from VitePress
+    `__pageData`, and `ExplorerTree` resolves every generated label through
+    the existing language resolver.*
+
 ### Theme components
 
 - [x] **THEME-001** — Layout shell: tool bar · viewport · status bar
@@ -241,8 +279,8 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     retractable/extendable on desktop via an explicit control, with collapsible tree
     nodes; contents easily configured via `themeConfig`; behaves as an off-canvas
     drawer on mobile; not rendered at all in paper mode.
-    *Landed 2026-07-10: `themeConfig.explorer` tree (`{ text, link?, items?,
-    collapsed? }`, LocalizableText labels); `Explorer.vue` + recursive
+    *Landed 2026-07-10: `themeConfig.explorer` tree (`{ text, link?, items? }`,
+    LocalizableText labels); `Explorer.vue` + recursive
     `ExplorerTree.vue` in a new `.ct-main` shell row beside the viewport;
     tool-bar `[=]` toggle — desktop retract persisted as `ct-explorer`,
     ≤640px an off-canvas drawer with backdrop / close button / Esc /
@@ -261,6 +299,59 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     This task only includes the implementation of the floating-window visual component
     and its interative behavior. Add a demo page that can be opened via `~` keyboard and
     a button in the tool bar. No actual logic needed behind the demo.
+
+- [x] **THEME-012** — Auto-discovered source file explorer
+  - **Category:** Theme · **Deps:** THEME-011
+  - **Acceptance criteria:** when enabled, the explorer discovers every Markdown
+    page under `src/` without a hand-written tree;
+    nested directories become folders, `index.md` becomes the folder link,
+    standalone Markdown files become leaves, ordering is deterministic, and
+    explicit `themeConfig.explorer` trees remain supported for backwards
+    compatibility; the generated tree is available during SSR and client
+    navigation and includes newly added source files after a rebuild.
+    *Landed 2026-07-10: `explorer: "auto"` uses an eager Vite glob of
+    `src/**/*.md` metadata, builds deterministic folder/file nodes with
+    `index.md` links, and feeds the resolved tree through `useExplorer()` for
+    SSR and hydration; explicit arrays remain unchanged.*
+
+- [x] **THEME-013** — Source-local JSON explorer metadata
+  - **Category:** Theme · **Deps:** THEME-012, I18N-006
+  - **Acceptance criteria:** an adjacent `explorer.json` can configure an
+    auto-discovered folder without adding a Markdown index or editing the
+    VitePress site config; its localized `title` applies to that folder;
+    removing `advanced-2/index.md` leaves
+    `advanced-2/deep-dive.md` discoverable as a non-linked folder child; the
+    JSON schema and example are documented.
+    *Landed 2026-07-10: `useExplorer()` eagerly loads adjacent
+    `explorer.json` metadata, the demo `advanced-2` index was removed, and the
+    source/docs/config surfaces now describe the non-site-config contract;
+    build and browser checks confirm the localized, index-less folder.*
+
+- [x] **THEME-014** — Route-aware transient explorer expansion
+  - **Category:** Theme · **Deps:** THEME-011, THEME-012
+  - **Acceptance criteria:** when the active page is a folder index or a
+    descendant leaf, every required ancestor folder is visibly expanded;
+    route-driven expansion is not written to `ct-explorer-nodes` and is
+    recalculated after navigation; explicit user toggles still use the existing
+    persisted behavior and can override the temporary route reveal for the
+    current page.
+    *Landed 2026-07-10: active-link ancestry is derived recursively in
+    `ExplorerTree`; route reveals and folder-index link navigation are not
+    stored, navigation clears temporary overrides, and user chevron toggles
+    remain persisted and can close a route-open folder for the current view.*
+
+- [x] **THEME-015** — Remove explicit folder collapsed configuration
+  - **Category:** Theme · **Deps:** THEME-014, THEME-013
+  - **Acceptance criteria:** `collapsed` is removed from
+    `TerminalExplorerItem`, source-local explorer JSON, and all folder
+    resolution logic; folder expansion uses only depth defaults, transient
+    active-route reveals, and persisted user toggles; the `advanced-2` demo,
+    user guide, design specification, context cache, and task descriptions no
+    longer document an explicit collapsed option.
+    *Landed 2026-07-10: removed the field from the explorer item and JSON
+    contracts, switched default expansion to depth only, updated documentation
+    and cache entries, and verified build plus depth-based and route-aware
+    browser behavior.*
 
 - [x] **THEME-004** — Footer component
   - **Category:** Theme · **Deps:** THEME-001, CONF-001, CONF-002
@@ -339,7 +430,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     idiom — chevron plus Nerd Font folder (closed/open) and file glyphs, gated
     behind the font-loaded flag with the plain `❯`/`-` fallback; default
     expansion is depth-based: first-layer folders open, deeper folders
-    collapsed, unless an explicit `collapsed` is configured; every folder's
+    collapsed; every folder's
     expanded state is remembered (persisted and restored across reloads); a
     folder node that carries a `link` (its index page) navigates there **and**
     expands on label click, while its chevron only toggles; demo pages exercise
@@ -349,9 +440,10 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     *Landed 2026-07-10: icon column (`nf-fa-folder`/`folder_open`/`file_o`)
     NF-gated with the plain-marker fallback; per-folder state store in
     `useExplorer` persisted as `ct-explorer-nodes` (keyed by raw config-text
-    path, stable across language switches), precedence stored > `collapsed` >
-    depth default; folder-link label click expands (never collapses) while
-    navigating; demo pages `src/guide/{index,getting-started,advanced/index,
+    path, stable across language switches), precedence stored > depth default;
+    folder-link label navigation expands transiently (never
+    persists), while the chevron remains the remembered user toggle; demo pages
+    `src/guide/{index,getting-started,advanced/index,
     advanced/deep-dive}.md` + demo tree in config.mts; verified headless
     25/25.*
 

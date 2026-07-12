@@ -1,25 +1,108 @@
 // ============================================================================
-// _code.scss — code block rendering & Shiki mode switching (STYLE-003)
+// _code.scss — code blocks as TUI card-style windows (STYLE-003 / STYLE-004)
 // ============================================================================
-// VitePress renders fenced code through Shiki with the three oxocarbon themes
+// Fenced code renders through Shiki with the three oxocarbon themes
 // (theme/shiki/oxocarbon.ts) and `defaultColor: false`: every token span
 // carries `--shiki-dark`, `--shiki-light`, and `--shiki-paper` custom
-// properties instead of a fixed color. These rules pick the variable matching
-// the active mode. Full card-style chrome (title bar, COPY button, file name)
-// is STYLE-004 — this file keeps blocks minimal but correct.
+// properties instead of a fixed color; the mode-switch rules at the bottom
+// pick the set of the active mode. STYLE-004 wraps each block in the card
+// visual language (design-language.md §4, cards; ui-sketch.md §6): a `.ct-code`
+// frame headed by a title bar (file name · language · COPY), emitted by
+// theme/markdown/codeblock.ts.
 
 // ----------------------------------------------------------------------------
-// Block container — VitePress wraps fences in div[class*='language-']
+// Card frame — the outer wrapper is the floating window; matches _card.scss
+// ----------------------------------------------------------------------------
+.ct-code {
+  margin: 1.25rem 0;
+  overflow: hidden;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ct-text) 6%, transparent);
+}
+
+// ----------------------------------------------------------------------------
+// Title bar — file name (when given) · language name · COPY button. TUI chrome,
+// so mono; sits on the surface layer above the oxocarbon code canvas.
+// ----------------------------------------------------------------------------
+.ct-code__titlebar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--ct-border);
+  background: var(--ct-surface);
+  font-family: var(--ct-font-mono);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+// File name + language cluster, read as one label (`main.scss · scss`)
+.ct-code__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+
+  // Separator dot between file name and language (only when both are present)
+  .ct-code__name + .ct-code__lang::before {
+    content: "·";
+    margin-right: 0.5rem;
+    color: var(--ct-text-dim);
+  }
+}
+
+.ct-code__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ct-text-strong);
+}
+
+.ct-code__lang {
+  flex-shrink: 0;
+  color: var(--ct-text-neutral);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// Text-based COPY control, TUI style (`[copy]`), matching the window's `[x]`;
+// accent-colored like the shell's other controls, pushed to the far right.
+.ct-code__copy {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0 0.25rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  line-height: 1.4;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--ct-link-hover);
+  }
+
+  // Post-copy confirmation flash uses the success accent (STYLE-004)
+  &--copied {
+    color: var(--ct-success);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Inner block — VitePress wraps fences in div[class*='language-']. Inside the
+// card its own frame is dropped; the card carries border/radius now.
 // ----------------------------------------------------------------------------
 div[class*="language-"] {
   position: relative;
-  margin: 1.25rem 0;
-  border: 1px solid var(--ct-border);
-  border-radius: var(--ct-radius);
-  overflow: hidden;
+  margin: 0;
+  border: none;
+  border-radius: 0;
 
-  // Default-theme leftovers not yet part of this theme's design: the COPY
-  // control and language label belong to the code-block card (STYLE-004).
+  // Default-theme leftovers replaced by the STYLE-004 title bar above.
   > button.copy,
   > span.lang {
     display: none;
@@ -88,5 +171,11 @@ pre.shiki span {
   :root[data-ct-mode="dark"],
   :root[data-ct-mode="light"] {
     @include paper-code;
+  }
+
+  // Screen-only depth is unnecessary on paper; keep the frame
+  .ct-code {
+    box-shadow: none;
+    break-inside: avoid;
   }
 }

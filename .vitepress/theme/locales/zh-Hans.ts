@@ -47,6 +47,25 @@ export const zhHans: ThemeLocaleStrings = {
   'window.searchSample2': '语法高亮',
   'window.searchSample3': '关于本站',
 
+  // Settings panel (THEME-007)
+  'settings.title': '设置',
+  'settings.open': '打开设置',
+  'settings.fonts': '字体',
+  'settings.fontFamily': '字体',
+  'settings.fontSize': '字号',
+  'settings.fontDefault': '默认',
+  'settings.fontSans': '无衬线',
+  'settings.fontSerif': '衬线',
+  'settings.fontMono': '等宽',
+  'settings.sizeSmall': '小',
+  'settings.sizeMedium': '中',
+  'settings.sizeLarge': '大',
+  'settings.language': '语言',
+
+  // Code block cards (STYLE-004)
+  'code.copy': '复制',
+  'code.copied': '已复制',
+
   // Status bar segments
   'status.read': '阅读',
   'status.progress': '阅读进度',

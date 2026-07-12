@@ -124,6 +124,24 @@ search-input pane over an illustrative results pane (ui-sketch.md §2). Both
 share the one instance, so opening either replaces the other; demo strings,
 components, button, and wiring all retire with SEARCH-002.
 
+*Settings panel (THEME-007):* a real utility rendered in the shared window —
+opened from the tool bar's gear action (`useSettings` → `openSettings`),
+**without** a shell prompt (it is a plain window, not a prompt card). Its first
+version is two framed panes: **Fonts** (segmented controls for the content font
+family — Default / Sans / Serif / Mono — and size — Small / Medium / Large) and
+**Language** (the available UI languages, each self-described by its
+`lang.label`, switching in place like the status-bar switcher). Both font
+preferences persist in `localStorage` (`ct-font-family` / `ct-font-size`) and are
+restored onto `<html>` (`data-ct-font-*`) before first paint by the head script,
+alongside the color mode — the attributes are set only for a non-default choice,
+so the default (mode-following family, medium size) leaves `<html>` clean and
+causes no flash or reflow. SCSS maps those attributes to `--ct-content-font` /
+`--ct-content-font-size`, which the content column reads (falling back to the
+mode's body font and the base size); state in `composables/useFontSettings.ts`,
+panes in `SettingsFonts.vue` / `SettingsLanguage.vue`, styles in
+`styles/_settings.scss`. At mobile widths it is the window's near-full-screen
+sheet (§8).
+
 **Footer** — sits at the bottom of the main viewport, inside the content panel: it
 scrolls with the article and is **not** a separate floating bar. Structure, top to
 bottom:
@@ -229,6 +247,19 @@ Related: code blocks render as card-style floating windows in the same visual
 language — framed like the card component, but headed by a title bar (file name when
 given, plus the language name) holding a COPY button, **not** by a shell-prompt-like
 decoration (STYLE-004; wireframe in ui-sketch.md §6).
+
+*Implemented (STYLE-004):* a markdown-it fence wrapper (theme/markdown/codeblock.ts)
+wraps VitePress's Shiki output in a `.ct-code` card (matching `_card.scss`) headed by a
+`.ct-code__titlebar`: the file name (when given) · the language name · a text-based
+`[copy]` control (TUI style, like the window's `[x]`). The highlighting stays
+Shiki-powered with the STYLE-003 oxocarbon palettes, untouched inside the card. A
+**file name** is written in the info string in square brackets after the language —
+`` ```scss [main.scss] `` — reusing VitePress's own `[title]` convention (read before
+VitePress strips the bracket), so it never collides with the `{highlight}` /
+`:line-numbers` modifiers. The COPY label is emitted in the build language and tagged
+`data-ct-code-copy-label` so the client re-localizes it on a language switch
+(useCodeCopy), which also copies the block source and flashes a localized "Copied";
+styles in `styles/_code.scss`.
 
 **Author & license system (CONF-002)** — the author identity and the content license
 are configured once, in `themeConfig`, and every consuming surface reads from that

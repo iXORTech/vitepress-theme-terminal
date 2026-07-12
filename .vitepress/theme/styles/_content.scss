@@ -14,8 +14,10 @@
   max-width: 72ch; // readable measure
   margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
-  font-family: var(--ct-font-body);
-  font-size: 1rem;
+  // Reader font preferences (THEME-007): a family override falls back to the
+  // mode's body font, the size override to the base 1rem (_settings.scss).
+  font-family: var(--ct-content-font, var(--ct-font-body));
+  font-size: var(--ct-content-font-size, 1rem);
   line-height: 1.75;
   color: var(--ct-text);
   overflow-wrap: break-word; // no horizontal overflow on narrow viewports

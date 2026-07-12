@@ -49,6 +49,27 @@ export const en = {
   'window.searchSample2': 'Syntax highlighting',
   'window.searchSample3': 'About this site',
 
+  // Settings panel (THEME-007) — font configuration + language switching.
+  // Opened from the tool-bar gear; renders in the shared floating window.
+  'settings.title': 'Settings',
+  'settings.open': 'Open settings',
+  'settings.fonts': 'Fonts',
+  'settings.fontFamily': 'Font',
+  'settings.fontSize': 'Size',
+  'settings.fontDefault': 'Default',
+  'settings.fontSans': 'Sans',
+  'settings.fontSerif': 'Serif',
+  'settings.fontMono': 'Mono',
+  'settings.sizeSmall': 'Small',
+  'settings.sizeMedium': 'Medium',
+  'settings.sizeLarge': 'Large',
+  'settings.language': 'Language',
+
+  // Code block cards (STYLE-004) — the title bar's COPY button label and its
+  // transient post-copy confirmation.
+  'code.copy': 'Copy',
+  'code.copied': 'Copied',
+
   // Status bar segments (THEME-001/009)
   'status.read': 'READ',
   'status.progress': 'Reading progress',

@@ -2,7 +2,13 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-006 fully-custom
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (STYLE-004 code-block
+cards — markdown fence wrapper `.ct-code` + title bar (file name · language ·
+text `[copy]`), Shiki untouched, `[name]` info-string bracket, `useCodeCopy`
+copy + label re-localization; THEME-007 settings panel — prompt-less two-pane
+floating utility (Fonts family/size + Language) from the tool-bar gear, font
+prefs persisted + restored pre-paint via `data-ct-font-*`, `useFontSettings`,
+`--ct-content-font`/`-font-size`. Earlier same day: THEME-006 fully-custom
 pre-footer section — `.ct-footer-region` wrapper with the edge-to-edge full
 separator, the `pre-footer` layout slot, and a subtler inset inner separator
 when the slot is filled; `Layout` now exported for wrapper use, plus a temporary
@@ -81,11 +87,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   THEME-017 = TUI chrome rework (framed panes, border titles, text `[✕]`),
   and THEME-018 = `/` search-shaped input+results demo done 2026-07-12;
   THEME-006 = fully-custom `pre-footer` slot section with the full + inner
-  footer separators done 2026-07-12.
+  footer separators done 2026-07-12; STYLE-004 = code-block cards (title bar +
+  COPY) and THEME-007 = settings panel (fonts + language) done 2026-07-12.
   Roadmap:
-  code-block card chrome (STYLE-004), theme chrome
-  (palette, tool bar extras, settings
-  panel), components (Fancybox/Swiper images, license card, Waline comments),
+  theme chrome
+  (palette, tool bar extras), components (Fancybox/Swiper images, license card,
+  Waline comments),
   content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
@@ -191,11 +198,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   jsDelivr's `ryanoasis/nerd-fonts@master`),
   inline `:root{--ct-main:…}` style from the resolved config (STYLE-001), inline
   pre-paint script restoring `ct-mode` from localStorage onto `data-ct-mode` with
-  dark default (STYLE-002).
+  dark default (STYLE-002) AND the font preferences `ct-font-family`/`ct-font-size`
+  onto `data-ct-font-*` (THEME-007) — attributes set only for a non-default choice,
+  so no flash/reflow.
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin`. Math goes through
-  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead.
+  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead. Also calls
+  `codeBlockCardsPlugin(md, lang)` last (STYLE-004).
+- `theme/markdown/codeblock.ts` — STYLE-004 code-block cards: wraps VitePress's
+  Shiki `fence` output in a `.ct-code` card + `.ct-code__titlebar` (file name ·
+  language · text `[copy]` button). Reads `token.info` BEFORE delegating (VitePress
+  strips the `[title]` bracket in its own rule); language = leading word, file
+  name = `[...]` group. COPY label emitted in the build `lang`, tagged
+  `data-ct-code-copy-label` for client re-localization (useCodeCopy). Highlighting
+  untouched inside the card.
 - `theme/markdown/callouts.ts` — MD-002 containers: overrides VitePress's built-in
   info/tip/warning/danger/details renderer rules and registers note/caution/important
   fresh; emits `.ct-callout .ct-callout--<kind>` cards with `.ct-callout__title`
@@ -231,6 +248,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009),
   `explorer.*` ×3 — label/toggle/close (THEME-002),
+  `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
+  fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
+  `code.copy`/`code.copied` (STYLE-004),
   `window.*` — close + window-demo title/open/body/hintsTitle/hint
   + search-demo title/inputTitle/resultsTitle/placeholder/hint/sample1-3
   (THEME-003/017/018; demo keys retire with SEARCH-002),
@@ -259,6 +279,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/composables/useCalloutTitles.ts` — rewrites `[data-ct-callout-title]`
   elements from the locale table on mount, content update, and language switch;
   called once from the layout (MD-002).
+- `theme/composables/useCodeCopy.ts` — STYLE-004 code-block COPY behavior +
+  label localization; called once from the layout. A delegated document click
+  copies the `.ct-code pre code` source and flashes a localized "Copied"
+  (`--copied` class, WeakSet guards the flash); `[data-ct-code-copy-label]` +
+  aria/title re-localized on mount, `onContentUpdated`, and language switch.
+- `theme/composables/useFontSettings.ts` — THEME-007 content font preferences
+  (singleton): `family` (`default`/sans/serif/mono) + `size` (small/medium/large),
+  mirrored onto `<html data-ct-font-*>` (attr only for a non-default value),
+  persisted to `ct-font-family`/`ct-font-size`, synced from the head-script
+  attributes on mount. SSR-safe.
+- `theme/composables/useSettings.ts` — THEME-007 settings opener: `openSettings()`
+  opens the shared floating window with a prompt-less two-pane `settings` utility
+  (Fonts `SettingsFonts` + Language `SettingsLanguage`, FA `fa-font`/`fa-language`
+  border icons, localized title getters). Setup-time composable (needs
+  `useThemeLocale` context).
 - `theme/composables/useNerdFont.ts` — waits for the generated Nerd Font stylesheet
   before using the CSS Font Loading API to confirm the working
   `NerdFontsSymbols Nerd Font Terminal` alias (`fonts.ready` → `fonts.load()`); then
@@ -336,8 +371,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   optional `.ct-prefooter` (rendered only when the `pre-footer` slot is filled —
   `$slots['pre-footer']`) above `<SiteFooter :divided="…" />`) —
   `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
-  `useCalloutTitles()` + `useNerdFont()` + `useWindowDemoShortcuts()` (binds
-  `~` and `/`, THEME-018) once.
+  `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
+  `useWindowDemoShortcuts()` (binds `~` and `/`, THEME-018) once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -345,8 +380,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
   state — and the right-side action icons: the temporary floating-window demo
   button (FA window-restore, THEME-003 — replaced by the find-palette trigger
-  in SEARCH-002) and the color-mode cycle button (FA half-circle,
-  `mode.switch`); configurable entries/more actions come with THEME-005.
+  in SEARCH-002), the settings gear (FA `fa-gear`, `settings.open` →
+  `useSettings().openSettings`, THEME-007), and the color-mode cycle button (FA
+  half-circle, `mode.switch`); configurable entries/more actions come with
+  THEME-005.
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -395,6 +432,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (THEME-018, temporary): three illustrative rows (localized `window.searchSample*`
   labels + literal identifier paths) plus the localized keyboard hint row;
   removed with the demo (SEARCH-002).
+- `theme/components/SettingsFonts.vue` — THEME-007 settings Fonts pane: two
+  segmented controls (`.ct-settings__option`) for the content font family
+  (Default/Sans/Serif/Mono) and size (Small/Medium/Large), driven by
+  `useFontSettings()`; every label localized.
+- `theme/components/SettingsLanguage.vue` — THEME-007 settings Language pane: a
+  list of `useThemeLocale().languages` rows (self-described `lang.label` + tag),
+  active highlighted, `setLanguage()` switches in place (I18N-003).
 - `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004/006):
   takes a `divided` prop — when a custom pre-footer section sits above it
   (THEME-006), `.ct-footer--divided` draws the subtler inset inner separator (the
@@ -416,7 +460,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  content/card/footer/prefooter-demo/code/callouts, then base document styles
+  settings/content/card/footer/prefooter-demo/code/callouts, then base document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
@@ -440,14 +484,24 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   main color only on emphasis tokens (strong/heading/link/inline-code); `:root` =
   dark (default), `[data-ct-mode=light|paper]` overrides, `@media print`
   force-applies paper tokens; maps `--ct-prompt-*` to the active Oxocarbon role set.
-- `theme/styles/_code.scss` — code blocks: `div[class*=language-]` frame (hides
-  default-theme copy/lang leftovers pending STYLE-004), `pre.shiki` basics, per-mode
-  selection of `--shiki-dark/-light/-paper` token variables incl. print.
+- `theme/styles/_code.scss` — STYLE-003/004 code-block cards: `.ct-code` card
+  frame (border/radius/shadow, matches `_card.scss`) + `.ct-code__titlebar`
+  (file name · language · text `[copy]` accent button, `--copied` success flash);
+  inner `div[class*=language-]` de-framed (hides default copy/lang leftovers),
+  `pre.shiki` basics, per-mode `--shiki-dark/-light/-paper` selection incl. print
+  (which also drops the card shadow).
 - `theme/styles/_content.scss` — STYLE-005: `.ct-content` markdown styling (headings,
   text, links, lists, blockquotes, tables w/ overflow-x scroll, hr, img, inline code)
   via semantic tokens; 72ch measure; 480px mobile padding tier; `flex: 1 0 auto`
   so it grows in the viewport column and pins the footer to the panel bottom
-  (THEME-004).
+  (THEME-004). Font uses `var(--ct-content-font, var(--ct-font-body))` and size
+  `var(--ct-content-font-size, 1rem)` so the THEME-007 settings override the
+  reader font (else follow the mode default).
+- `theme/styles/_settings.scss` — THEME-007: maps `<html data-ct-font-family|size>`
+  to `--ct-content-font`/`--ct-content-font-size` (default family = no attr =
+  follow mode; medium size = base), and styles the settings-panel controls —
+  `.ct-settings` font rows (label + `.ct-settings__option` segmented control) and
+  `.ct-settings__langs` language list, accent active state (`--ct-main-subtle`).
 - `theme/styles/_card.scss` — COMP-001 floating-card chrome: subtle rounded
   border, low-opacity 4px/12px shadow, semantic surface tokens, a monospace
   shell-prompt header with Oxocarbon segment roles, body spacing, narrow-screen
@@ -541,7 +595,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   content with localized title frontmatter; the getting-started page documents
   `"auto"`, source-local JSON folder metadata, and explicit-tree compatibility.
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
-  Shiki highlighting, every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
+  Shiki highlighting incl. a `[main.scss]` file-name code-block card (STYLE-004),
+  every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
   deflists, abbr), math, inline Font Awesome icons (FONT-002), all 8 callout
   types + custom-title example (MD-002), the defaulted, fully overridden, and
   prompt-free COMP-001 card demo (including current-page path defaults and a long

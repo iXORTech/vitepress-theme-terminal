@@ -16,6 +16,7 @@ import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
+import { useCodeCopy } from './composables/useCodeCopy'
 import { useExplorer } from './composables/useExplorer'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
@@ -38,6 +39,9 @@ const { title, description } = useSiteText()
 
 // Re-localize callout default titles on language switch (MD-002)
 useCalloutTitles()
+
+// Wire code-block COPY buttons and re-localize their labels (STYLE-004)
+useCodeCopy()
 
 // Flag <html> once the symbols Nerd Font is usable — gates the PUA glyphs in
 // callouts and TUI chrome with a tofu-safe fallback (FONT-002 / MD-003)

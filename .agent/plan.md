@@ -102,7 +102,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     oxocarbon.nvim dark/light palettes for dark/light modes, vscode-oxocarbon light
     palette for paper mode; code blocks follow the active mode.
 
-- [ ] **STYLE-004** — Code block cards
+- [x] **STYLE-004** — Code block cards
   - **Category:** Styling · **Deps:** STYLE-003, I18N-001, COMP-001
   - **Acceptance criteria:** code blocks render as card-style floating windows in the
     card component's visual language (`docs/design/ui-sketch.md` §6, code block
@@ -110,6 +110,16 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (when given) and the language name and holds a COPY button; highlighting stays
     Shiki-powered with the STYLE-003 palettes; labels localized; styles in dedicated
     SCSS.
+    *Landed 2026-07-12: a markdown-it fence wrapper (`theme/markdown/codeblock.ts`)
+    wraps VitePress's Shiki output in a `.ct-code` card headed by a
+    `.ct-code__titlebar` (file name · language · text `[copy]` control); the file
+    name comes from an info-string `[name]` bracket (VitePress's `[title]`
+    convention, read before VitePress strips it). Highlighting is untouched inside
+    the card. The COPY label is emitted in the build language, tagged
+    `data-ct-code-copy-label`, and re-localized by `useCodeCopy()` (called from
+    Layout), which also copies the source and flashes a localized "Copied"; styles
+    in `styles/_code.scss`; demo `[main.scss]` block in `markdown-examples.md`.
+    Verified headless.*
 
 - [x] **STYLE-005** — Base markdown content styling
   - **Category:** Styling · **Deps:** STYLE-001, FONT-001
@@ -420,11 +430,21 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `styles/_prefooter-demo.scss`. Verified headless: renders in the slot, left/right
     split, accent glyphs with NF gating + fallback, label/name re-localize on switch.*
 
-- [ ] **THEME-007** — Settings panel (floating window)
+- [x] **THEME-007** — Settings panel (floating window)
   - **Category:** Theme · **Deps:** THEME-001, CONF-001, I18N-001, FONT-001
   - **Acceptance criteria:** a hovering TUI-window settings panel **without** shell
     prompt; the first version only offers font configuration and language switching;
     choices persisted; full/near-full-screen sheet on mobile; strings localized.
+    *Landed 2026-07-12: `useSettings()` opens a prompt-less two-pane utility in the
+    shared floating window from the tool-bar gear — a **Fonts** pane (content font
+    family Default/Sans/Serif/Mono + size Small/Medium/Large, `SettingsFonts.vue`)
+    and a **Language** pane (in-place UI-language switch, `SettingsLanguage.vue`).
+    Font preferences persist in `localStorage` (`ct-font-family`/`ct-font-size`),
+    restored pre-paint onto `<html data-ct-font-*>` by the head script (no flash),
+    and mapped in `styles/_settings.scss` to `--ct-content-font`/`-font-size` on
+    `.ct-content`; state in `composables/useFontSettings.ts`. Mobile = the window's
+    near-full-screen sheet; all strings localized. Verified headless 25/25 with
+    STYLE-004.*
 
 - [x] **THEME-008** — Fixed shell frame: viewport-contained scrolling (THEME-001 fix)
   - **Category:** Theme · **Deps:** THEME-001

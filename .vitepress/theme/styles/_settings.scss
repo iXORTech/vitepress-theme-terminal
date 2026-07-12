@@ -1,0 +1,131 @@
+// ============================================================================
+// _settings.scss — settings panel + content font preferences (THEME-007)
+// ============================================================================
+// Two concerns:
+//   1. The font preferences chosen in the settings panel are stored on <html>
+//      as attributes (useFontSettings / head.ts) and mapped here to the
+//      `--ct-content-*` custom properties the content column reads
+//      (_content.scss). Default family = no attribute, so the content follows
+//      the mode's --ct-font-body; default size = medium = the base 1rem.
+//   2. The settings-panel controls themselves, rendered inside the shared
+//      floating window's framed panes (styles/_window.scss). TUI chrome (mono).
+
+// ----------------------------------------------------------------------------
+// Content font preference tokens (consumed by .ct-content in _content.scss)
+// ----------------------------------------------------------------------------
+:root[data-ct-font-family="sans"] {
+  --ct-content-font: var(--ct-font-sans);
+}
+:root[data-ct-font-family="serif"] {
+  --ct-content-font: var(--ct-font-serif);
+}
+:root[data-ct-font-family="mono"] {
+  --ct-content-font: var(--ct-font-mono);
+}
+
+:root[data-ct-font-size="small"] {
+  --ct-content-font-size: 0.9375rem;
+}
+:root[data-ct-font-size="large"] {
+  --ct-content-font-size: 1.125rem;
+}
+
+// ----------------------------------------------------------------------------
+// Panel: font pane — a stack of label + segmented-control rows
+// ----------------------------------------------------------------------------
+.ct-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ct-settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ct-settings__label {
+  flex-shrink: 0;
+  color: var(--ct-text-neutral);
+}
+
+// Segmented control — accent-bordered group of text options
+.ct-settings__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.ct-settings__option {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  color: var(--ct-text-neutral);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    color: var(--ct-link);
+    border-color: var(--ct-border-accent);
+  }
+
+  // Active option carries the accent (color-system.md §2)
+  &--active {
+    color: var(--ct-link);
+    border-color: var(--ct-border-accent);
+    background: var(--ct-main-subtle);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Panel: language pane — a list of full-width selectable rows
+// ----------------------------------------------------------------------------
+.ct-settings__langs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ct-settings__lang {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  color: var(--ct-text-neutral);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link);
+  }
+
+  // Active language uses the accent background + label (nvim-list feel)
+  &--active {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link);
+  }
+}
+
+.ct-settings__lang-tag {
+  flex-shrink: 0;
+  color: var(--ct-text-dim);
+}

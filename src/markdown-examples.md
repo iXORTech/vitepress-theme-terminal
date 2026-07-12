@@ -19,7 +19,9 @@ The basic Markdown syntax, *emphasis*, **strong**, `inline code`, [links](https:
 ## Syntax Highlighting
 
 Code blocks are highlighted by Shiki with the Oxocarbon palettes, following
-the active color mode (dark / light / paper).
+the active color mode (dark / light / paper). Each block renders as a
+card-style window (STYLE-004) headed by a title bar — the language name and a
+COPY button — never a shell prompt.
 
 **Input**
 
@@ -43,6 +45,25 @@ export default {
     return { msg: 'Highlighted!' }
   },
 }
+```
+
+Add a file name in square brackets after the language — `[main.scss]` — and it
+appears in the title bar before the language:
+
+**Input**
+
+````md
+```scss [main.scss]
+@use "tokens" as *;
+body { color: var(--ct-main); }
+```
+````
+
+**Output**
+
+```scss [main.scss]
+@use "tokens" as *;
+body { color: var(--ct-main); }
 ```
 
 ## Emoji

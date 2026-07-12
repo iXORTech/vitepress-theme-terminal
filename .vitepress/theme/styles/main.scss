@@ -14,6 +14,7 @@
 @use "explorer"; // file-explorer navigation sidebar (THEME-002)
 @use "statusbar"; // bottom status bar / statusline (THEME-001)
 @use "window";  // shared floating utility window (THEME-003)
+@use "settings"; // settings panel + content font preferences (THEME-007)
 @use "content"; // base markdown content styling (STYLE-005)
 @use "card";    // reusable TUI floating cards (COMP-001)
 @use "footer";  // in-viewport footer (THEME-004)

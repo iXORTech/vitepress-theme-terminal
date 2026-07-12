@@ -2,7 +2,7 @@
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-10.
+> Last updated: 2026-07-12.
 
 ## 1. Identity
 
@@ -86,6 +86,43 @@ folder may add source-local `explorer.json` beside its Markdown children:
 not in the VitePress site config, so an index-less folder can still have a
 localized label. The existing explicit explorer-array form remains supported,
 so auto-discovery is opt-in and does not change existing sites.
+
+**Floating windows (THEME-003/017)** — all floating utilities (find palette,
+settings panel, pickers) share **one** window instance, rendered in the
+Unicode-frame TUI idiom (2026-07-12 rework): a utility is composed of one or
+more **panes**, each its own bordered box with the rounded/floating finish of
+§5 whose **title sits on the top border line** — text over border, the way a
+TUI frame carries its caption (`╭─ TITLE ──╮`). Panes stack vertically with the
+shell's floating gap and carry separate titles and content, so a utility like
+the find palette pairs an input box with a separately titled results box, while
+simple utilities render a single box. Window controls are **text-based**, TUI
+style: the close control is a literal `[x]` sitting on the first pane's top
+border. The window floats centered above the viewport over a dimmed backdrop
+(ui-sketch.md §2), is hidden by default and only opened programmatically;
+opening a utility replaces whatever the window currently shows, so at most one
+floating window exists at a time. It is dismissed by the `[x]` control, by
+clicking outside (the backdrop), or by `Esc` (§7); at mobile widths it presents
+as a near-full-screen sheet (§8) in which the last pane grows to fill the
+remaining height. Paper mode keeps it usable on screen; it never prints.
+
+*Implemented (THEME-003, icons THEME-016, TUI chrome THEME-017):* the shared
+instance is `FloatingWindow.vue`, rendered once from the layout and driven by
+the `useFloatingWindow()` singleton — a utility is
+`{ id, label(), panes: [{ title(), icon?, component }] }`: `label()` is the
+dialog's accessible name, each pane's `title()` is a getter so it follows
+language switches while open, and `icon` is optional Font Awesome classes
+(general-icon context, typography-and-icons.md §2) rendered as a decorative
+accent glyph inside the border title. The window is a `role="dialog"` container
+(focus moves in on open and returns on close) of framed pane `<section>`s, each
+labeled by its title, with the pane body the scrolling region; styles in
+`styles/_window.scss`, layered above the explorer drawer. Until the find
+palette lands (SEARCH-002), two temporary logic-free **demos** exercise the
+window: a description/hints demo opened via the `~` shortcut (ignored while
+typing in inputs/editable regions) and a tool-bar demo button, and a
+find-palette-shaped **search demo** opened via the `/` shortcut — a static
+search-input pane over an illustrative results pane (ui-sketch.md §2). Both
+share the one instance, so opening either replaces the other; demo strings,
+components, button, and wiring all retire with SEARCH-002.
 
 **Footer** — sits at the bottom of the main viewport, inside the content panel: it
 scrolls with the article and is **not** a separate floating bar. Structure, top to

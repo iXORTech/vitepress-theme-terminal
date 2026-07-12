@@ -6,11 +6,12 @@
 // (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the middle
 // row — explorer sidebar (THEME-002) beside the floating content viewport,
 // which holds the content column and the in-viewport footer (THEME-004) —
-// and the bottom status bar. Floating utilities (THEME-003) and the custom
-// pre-footer section (THEME-006) attach to this frame later.
+// the bottom status bar, and the shared floating utility window (THEME-003).
+// The custom pre-footer section (THEME-006) attaches to this frame later.
 import { ref } from 'vue'
 import { useData } from 'vitepress'
 import Explorer from './components/Explorer.vue'
+import FloatingWindow from './components/FloatingWindow.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
@@ -19,6 +20,7 @@ import { useExplorer } from './composables/useExplorer'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
 import { useViewportScroll } from './composables/useViewportScroll'
+import { useWindowDemoShortcuts } from './composables/useWindowDemo'
 
 const { frontmatter } = useData()
 
@@ -40,6 +42,10 @@ useCalloutTitles()
 // Flag <html> once the symbols Nerd Font is usable — gates the PUA glyphs in
 // callouts and TUI chrome with a tofu-safe fallback (FONT-002 / MD-003)
 useNerdFont()
+
+// `~` opens the window demo, `/` the search demo (THEME-003/018, temporary
+// until SEARCH-002)
+useWindowDemoShortcuts()
 </script>
 
 <template>
@@ -76,5 +82,9 @@ useNerdFont()
 
     <!-- Bottom status bar / statusline -->
     <StatusBar />
+
+    <!-- Shared floating utility window — hidden until a utility opens it
+         (THEME-003) -->
+    <FloatingWindow />
   </div>
 </template>

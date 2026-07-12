@@ -4,7 +4,7 @@
 > regions, their roles, and their responsive behavior follow
 > [`design-language.md`](design-language.md) §4–§8 and are binding. Exact glyphs,
 > labels, spacing, and copy in these sketches are placeholders, not pixel specs.
-> Last updated: 2026-07-09.
+> Last updated: 2026-07-12.
 
 ## How to read the sketches
 
@@ -53,21 +53,34 @@ location, reading progress, and the color-mode/language switchers.
 ## 2. Floating window — search / command palette
 
 Floats centered above the viewport; the backdrop dims. Opened via `[/]` or a keyboard
-shortcut, dismissed with `Esc` (design-language.md §7).
+shortcut, dismissed with `Esc` (design-language.md §7). The window is a stack of
+one or more framed **panes** (design-language.md §4, floating windows): each pane's
+title sits on its top border, TUI style, and the close control is the text-based
+`[x]` on the first pane's border. A utility configures its own panes — the find
+palette pairs an input box with a results box; simple utilities render one box.
 
 ```
-╭─ find ──────────────────────────────────────╮
-│ > oxo_                                      │
-│ ─────────────────────────────────────────── │
-│ > Color system            docs/design/      │
-│   Syntax highlighting     posts/2026/       │
-│   About this site         about             │
-│                                             │
-│ [enter] open   [esc] close   [j/k] move     │
-╰─────────────────────────────────────────────╯
+╭─ FIND ──────────────────────────────[x]─╮
+│ > oxo_                                  │
+╰─────────────────────────────────────────╯
+╭─ RESULTS ───────────────────────────────╮
+│ > Color system            docs/design/  │
+│   Syntax highlighting     posts/2026/   │
+│   About this site         about         │
+│                                         │
+│ [enter] open   [esc] close   [j/k] move │
+╰─────────────────────────────────────────╯
 ```
 
-On mobile this presents as a full/near-full-screen sheet (design-language.md §8).
+On mobile this presents as a full/near-full-screen sheet (design-language.md §8),
+the last pane growing to fill the remaining height.
+
+*Implemented (THEME-003/016/017):* the generic shared window shell — framed panes
+with border titles (+ optional icon), text-based `[x]` close, dimmed backdrop,
+`Esc`/outside-click dismissal, mobile sheet — exists as `FloatingWindow.vue`; the
+find content sketched above arrives with SEARCH-002 (until then two temporary
+demo utilities exercise the window: a description/hints demo via `~` or the
+tool-bar button, and this search-shaped input+results demo via `/`).
 
 ## 3. Mobile layout (≈360 px)
 

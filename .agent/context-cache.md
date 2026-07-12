@@ -2,7 +2,11 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-10 (FIX-002 progressive
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-003 shared
+floating utility window + temporary `~`/tool-bar demo; THEME-016 optional
+title icons; THEME-017 TUI chrome rework — framed panes with border titles,
+text-based `[✕]` close, two-pane demo; THEME-018 `/` search-shaped demo —
+input + results panes). Earlier: 2026-07-10 (FIX-002 progressive
 prompt overflow; FIX-001 argument spacing; COMP-001 Oxocarbon prompt styling and softer card
 shadow; DEMO-002 override demo;
 COMP-001 current-page prompt path default; DEMO-002 card demo; COMP-001 reusable card component; THEME-015 removal of
@@ -68,7 +72,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   in-viewport
   footer + THEME-002 = file-explorer sidebar + THEME-011 = nvim-style explorer
   rework, THEME-012 auto-discovered source explorer and I18N-006 localized
-  labels done 2026-07-10. Roadmap:
+  labels done 2026-07-10; THEME-003 = shared floating utility window (+
+  temporary demo, retired by SEARCH-002), THEME-016 = optional title icons,
+  THEME-017 = TUI chrome rework (framed panes, border titles, text `[✕]`),
+  and THEME-018 = `/` search-shaped input+results demo done 2026-07-12.
+  Roadmap:
   code-block card chrome (STYLE-004), theme chrome
   (palette, custom pre-footer section, tool bar extras, settings
   panel), components (Fancybox/Swiper images, license card, Waline comments),
@@ -97,6 +105,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   optional source-local `explorer.json` folder metadata (THEME-012/013/I18N-006);
   active-route ancestor folders expand transiently without storage writes
   (THEME-014),
+  floating-windows spec + THEME-003/016/017 implemented note (§4: one shared
+  `FloatingWindow.vue` instance driven by the `useFloatingWindow()` singleton,
+  utility = `{ id, label(), panes: [{ title(), icon?, component }] }` — framed
+  panes whose titles (+ decorative FA icon) sit on the top border line, text
+  `[x]` close on the first pane, hidden by default / opened programmatically,
+  dialog semantics + focus
+  handling, dismissed via `[✕]` / backdrop / `Esc`, ≤640px sheet with the
+  last pane growing; two temporary demos until SEARCH-002 — `~`/tool-bar
+  description demo and the `/` search-shaped input+results demo),
   footer spec (custom Vue section on top · separator ·
   copyright/social · powered-by/RSS/license rows; RSS + icons configurable;
   author/license from CONF-002; attribution row lighter on desktop; THEME-004
@@ -136,7 +153,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   gated behind `html[data-ct-nerdfont]` (useNerdFont) after the external
   stylesheet has loaded (FONT-003) — safe fallback: no icon / plain `❯` chevron.
 - `design/ui-sketch.md` — ASCII wireframes (structure binding, details illustrative):
-  desktop shell (tool bar / explorer + viewport / status bar), floating find palette,
+  desktop shell (tool bar / explorer + viewport / status bar), floating find
+  palette as stacked framed panes — border titles + text `[x]` close
+  (§2, reworked THEME-017; the generic window shell is landed, find content =
+  SEARCH-002),
   mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
   hides explorer/utility panels), in-viewport footer (attribution row lighter on
   desktop), card component with explicit `showPrompt`, normalized site-title host,
@@ -205,6 +225,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009),
   `explorer.*` ×3 — label/toggle/close (THEME-002),
+  `window.*` — close + window-demo title/open/body/hintsTitle/hint
+  + search-demo title/inputTitle/resultsTitle/placeholder/hint/sample1-3
+  (THEME-003/017/018; demo keys retire with SEARCH-002),
   `footer.*` ×5 with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
   placeholders (THEME-004) — grows per feature); exports
   `ThemeLocaleStrings`/`ThemeLocaleKey`.
@@ -246,6 +269,22 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `closeDrawer()`. THEME-011: per-folder expanded state remains in
   `ct-explorer-nodes`; route-only reveals and current-view user overrides live
   in transient state and are cleared after navigation.
+- `theme/composables/useFloatingWindow.ts` — shared floating-window singleton
+  (THEME-003/016/017): `active` shallowRef holding the current utility payload
+  `{ id, label(), panes: [{ title(), icon?, component }] }` — `label()` names
+  the dialog; each pane is a framed box with its own border title (getters so
+  they follow language switches; `icon` = optional FA classes) and content —
+  plus `isOpen`, `open()` (replaces the current utility), `close()`.
+  Hidden by default; only opened programmatically.
+- `theme/composables/useWindowDemo.ts` — temporary THEME-003/017/018 demo
+  wiring (retired by SEARCH-002): `useWindowDemo()` → `openDemo()` (tool-bar
+  button; description pane with the `fa-window-restore` icon + hints pane) and
+  `useSearchDemo()` → `openSearch()` (the find-palette-shaped input + results
+  panes, magnifier icon); `useWindowDemoShortcuts()` binds `~` (window demo)
+  and `/` (search demo) via the shared `useKeyShortcut()` helper — skipped
+  while composing, with cmd-modifiers, or when focus is in an
+  input/textarea/select/contenteditable. Setup-time composables because the
+  localized title getters need `useThemeLocale()`'s component context.
 - `theme/composables/useReadingProgress.ts` — scroll progress as an integer % for
   the status bar (THEME-001/008): tracks the `.ct-viewport` panel (the shell's
   only scroll container), 100 when the page fits inside it; updates on
@@ -276,15 +315,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
   localized title/description, PAGE-001 pending — or `<Content/>`, then
   `<SiteFooter/>` (THEME-004; the THEME-006 custom section slots in above it)) —
-  and `<StatusBar/>`; calls `useCalloutTitles()` + `useNerdFont()` once.
+  `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
+  `useCalloutTitles()` + `useNerdFont()` + `useWindowDemoShortcuts()` (binds
+  `~` and `/`, THEME-018) once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
-  state — and the right-side action icons: the color-mode cycle button (FA
-  half-circle, `mode.switch`); configurable entries/more actions come with
-  THEME-005, search trigger with THEME-003.
+  state — and the right-side action icons: the temporary floating-window demo
+  button (FA window-restore, THEME-003 — replaced by the find-palette trigger
+  in SEARCH-002) and the color-mode cycle button (FA half-circle,
+  `mode.switch`); configurable entries/more actions come with THEME-005.
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -312,6 +354,27 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   Oxocarbon role token; command and args preserve their explicit leading
   separators in the flex prompt layout. A resize-aware staged fitter hides the
   host, reduces the path to its last section, and then enables path ellipsis.
+- `theme/components/FloatingWindow.vue` — the single shared floating utility
+  window (THEME-003/016/017), rendered once from Layout: `role="dialog"` +
+  aria-modal container over a dimmed backdrop, stacking the active utility's
+  framed pane `<section>`s (each aria-labeled by its title); pane titles
+  (+ optional decorative FA icon) sit on the top border line, and the literal
+  text `[x]` close control sits on the first pane's border; pane bodies are
+  the scroll regions; dismissed via `[x]`, backdrop click, or `Esc`; focus
+  moves into the container on open and returns on close.
+- `theme/components/WindowDemo.vue` — temporary logic-free demo content for the
+  floating window (THEME-003/017): the localized description pane; removed
+  when the find palette lands (SEARCH-002).
+- `theme/components/WindowDemoHints.vue` — the demo's second pane (THEME-017):
+  the localized `[~] open · [esc] close` hint row in its own framed box,
+  exercising the multi-pane window; removed with the demo (SEARCH-002).
+- `theme/components/SearchDemo.vue` — search demo input pane (THEME-018,
+  temporary): a static `<input type=search>` with a `>` prompt glyph and
+  localized placeholder; no query logic. Removed with the demo (SEARCH-002).
+- `theme/components/SearchDemoResults.vue` — search demo results pane
+  (THEME-018, temporary): three illustrative rows (localized `window.searchSample*`
+  labels + literal identifier paths) plus the localized keyboard hint row;
+  removed with the demo (SEARCH-002).
 - `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004): grid of
   four cells — localized copyright (`{year}`/`{author}`, author from CONF-002) ·
   social icons (`themeConfig.footer.social`) · powered-by (localized
@@ -329,8 +392,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   indicator span (switching lives in the tool bar); replaces the I18N-002
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
-  (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/content/card/
-  footer/code/callouts, then base document styles (box-sizing, body bg/color/font
+  (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
+  content/card/footer/code/callouts, then base document styles (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_fonts.scss` — registers the current jsDelivr
   `SymbolsNerdFont-Regular.ttf` under `NerdFontsSymbols Nerd Font Terminal`,
@@ -411,6 +474,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-explorer-backdrop` dim layer (z-20, desktop-hidden), drawer-only
   header; hidden in print. The drawer breakpoint must match useExplorer's
   `DRAWER_QUERY`.
+- `theme/styles/_window.scss` — THEME-003/016/017 shared floating window:
+  backdrop z-40 (above the explorer drawer's z-30) + invisible window
+  container z-50 (centered top 14vh, `min(40rem, …)` wide, 70vh max) stacking
+  framed `__pane` boxes with a `--ct-gap` flex gap; `__pane-title` (+ optional
+  accent `__icon`) and the text `[x]` `__close` sit on the top border via
+  absolute positioning + `translateY(-50%)` with a `--ct-surface` backing
+  masking the line; `__pane-body` is each pane's scroll region; deeper
+  `0 12px 32px` shadow per pane, mono chrome, 0.15s fade-in; ≤640px =
+  near-full-screen sheet inset by `--ct-gap` with the last pane growing;
+  hidden in print; ends with the temporary demo styles — `.ct-window-demo`
+  text/hint and the THEME-018 `.ct-window-search` input/prompt/field +
+  result-row/path/hint (all retired with SEARCH-002).
 - `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
   same panel finish, mono small; inverted accent `READ` chip (main-color bg,
   gray-100 text), truncating location, accent text-button controls + `--icon`

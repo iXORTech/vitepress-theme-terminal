@@ -29,6 +29,26 @@ export const en = {
   'explorer.toggle': 'Toggle explorer',
   'explorer.close': 'Close explorer',
 
+  // Floating utility window (THEME-003). The demo strings are temporary and
+  // retire when the find palette lands (SEARCH-002).
+  'window.close': 'Close window',
+  'window.demoTitle': 'Floating window',
+  'window.demoOpen': 'Open floating window demo',
+  'window.demoBody':
+    'This is the shared floating utility window — the find palette, the settings panel, and other utilities all render inside this single window as one or more framed panes.',
+  'window.demoHintsTitle': 'Hints',
+  'window.demoHint': '[~] open · [esc] close',
+  // Search demo (THEME-018, temporary — `/` opens it; retires with SEARCH-002).
+  // Sample result labels are illustrative; their paths are literal identifiers.
+  'window.searchTitle': 'Search',
+  'window.searchInputTitle': 'Find',
+  'window.searchResultsTitle': 'Results',
+  'window.searchPlaceholder': 'Search the site…',
+  'window.searchHint': '[enter] open · [esc] close · [↑↓] move',
+  'window.searchSample1': 'Color system',
+  'window.searchSample2': 'Syntax highlighting',
+  'window.searchSample3': 'About this site',
+
   // Status bar segments (THEME-001/009)
   'status.read': 'READ',
   'status.progress': 'Reading progress',

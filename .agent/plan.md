@@ -289,7 +289,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     unconfigured; styles in `styles/_explorer.scss`, state in
     `composables/useExplorer.ts`; spec note in design-language.md §4.*
 
-- [ ] **THEME-003** — Floating-window utilities (search / command palette)
+- [x] **THEME-003** — Floating-window utilities (search / command palette)
   - **Category:** Theme · **Deps:** THEME-001
   - **Acceptance criteria:** floating panel component for search, command center, or other
     utilities; TUI-window look with rounded/floating finish; a single instance of (this type
@@ -299,6 +299,18 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     This task only includes the implementation of the floating-window visual component
     and its interative behavior. Add a demo page that can be opened via `~` keyboard and
     a button in the tool bar. No actual logic needed behind the demo.
+    *Landed 2026-07-12: shared `FloatingWindow.vue` instance rendered once from
+    the layout, driven by the `useFloatingWindow()` singleton with
+    `{ id, title(), component }` utility payloads (opening replaces the current
+    utility, so at most one window exists); `role="dialog"` panel with focus
+    moved in on open / restored on close, dismissed via title-bar close button,
+    backdrop click, or `Esc`; ≤640px it becomes a near-full-screen sheet;
+    styles in `styles/_window.scss` (z-40/50, above the explorer drawer; hidden
+    in print). Temporary logic-free demo (`WindowDemo.vue` + `useWindowDemo`)
+    opens via the `~` shortcut — ignored inside inputs/editable regions — and a
+    tool-bar button; demo strings/button/wiring retire with SEARCH-002.
+    Verified headless 18/18 incl. zh-Hans localization and modal backdrop
+    blocking.*
 
 - [x] **THEME-012** — Auto-discovered source file explorer
   - **Category:** Theme · **Deps:** THEME-011
@@ -446,6 +458,67 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `src/guide/{index,getting-started,advanced/index,
     advanced/deep-dive}.md` + demo tree in config.mts; verified headless
     25/25.*
+
+- [x] **THEME-016** — Floating-window title-bar icons
+  - **Category:** Theme · **Deps:** THEME-003
+  - **Acceptance criteria:** a utility opened in the shared floating window can
+    supply an optional icon (Font Awesome classes, general-icon context per
+    `docs/design/typography-and-icons.md` §2) rendered in the title bar before
+    the title; utilities without an icon render exactly as before; the icon is
+    decorative (hidden from assistive tech — the dialog keeps its text label);
+    the demo utility exercises it; documented in the THEME-003 notes in
+    `design-language.md` §4; styles stay in `styles/_window.scss`.
+    *Landed 2026-07-12: optional `icon` on `FloatingWindowUtility`, rendered
+    in `FloatingWindow.vue` as an `aria-hidden` accent glyph inside
+    `.ct-window__title`; `.ct-window__icon` styles in `_window.scss`; the
+    demo passes `fa-solid fa-window-restore` (matching its tool-bar trigger).
+    Verified headless 5/5 — glyph drawn from the FA face, dialog label stays
+    the text title.*
+
+- [x] **THEME-017** — TUI window chrome rework: border titles, panes, text controls
+  - **Category:** Theme · **Deps:** THEME-003, THEME-016
+  - **Acceptance criteria:** the floating window renders in the Unicode-frame TUI
+    idiom — a utility is composed of one or more **panes**, each its own bordered
+    box whose title (with the optional THEME-016 icon) sits **on the top border
+    line** (text-over-border, like the sketch frames); panes stack with the
+    floating gap and carry separate titles and content components, so a utility
+    like the find palette can pair an input box with a results box; the close
+    control renders text-based (`[x]` on the first pane's border) instead of an
+    icon button; dismissal (close/backdrop/`Esc`), focus handling, and the mobile
+    near-full-screen sheet are unchanged (on mobile the last pane grows to fill
+    the sheet); the demo exercises two panes; documented in
+    `design-language.md` §4 and `ui-sketch.md` §2.
+    *Landed 2026-07-12: utility payload reworked to
+    `{ id, label(), panes: [{ title(), icon?, component }] }`; the window
+    container is an invisible flex stack (gap = `--ct-gap`) of framed pane
+    `<section>`s; `.ct-window__pane-title` and the literal `[x]`
+    `.ct-window__close` sit on the border via absolute positioning +
+    `translateY(-50%)` with a surface backing masking the line; pane bodies
+    are the scroll regions; demo split into WindowDemo (description) +
+    WindowDemoHints (hints pane, new `window.demoHintsTitle` string).
+    Verified headless 15/15 — border-centered captions, text `[x]`, 12px
+    inter-pane gap, all dismissals, mobile sheet with the last pane filling.*
+
+- [x] **THEME-018** — Search-shaped floating-window demo (`/`)
+  - **Category:** Theme · **Deps:** THEME-003, THEME-016, THEME-017
+  - **Acceptance criteria:** a second temporary demo utility, opened via the `/`
+    keyboard shortcut (ignored while typing in inputs/editable regions, like
+    `~`), renders the find-palette shape from `ui-sketch.md` §2 — two panes: a
+    **search input** pane (static field with a prompt glyph and a magnifier
+    border-title icon) over a **results** pane (illustrative static rows plus a
+    keyboard hint row); it shares the one floating-window instance (opening it
+    replaces the window demo and vice versa); all labels localized (result
+    paths are literal identifiers, like the shell prompt); documented in the
+    THEME-003 notes in `design-language.md` §4 and `ui-sketch.md` §2; retired
+    with the rest of the demo when the find palette lands (SEARCH-002).
+    *Landed 2026-07-12: `useSearchDemo()` opens a two-pane utility — `SearchDemo.vue`
+    (static `<input type=search>` + `>` prompt, magnifier border-title icon) over
+    `SearchDemoResults.vue` (three localized-label/literal-path rows + hint row);
+    `/` bound via a shared `useKeyShortcut()` helper in `useWindowDemo.ts`
+    (`useWindowDemoShortcut` → `useWindowDemoShortcuts`, now binding `~` and `/`);
+    9 new `window.search*` strings; styles in the temporary block of
+    `_window.scss`. Verified headless 16/16 — `/` open + input guard, two panes,
+    single-instance swap with the `~` demo, zh-Hans localization, mobile sheet.*
 
 ### Components
 

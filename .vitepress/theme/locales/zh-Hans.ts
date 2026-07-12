@@ -60,6 +60,8 @@ export const zhHans: ThemeLocaleStrings = {
   'footer.rss': 'RSS 订阅',
   'footer.license': '许可协议',
   'footer.licensedUnder': '内容按 {license} 许可协议授权',
+  // Custom pre-footer demo label (THEME-006, temporary)
+  'footer.demoCustom': '可自定义的页脚内容',
 
   // Callout default titles
   'callout.info': '信息',

@@ -394,11 +394,31 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     extensible icon-slot mechanism lets extra feature icons (e.g. search trigger,
     important social links) be added from configuration without component edits.
 
-- [ ] **THEME-006** — Fully-custom section above the footer
+- [x] **THEME-006** — Fully-custom section above the footer
   - **Category:** Theme · **Deps:** THEME-001
   - **Acceptance criteria:** a section directly above the footer whose entire content
     is rendered from a user-supplied Vue file; renders nothing when the user provides
     none; the wiring mechanism is documented.
+    *Landed 2026-07-12: the footer is wrapped in `.ct-footer-region` (Layout.vue),
+    which owns the **full separator** (edge-to-edge `--ct-border` `border-top`, before
+    the entire footer section) and pins the region to the viewport bottom. The custom
+    section is the named `pre-footer` Vue **layout slot** — a user supplies it by
+    extending the theme with a wrapper Layout that fills `#pre-footer` (`Layout` is now
+    exported from `theme/index.ts`); unfilled it renders nothing. When filled, Layout
+    passes `divided` to `SiteFooter`, adding the **subtler inner separator**
+    (`.ct-footer--divided`: a `--ct-border` pseudo-element rule **inset** by the
+    footer's horizontal padding so it does not reach the panel edges — matching the
+    search window's hint rule) between the custom section and the standard footer.
+    Documented in design-language.md §4 and ui-sketch.md §5. Verified
+    headless: default = region + full separator only (no `.ct-prefooter`, footer not
+    `--divided`); filled = `.ct-prefooter` + `.ct-footer--divided`, with the inner
+    `::before` rule inset 24px (1.5rem) on each side while the region full separator
+    spans edge to edge. A temporary demo ships the pattern: `DemoLayout.vue` (the demo site's
+    registered Layout) fills `#pre-footer` with `PreFooterDemo.vue` — a Nerd-Font logo
+    glyph + localized theme name on the left, and a Font Awesome icon, a Nerd Font icon,
+    and a localized `footer.demoCustom` label on the right; styles in
+    `styles/_prefooter-demo.scss`. Verified headless: renders in the slot, left/right
+    split, accent glyphs with NF gating + fallback, label/name re-localize on switch.*
 
 - [ ] **THEME-007** — Settings panel (floating window)
   - **Category:** Theme · **Deps:** THEME-001, CONF-001, I18N-001, FONT-001

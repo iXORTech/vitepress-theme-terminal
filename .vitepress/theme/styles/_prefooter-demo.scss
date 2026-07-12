@@ -1,0 +1,69 @@
+// ============================================================================
+// _prefooter-demo.scss — custom pre-footer demo content (THEME-006, temporary)
+// ============================================================================
+// Styles the shipped `pre-footer` slot example (PreFooterDemo.vue): a brand
+// cluster on the left and an icon + label cluster on the right, in the TUI
+// mono idiom. Nerd Font glyphs follow the theme's gating convention — a plain
+// fallback upgraded to the PUA glyph only under html[data-ct-nerdfont]
+// (FONT-002). Demo only: removed with the demo section.
+
+.ct-prefooter-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+
+  font-family: var(--ct-font-mono);
+  font-size: 0.875rem;
+  color: var(--ct-text);
+
+  // Left: logo glyph + theme name
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__name {
+    color: var(--ct-text-strong);
+    font-weight: 600;
+  }
+
+  // Right: Font Awesome icon + Nerd Font icon + text label
+  &__extras {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--ct-text-neutral);
+  }
+
+  // Both icon systems draw in the accent color so they read as marks
+  .fa-solid,
+  &__logo::before,
+  &__nf::before {
+    color: var(--ct-main);
+  }
+}
+
+// Nerd Font glyphs: plain fallbacks, upgraded to PUA glyphs once the symbols
+// font is confirmed usable (tofu-safe gating, FONT-002)
+.ct-prefooter-demo__logo::before {
+  content: "::"; // logo fallback
+}
+
+.ct-prefooter-demo__nf::before {
+  content: "*"; // Nerd Font icon fallback
+}
+
+html[data-ct-nerdfont] {
+  .ct-prefooter-demo__logo::before {
+    content: "\f120"; // nf-fa-terminal
+    font-family: var(--ct-font-nerd);
+  }
+
+  .ct-prefooter-demo__nf::before {
+    content: "\f005"; // nf-fa-star
+    font-family: var(--ct-font-nerd);
+  }
+}

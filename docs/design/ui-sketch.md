@@ -144,9 +144,11 @@ with the page rather than floating as its own bar (design-language.md §4, foote
 │                                                                          │
 │  ... end of article content ...                                          │
 │                                                                          │
+│  ──────────────────────────────────────────────────────────────────────  │  ← full separator (always)
+│                                                                          │
 │  [ custom area · rendered from a user-supplied Vue file ]                │
 │                                                                          │
-│  ──────────────────────────────────────────────────────────────────────  │
+│      ──────────────────────────────────────────────────────────────      │  ← inner separator (only when custom present; inset, does not reach the edges)
 │                                                                          │
 │  Copyright © 2026 Author                                 [gh] [tw] [em]  │
 │  Powered by VitePress and VitePress Theme Terminal      [rss] [cc] [by]  │
@@ -154,14 +156,18 @@ with the page rather than floating as its own bar (design-language.md §4, foote
 ╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
-The custom section on top is rendered from a user-supplied Vue file and renders
-nothing when none is supplied (THEME-006). The rule below it is the separator from the
-footer spec. `[gh] [tw] [em]` stand for the easily configurable social-icon list,
-`[rss]` for the RSS link (icon shown only when a feed is configured), and `[cc] [by]`
-for the license icons, which follow the license configured in the author & license
-system (CONF-002; default CC BY-NC-SA 4.0) — all Font Awesome. On mobile each row
-stacks (copyright line, powered by line, social icons, RSS/license icons).
-Implementation details are to be added later (THEME-004, THEME-006).
+The **full separator** opens the whole footer section and is always present. The custom
+section below it is rendered from a user-supplied Vue file (the `pre-footer` layout
+slot) and renders nothing when none is supplied (THEME-006); when it *is* supplied, the
+**inner separator** between it and the standard footer appears — **inset** on both
+sides (it does not reach the panel edges, like the search window's hint rule), so it
+reads as the subtler of the two dividers. With no custom section, only the full
+separator remains, directly above the copyright row. `[gh] [tw] [em]` stand for the easily configurable
+social-icon list, `[rss]` for the RSS link (icon shown only when a feed is configured),
+and `[cc] [by]` for the license icons, which follow the license configured in the
+author & license system (CONF-002; default CC BY-NC-SA 4.0) — all Font Awesome. On
+mobile each row stacks (copyright line, powered by line, social icons, RSS/license
+icons).
 
 *Extra Note: The second row's text should be lighter in color than the first row,
 to visually separate the two rows. Apply only on desktop.*

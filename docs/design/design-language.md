@@ -128,13 +128,18 @@ components, button, and wiring all retire with SEARCH-002.
 scrolls with the article and is **not** a separate floating bar. Structure, top to
 bottom:
 
-1. a fully-custom section rendered from a user-supplied Vue file — its own component
-   sitting directly on top of the footer, rendering nothing when the user supplies no
-   file (plan task THEME-006);
-2. a separator rule;
-3. a copyright row — `Copyright © <year> <author>` on the left, social icons on the
+1. a **full separator** — an edge-to-edge rule that opens the whole footer section,
+   dividing the article content from everything below;
+2. a fully-custom section rendered from a user-supplied Vue file — its own component
+   sitting directly on top of the standard footer, rendering nothing when the user
+   supplies no file (plan task THEME-006);
+3. a **subtler inner separator** — drawn **only when** the custom section is present,
+   dividing it from the standard footer; unlike the edge-to-edge full separator it is
+   **inset on both sides** (it does not connect to the panel edges, like the search
+   window's hint rule), so it reads as the gentler of the two dividers;
+4. a copyright row — `Copyright © <year> <author>` on the left, social icons on the
    right;
-4. an attribution row — “Powered by VitePress and VitePress Theme Terminal” on the
+5. an attribution row — “Powered by VitePress and VitePress Theme Terminal” on the
    left, the RSS icon (only when a feed is configured) and the license icons on the
    right; on desktop this row's text is lighter than the copyright row's (the lighter
    tone derived per the color rules; see the ui-sketch.md §5 note).
@@ -144,7 +149,7 @@ author in the copyright and the license icons come from the central author & lic
 system (CONF-002; default license CC BY-NC-SA 4.0). Fixed strings are localized; the
 icons are Font Awesome (general-icon context,
 [`typography-and-icons.md`](typography-and-icons.md) §2). On narrow viewports the rows
-stack. The custom section on top is still to come (plan task THEME-006).
+stack.
 
 *Implemented (THEME-004):* the footer spans the full width of the viewport panel
 (wider than the 72ch article column, like the sketch's edge-to-edge separator);
@@ -165,6 +170,44 @@ sentence (`{license}` placeholder) whose license name is a link to the deed —
 underlined like the theme's other text links, unlike the icon cluster; without
 `url` the name renders as plain text. On mobile the cells stack in the order
 copyright · powered-by · social icons · RSS/license icons (ui-sketch.md §5).
+
+*Implemented (THEME-006):* the footer is wrapped in a `.ct-footer-region` that owns
+the **full separator** (its `border-top`, `--ct-border`) and pins the region to the
+bottom of the viewport column. The fully-custom section is a named Vue **layout slot**,
+`pre-footer` — the documented way to inject a user Vue file into a theme region, since
+a Vue component cannot travel through the JSON-serialized `themeConfig` (the AGENTS §6.5
+exception, recorded here). A site fills it by extending the theme with a wrapper Layout:
+
+```ts
+// .vitepress/theme/index.ts
+import Theme, { Layout } from 'vitepress-theme-terminal-reforged/theme'
+import MyLayout from './MyLayout.vue'
+export default { extends: Theme, Layout: MyLayout }
+```
+
+```vue
+<!-- MyLayout.vue -->
+<script setup>import { Layout } from 'vitepress-theme-terminal-reforged/theme'</script>
+<template>
+  <Layout><template #pre-footer><MyCustomSection /></template></Layout>
+</template>
+```
+
+When the slot is unfilled the custom section renders nothing and no inner separator is
+drawn (only the full separator remains, directly above the footer rows). When it is
+filled, `Layout` passes `divided` to the footer, which adds the **subtler inner
+separator** (`.ct-footer--divided`) — a `--ct-border` rule rendered as a pseudo-element
+so it can be **inset** by the footer's horizontal padding (a `border-top` cannot),
+leaving a gap at each panel edge exactly like the search window's hint rule. The custom
+section's padding matches the footer's so its content — and the inset rule — align with
+the rows below.
+
+The demo site ships this exact pattern as a temporary example: `DemoLayout.vue` (the
+site's registered Layout) fills the slot with `PreFooterDemo.vue`, which renders a
+Nerd-Font logo glyph + localized theme name on the left and a Font Awesome icon, a Nerd
+Font icon, and a localized “Customizable Footer Content” label on the right — showing
+arbitrary content, both icon systems, and localized strings inside the slot. Removed
+(swap `Layout` back for the demo wrapper) when real example content is decided.
 
 **Cards & shell-prompt decoration** — a reusable card component renders as a TUI-style
 floating window (Unicode-frame flavor, with the rounded, floating finish of §5). Each

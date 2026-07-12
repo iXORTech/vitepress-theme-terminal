@@ -1,5 +1,5 @@
 // ============================================================================
-// _footer.scss — in-viewport footer (THEME-004)
+// _footer.scss — in-viewport footer region (THEME-004 + THEME-006)
 // ============================================================================
 // The footer lives INSIDE the viewport panel, after the article content, and
 // scrolls with it (design-language.md §4, footer; ui-sketch.md §5). It spans
@@ -11,14 +11,55 @@
 // cells stack in the sketch-caption order: copyright · powered-by · social ·
 // RSS/license.
 
+// --------------------------------------------------------------------------
+// Footer region wrapper (THEME-006): the FULL separator opens the whole
+// region (before the optional custom section), and pins the region to the
+// bottom of the viewport column below the growing content.
+// --------------------------------------------------------------------------
+.ct-footer-region {
+  width: 100%;
+  flex-shrink: 0; // sits below the growing content in the viewport column
+
+  // The full separator — the edge-to-edge rule between the article content
+  // and the entire footer section (custom section + standard footer).
+  /* border-top: 1px solid var(--ct-border); */
+  border-top: 1px solid
+    color-mix(in srgb, var(--ct-border) 70%, var(--ct-text-neutral));
+}
+
+// Fully-custom pre-footer section (THEME-006): the user-supplied Vue file's
+// content, given the same side padding as the footer so it aligns with it.
+.ct-prefooter {
+  width: 100%;
+  padding: 1.5rem;
+}
+
 .ct-footer {
   // Full panel width (no article-column cap), with a touch more side padding
   width: 100%;
   padding: 1rem 1.5rem 1.5rem;
-  flex-shrink: 0; // sits below the growing content in the viewport column
 
-  // The separator rule between the article/custom section and the footer
-  border-top: 1px solid var(--ct-border);
+  // The inner separator (THEME-006): drawn ONLY when a custom section sits
+  // above the footer. Unlike the region's edge-to-edge full separator, this
+  // lower divider is INSET on both sides — it does not connect to the panel
+  // edges, matching the search window's hint rule (_window.scss
+  // `.ct-window-search__hint`) — so it reads as the subtler of the two rules,
+  // marking the boundary between the user's custom content and the standard
+  // footer without a second full-width cut. Rendered as a pseudo-element so
+  // the line can be inset (a `border-top` cannot); the inset matches the
+  // footer's horizontal padding, aligning the rule with the content column.
+  &--divided {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 1.5rem;
+      right: 1.5rem;
+      border-top: 1px solid var(--ct-border);
+    }
+  }
 
   // Two-row grid: texts in the left column, icon clusters on the right
   display: grid;

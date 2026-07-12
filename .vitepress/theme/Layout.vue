@@ -5,9 +5,9 @@
 // Composes the persistent terminal chrome around the page content
 // (design-language.md §4–5, ui-sketch.md §1): the top tool bar, the middle
 // row — explorer sidebar (THEME-002) beside the floating content viewport,
-// which holds the content column and the in-viewport footer (THEME-004) —
-// the bottom status bar, and the shared floating utility window (THEME-003).
-// The custom pre-footer section (THEME-006) attaches to this frame later.
+// which holds the content column and the in-viewport footer region (THEME-004)
+// with its optional user-supplied custom pre-footer section (THEME-006) — the
+// bottom status bar, and the shared floating utility window (THEME-003).
 import { ref } from 'vue'
 import { useData } from 'vitepress'
 import Explorer from './components/Explorer.vue'
@@ -74,9 +74,20 @@ useWindowDemoShortcuts()
           <Content v-else />
         </div>
 
-        <!-- In-viewport footer — scrolls with the content (THEME-004); the
-             user-supplied custom section slots in above it later (THEME-006) -->
-        <SiteFooter />
+        <!-- Footer region (THEME-004 + THEME-006) — scrolls with the content.
+             A full separator opens the whole region; the optional user-supplied
+             custom section renders above the standard footer, and a subtler
+             inner separator divides the two only when that section is present. -->
+        <div class="ct-footer-region">
+          <!-- Fully-custom pre-footer section: a user-supplied Vue file dropped
+               into the `pre-footer` slot (fill it from a Layout wrapper — see
+               design-language.md §4, footer). Renders nothing when unfilled. -->
+          <section v-if="$slots['pre-footer']" class="ct-prefooter">
+            <slot name="pre-footer" />
+          </section>
+
+          <SiteFooter :divided="!!$slots['pre-footer']" />
+        </div>
       </main>
     </div>
 

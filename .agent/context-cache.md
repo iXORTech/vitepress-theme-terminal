@@ -2,7 +2,11 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-003 shared
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-006 fully-custom
+pre-footer section — `.ct-footer-region` wrapper with the edge-to-edge full
+separator, the `pre-footer` layout slot, and a subtler inset inner separator
+when the slot is filled; `Layout` now exported for wrapper use, plus a temporary
+`DemoLayout`/`PreFooterDemo` example filling the slot; THEME-003 shared
 floating utility window + temporary `~`/tool-bar demo; THEME-016 optional
 title icons; THEME-017 TUI chrome rework — framed panes with border titles,
 text-based `[✕]` close, two-pane demo; THEME-018 `/` search-shaped demo —
@@ -75,10 +79,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   labels done 2026-07-10; THEME-003 = shared floating utility window (+
   temporary demo, retired by SEARCH-002), THEME-016 = optional title icons,
   THEME-017 = TUI chrome rework (framed panes, border titles, text `[✕]`),
-  and THEME-018 = `/` search-shaped input+results demo done 2026-07-12.
+  and THEME-018 = `/` search-shaped input+results demo done 2026-07-12;
+  THEME-006 = fully-custom `pre-footer` slot section with the full + inner
+  footer separators done 2026-07-12.
   Roadmap:
   code-block card chrome (STYLE-004), theme chrome
-  (palette, custom pre-footer section, tool bar extras, settings
+  (palette, tool bar extras, settings
   panel), components (Fancybox/Swiper images, license card, Waline comments),
   content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
@@ -228,8 +234,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `window.*` — close + window-demo title/open/body/hintsTitle/hint
   + search-demo title/inputTitle/resultsTitle/placeholder/hint/sample1-3
   (THEME-003/017/018; demo keys retire with SEARCH-002),
-  `footer.*` ×5 with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
-  placeholders (THEME-004) — grows per feature); exports
+  `footer.*` with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
+  placeholders (THEME-004) + temporary `footer.demoCustom` label (THEME-006
+  pre-footer demo) — grows per feature); exports
   `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
@@ -305,16 +312,29 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `mode`/`setMode`/`cycleMode` over `'dark'|'light'|'paper'`; mirrors the
   `data-ct-mode` attribute set pre-paint by head.ts, persists to localStorage
   `ct-mode`; SSR-safe.
-- `theme/index.ts` — theme entry: exports `Layout.vue` and the reusable `Card`
-  component, imports `styles/main.scss`, and keeps the default `enhanceApp` hook
-  empty.
+- `theme/index.ts` — theme entry: default-exports `DemoLayout` (the demo site's
+  wrapper filling the `pre-footer` slot, THEME-006) + empty `enhanceApp`, and
+  named-exports the reusable `Card` component and the theme's own `Layout` (so
+  users can wrap it to fill the slot); imports `styles/main.scss`. Swap the
+  default `Layout` back to the real one to ship without the demo section.
+- `theme/DemoLayout.vue` — temporary THEME-006 demo wrapper: wraps `Layout.vue`
+  and fills its `#pre-footer` slot with `PreFooterDemo.vue` — the exact
+  extend-and-wrap pattern a consuming site uses. Registered as this demo site's
+  Layout via `theme/index.ts`.
+- `theme/components/PreFooterDemo.vue` — temporary THEME-006 demo content:
+  left = Nerd-Font logo glyph (`.ct-prefooter-demo__logo`) + localized theme
+  name (`useSiteText`); right = a Font Awesome icon (`fa-palette`), a Nerd Font
+  icon (`.ct-prefooter-demo__nf`), and the localized `footer.demoCustom` label.
+  Demonstrates arbitrary content, both icon systems, and i18n inside the slot.
 - `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
   `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when `useExplorer().available`
   (THEME-002: tree configured ∧ not paper mode; truly unrendered otherwise)
   beside the `.ct-viewport` panel (template ref wired to
   `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
-  localized title/description, PAGE-001 pending — or `<Content/>`, then
-  `<SiteFooter/>` (THEME-004; the THEME-006 custom section slots in above it)) —
+  localized title/description, PAGE-001 pending — or `<Content/>`, then the
+  `.ct-footer-region` (THEME-004/006): it owns the full separator and wraps the
+  optional `.ct-prefooter` (rendered only when the `pre-footer` slot is filled —
+  `$slots['pre-footer']`) above `<SiteFooter :divided="…" />`) —
   `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
   `useCalloutTitles()` + `useNerdFont()` + `useWindowDemoShortcuts()` (binds
   `~` and `/`, THEME-018) once.
@@ -375,7 +395,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (THEME-018, temporary): three illustrative rows (localized `window.searchSample*`
   labels + literal identifier paths) plus the localized keyboard hint row;
   removed with the demo (SEARCH-002).
-- `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004): grid of
+- `theme/components/SiteFooter.vue` — in-viewport footer (THEME-004/006):
+  takes a `divided` prop — when a custom pre-footer section sits above it
+  (THEME-006), `.ct-footer--divided` draws the subtler inset inner separator (the
+  edge-to-edge full separator is owned by the region wrapper in Layout). Grid of
   four cells — localized copyright (`{year}`/`{author}`, author from CONF-002) ·
   social icons (`themeConfig.footer.social`) · powered-by (localized
   `{vitepress}/{theme}` placeholders split into linked product names) · RSS
@@ -393,8 +416,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  content/card/footer/code/callouts, then base document styles (box-sizing, body bg/color/font
+  content/card/footer/prefooter-demo/code/callouts, then base document styles
+  (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
+- `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
+  styles: flex `space-between` row, mono TUI text, accent-colored FA + Nerd
+  Font glyphs; the logo/nf glyphs follow the NF gating convention (plain `::`/`*`
+  fallback upgraded to `\f120`/`\f005` under `html[data-ct-nerdfont]`).
 - `theme/styles/_fonts.scss` — registers the current jsDelivr
   `SymbolsNerdFont-Regular.ttf` under `NerdFontsSymbols Nerd Font Terminal`,
   compensating for the generated CSS's missing legacy `/fonts/` source path
@@ -425,8 +453,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   shell-prompt header with Oxocarbon segment roles, body spacing, narrow-screen
   overflow protection, explicit command/argument whitespace preservation, staged
   path ellipsis, and print-safe shadow removal.
-- `theme/styles/_footer.scss` — THEME-004 in-viewport footer: full panel width
-  (wider than the 72ch article column), border-top separator, mono small
+- `theme/styles/_footer.scss` — THEME-004/006 in-viewport footer region: the
+  `.ct-footer-region` wrapper (flex-shrink:0, bottom-pinned) owns the full
+  separator (`border-top: 1px solid var(--ct-border)`, before the whole footer
+  section); `.ct-prefooter` holds the custom section with footer-matching
+  padding; `.ct-footer--divided` adds the subtler inner separator only when
+  the custom section is present — a `--ct-border` `::before` rule INSET by the
+  footer's horizontal padding (so it does not reach the panel edges, matching
+  the search window's hint rule), unlike the edge-to-edge full separator
+  (THEME-006).
+  Footer itself: full panel width
+  (wider than the 72ch article column), mono small
   `--ct-text-neutral`; 2×2 grid (texts left, icon clusters right); ≥641px the
   powered/meta row is lightened via `color-mix(… 68%, transparent)` over the
   row above (derived, color-system §3); ≤640px collapses to one column in

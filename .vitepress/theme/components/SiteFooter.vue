@@ -4,15 +4,21 @@
 // ============================================================================
 // Sits at the bottom of the main viewport, below the content, and scrolls
 // with the article — it is NOT a separate floating bar (design-language.md §4,
-// footer; ui-sketch.md §5). Structure: separator rule · copyright row
-// (copyright left, social icons right) · attribution row (powered-by left,
-// RSS + license icons right). The fully-custom section that sits on top of
-// the footer is a separate component (THEME-006).
+// footer; ui-sketch.md §5). Structure: copyright row (copyright left, social
+// icons right) · attribution row (powered-by left, RSS + license icons right).
+// The fully-custom section that sits on top of the footer is a separate region
+// (THEME-006); when it is present, `divided` draws the subtler inset inner
+// separator between it and this standard footer.
 //
 // Configuration: the social-icon list and the RSS feed come from
 // `themeConfig.footer`; the copyright author and the license come from the
 // central author & license system (CONF-002) via `useThemeConfig()`.
 import { computed } from 'vue'
+
+// `divided` = a custom pre-footer section sits above us, so draw the subtler
+// inset inner separator (THEME-006). The edge-to-edge full separator that opens
+// the footer region is owned by the region wrapper in Layout.vue.
+defineProps<{ divided?: boolean }>()
 import type { LocalizableText } from '../locales'
 import { resolveLocalizedText } from '../locales'
 import { useThemeConfig } from '../composables/useThemeConfig'
@@ -84,7 +90,7 @@ const licensedUnder = computed(() =>
 </script>
 
 <template>
-  <footer class="ct-footer">
+  <footer class="ct-footer" :class="{ 'ct-footer--divided': divided }">
     <!-- Copyright row: author (CONF-002) left · social icons right -->
     <span class="ct-footer__copyright">{{ copyright }}</span>
 

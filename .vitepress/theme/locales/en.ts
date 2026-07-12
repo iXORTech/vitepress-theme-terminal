@@ -65,6 +65,10 @@ export const en = {
   'footer.rss': 'RSS feed',
   'footer.license': 'License',
   'footer.licensedUnder': 'Content Licensed Under {license} License',
+  // Temporary demo label for the custom pre-footer section (THEME-006) — the
+  // shipped `pre-footer` slot example; removed when it is replaced by real
+  // example content.
+  'footer.demoCustom': 'Customizable Footer Content',
 
   // Callout default titles (MD-002)
   'callout.info': 'Info',

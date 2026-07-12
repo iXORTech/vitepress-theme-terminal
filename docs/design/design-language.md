@@ -29,7 +29,7 @@ UI text, default content, or shipped assets.
 | Editor/TUI element | Role in the theme |
 | --- | --- |
 | Tool bar / tabline (top) | Site navigation, page tabs, global action icons (color-mode switcher; more via THEME-005) |
-| Status bar (bottom) | State/mode indicator, current location (breadcrumb), reading progress + back-to-top (one tight cluster), color-mode **indicator** (read-only — switching lives in the tool bar), language switcher; thin separators divide top-level segments |
+| Status bar (bottom) | Live **state chip** (HOME / READ / 404, per the current page), current location (breadcrumb) trailed by a blinking cursor, reading progress + back-to-top (one tight cluster), color-mode **indicator** (read-only — switching lives in the tool bar), language switcher, settings gear, and a live clock at the right end; thin separators divide top-level segments |
 | File explorer (side tree) | Site/content navigation sidebar — retractable on desktop; not part of the UI in paper mode |
 | Floating windows | Utilities: search / command palette / pickers, settings |
 | Editor viewport | The content area (article body) |
@@ -125,7 +125,8 @@ share the one instance, so opening either replaces the other; demo strings,
 components, button, and wiring all retire with SEARCH-002.
 
 *Settings panel (THEME-007):* a real utility rendered in the shared window —
-opened from the tool bar's gear action (`useSettings` → `openSettings`),
+opened from the gear action (`useSettings` → `openSettings`), which lives in the
+status bar's right controls (moved there by THEME-019),
 **without** a shell prompt (it is a plain window, not a prompt card). Its first
 version is two framed panes: **Fonts** (segmented controls for the content font
 family — Default / Sans / Serif / Mono — and size — Small / Medium / Large) and
@@ -141,6 +142,21 @@ mode's body font and the base size); state in `composables/useFontSettings.ts`,
 panes in `SettingsFonts.vue` / `SettingsLanguage.vue`, styles in
 `styles/_settings.scss`. At mobile widths it is the window's near-full-screen
 sheet (§8).
+
+*Status bar (THEME-001/009/010/019):* the leftmost chip is a **live state
+indicator** — `HOME` on the home page, `404` on the not-found page, and `READ`
+on a regular article — each a localized string with a per-state modifier class
+(so `404` takes the error tint). The current-location breadcrumb is trailed by a
+**blinking underscore cursor** (a hard steps blink in the main color, disabled
+under `prefers-reduced-motion`), reinforcing the terminal metaphor. The right cluster
+carries the reading-progress + back-to-top pair, the language switcher, the
+read-only color-mode indicator, the **settings gear** (moved here from the tool
+bar by THEME-019 — `useSettings` → `openSettings`), and a live **clock**
+(`HH:MM:SS`) at the far right. The clock is client-only and SSR-safe (empty on
+the server and first client render, then ticks each second via an interval that
+is cleared on unmount — `composables/useClock.ts`). On mobile the reduced set
+drops the location, cursor, and clock while keeping the settings control
+reachable (§8).
 
 **Footer** — sits at the bottom of the main viewport, inside the content panel: it
 scrolls with the article and is **not** a separate floating bar. Structure, top to

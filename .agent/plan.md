@@ -560,6 +560,33 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `_window.scss`. Verified headless 16/16 — `/` open + input guard, two panes,
     single-instance swap with the `~` demo, zh-Hans localization, mobile sheet.*
 
+- [x] **THEME-019** — Status bar: live state chip, blinking cursor, clock, settings gear
+  - **Category:** Theme · **Deps:** THEME-001, THEME-007, THEME-009, THEME-010
+  - **Acceptance criteria:** the left mode chip reflects the real page state —
+    `HOME` on the home page, `404` on the not-found page, `READ` on a regular
+    article (labels localized, with a per-state modifier class so `404` can take
+    the error tint); a blinking block cursor trails the current location (a hard
+    steps blink, disabled under `prefers-reduced-motion`); a live `HH:MM:SS`
+    clock sits at the right end of the status bar, client-only and SSR-safe
+    (empty until mounted, interval cleared on unmount); the settings gear moves
+    out of the tool bar into the status bar's right controls (`useSettings` →
+    `openSettings`); all strings localized; on mobile the path/cursor/clock are
+    hidden while the settings control stays reachable; recorded in
+    `design-language.md` §4 (status bar row + note) and `ui-sketch.md` §1.
+    *Landed 2026-07-12: `StatusBar.vue` computes a `state` from
+    `page.isNotFound` / `frontmatter.home` (→ `status.notFound`/`.home`/`.read`,
+    localized) driving `.ct-statusbar__chip--{notfound,home,read}` (404 = error
+    tint). The location now sits in a `.ct-statusbar__path` wrapper (single
+    divided segment) trailed by `.ct-statusbar__cursor` — a main-color
+    underscore bar (baseline-aligned) with a hard `ct-cursor-blink` steps
+    animation, held steady under `prefers-reduced-motion`. New `composables/useClock.ts` (SSR-safe, empty
+    until mounted, interval cleared on unmount) feeds a `v-if`-gated
+    `.ct-statusbar__clock` (`HH:MM:SS`, tabular-nums) at the far right. The
+    settings gear moved from `ToolBar.vue` into the status bar's right controls
+    (`useSettings` → `openSettings`). Mobile hides `.ct-statusbar__path` +
+    `.ct-statusbar__clock`, keeps the gear. New strings
+    `status.home/.notFound/.clock` (en + zh-Hans). Verified headless 20/20.*
+
 ### Components
 
 - [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration

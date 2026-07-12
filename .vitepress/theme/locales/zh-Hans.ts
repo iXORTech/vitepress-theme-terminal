@@ -68,6 +68,9 @@ export const zhHans: ThemeLocaleStrings = {
 
   // Status bar segments
   'status.read': '阅读',
+  'status.home': '主页',
+  'status.notFound': '404',
+  'status.clock': '当前时间',
   'status.progress': '阅读进度',
   'status.top': '顶端',
   'status.bottom': '底端',

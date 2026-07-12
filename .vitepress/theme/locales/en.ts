@@ -70,8 +70,12 @@ export const en = {
   'code.copy': 'Copy',
   'code.copied': 'Copied',
 
-  // Status bar segments (THEME-001/009)
+  // Status bar segments (THEME-001/009/019). The chip is a live state
+  // indicator: READ on an article, HOME on the home page, 404 on not-found.
   'status.read': 'READ',
+  'status.home': 'HOME',
+  'status.notFound': '404',
+  'status.clock': 'Current time',
   'status.progress': 'Reading progress',
   // Vim-style position labels shown instead of 0% / 100%
   'status.top': 'TOP',

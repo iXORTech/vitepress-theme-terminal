@@ -3,27 +3,41 @@
 // StatusBar.vue — bottom status bar / statusline (THEME-001)
 // ============================================================================
 // The statusline of the TUI shell (design-language.md §4–5, ui-sketch.md §1):
-// a modal-editor-flavored mode chip and the current location on the left;
-// on the right a reading-progress + back-to-top cluster, the permanent
-// language switcher, and a read-only color-mode indicator (switching lives
-// in the tool bar — THEME-010). Thin separators divide the top-level
-// segments (_statusbar.scss). Language switching stays in place — same URL,
-// no /<lang>/ trees (I18N-003, design-language.md §9).
+// a live state chip and the current location (trailed by a blinking cursor) on
+// the left; on the right a reading-progress + back-to-top cluster, the
+// permanent language switcher, a read-only color-mode indicator (switching
+// lives in the tool bar — THEME-010), the settings gear (moved here from the
+// tool bar — THEME-019), and a live clock at the far right. Thin separators
+// divide the top-level segments (_statusbar.scss). Language switching stays in
+// place — same URL, no /<lang>/ trees (I18N-003, design-language.md §9).
 import { computed } from 'vue'
 import { useData } from 'vitepress'
+import { useClock } from '../composables/useClock'
 import { useColorMode } from '../composables/useColorMode'
 import { useReadingProgress } from '../composables/useReadingProgress'
+import { useSettings } from '../composables/useSettings'
 import { useThemeLocale } from '../composables/useThemeLocale'
 import { formatPageLocation } from '../utils/pagePath'
 
-const { page } = useData()
+const { page, frontmatter } = useData()
 const { mode } = useColorMode() // indicator only — the switcher is in the tool bar
 const { t, language, languages, setLanguage } = useThemeLocale()
+const { openSettings } = useSettings() // THEME-019: settings gear lives here now
 const progress = useReadingProgress()
+const time = useClock() // live HH:MM:SS, empty until mounted (SSR-safe)
 
 // Current location as a home-relative TUI path: index.md → ~, otherwise
 // ~/<path without extension> (path data, not translatable UI text).
 const location = computed(() => formatPageLocation(page.value.relativePath))
+
+// Live state chip (THEME-019): reflects the real page — 404 on the not-found
+// page, HOME on the home page (the `home` frontmatter flag), READ otherwise.
+// `kind` drives a per-state modifier class so 404 can take the error tint.
+const state = computed(() => {
+  if (page.value.isNotFound) return { key: 'status.notFound', kind: 'notfound' }
+  if (frontmatter.value.home) return { key: 'status.home', kind: 'home' }
+  return { key: 'status.read', kind: 'read' }
+})
 
 // Vim-style progress label: TOP at 0%, BOT at 100%, the percentage between.
 const progressLabel = computed(() => {
@@ -50,13 +64,20 @@ const scrollToTop = (): void => {
 
 <template>
   <footer class="ct-statusbar">
-    <!-- Left: editor-mode chip (TUI flavor) + current location -->
+    <!-- Left: live state chip (TUI flavor) + current location trailed by a
+         blinking terminal cursor -->
     <div class="ct-statusbar__group">
-      <span class="ct-statusbar__chip">{{ t('status.read') }}</span>
-      <span class="ct-statusbar__location">{{ location }}</span>
+      <span class="ct-statusbar__chip" :class="`ct-statusbar__chip--${state.kind}`">
+        {{ t(state.key) }}
+      </span>
+      <span class="ct-statusbar__path">
+        <span class="ct-statusbar__location">{{ location }}</span>
+        <span class="ct-statusbar__cursor" aria-hidden="true"></span>
+      </span>
     </div>
 
-    <!-- Right: progress+back-to-top cluster · language switcher · mode indicator -->
+    <!-- Right: progress+back-to-top cluster · language switcher · mode
+         indicator · settings gear · clock -->
     <div class="ct-statusbar__group">
       <!-- Reading progress and back-to-top belong together: one tight cluster -->
       <span class="ct-statusbar__cluster">
@@ -85,6 +106,25 @@ const scrollToTop = (): void => {
 
       <!-- Read-only mode indicator — the switcher lives in the tool bar -->
       <span class="ct-statusbar__segment">{{ t(`mode.${mode}`).toLowerCase() }}</span>
+
+      <!-- Settings gear (THEME-019): moved here from the tool bar; opens the
+           settings utility in the shared floating window (THEME-007) -->
+      <button
+        class="ct-statusbar__control ct-statusbar__control--icon"
+        :title="t('settings.open')"
+        :aria-label="t('settings.open')"
+        @click="openSettings"
+      >
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </button>
+
+      <!-- Live clock at the far right — empty until mounted (SSR-safe), so it
+           only renders once ticking (THEME-019) -->
+      <span
+        v-if="time"
+        class="ct-statusbar__segment ct-statusbar__clock"
+        :title="t('status.clock')"
+      >{{ time }}</span>
     </div>
   </footer>
 </template>

@@ -17,10 +17,11 @@
 - Glyph placeholders — final glyphs come from Font Awesome / Nerd Font per
   [`typography-and-icons.md`](typography-and-icons.md):
   `::` site glyph · `[/]` open search palette · `[o]` color-mode toggle ·
-  `[EN]` language switcher · `[=]` menu / drawer trigger · `[x]` close ·
-  `v` / `>` expanded / collapsed tree node.
-- `READ` in the status bar is an illustrative mode indicator (modal-editor flavor
-  without third-party branding, see design-language.md §3).
+  `[EN]` language switcher · `[=]` menu / drawer trigger · `[*]` settings gear ·
+  `[x]` close · `_` blinking underscore cursor · `v` / `>` expanded / collapsed tree node.
+- `READ` in the status bar is the live state chip (modal-editor flavor without
+  third-party branding, see design-language.md §3); it becomes `HOME` on the home
+  page and `404` on the not-found page.
 - Sketches depict **dark mode**, the default; body text is neutral near-white, with
   the main color reserved for emphasis — links, bold, headings, accents
   ([`color-system.md`](color-system.md) §2).
@@ -42,13 +43,15 @@
 │                    │  │                                                  │
 ╰────────────────────╯  ╰──────────────────────────────────────────────────╯
 ╭─ status bar ─────────────────────────────────────────────────────────────╮
-│ READ │ posts/2026/hello-world                    42% · 7 min · en · dark │
+│ READ │ ~/posts/2026/hello-world _          42% · en · dark · [*] · 14:52:07 │
 ╰──────────────────────────────────────────────────────────────────────────╯
 ```
 
 Tool bar: navigation as editor-style tabs plus global actions. Explorer: tree
-navigation of the site content, collapsible. Status bar: mode flavor, current
-location, reading progress, and the color-mode/language switchers.
+navigation of the site content, collapsible. Status bar: the live state chip
+(`READ`/`HOME`/`404`), current location trailed by a blinking underscore cursor (`_`),
+reading progress, the language switcher, the color-mode indicator, the settings
+gear (`[*]`), and a live clock at the right end.
 
 ## 2. Floating window — search / command palette
 
@@ -101,9 +104,12 @@ reduced set of segments.
 │                         │        dimmed content when [=]
 ╰─────────────────────────╯        is tapped)
 ╭─ status bar ────────────╮
-│ READ · 42% · dark       │
+│ READ · 42% · [*] · dark │
 ╰─────────────────────────╯
 ```
+
+(mobile drops the location, its trailing cursor, and the clock; the settings
+gear `[*]` stays reachable.)
 
 ## 4. Paper / reader / print mode
 

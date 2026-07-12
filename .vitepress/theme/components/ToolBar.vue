@@ -7,14 +7,14 @@
 // localized site title on the left, site navigation rendered as editor tabs
 // beside it, and the global action icons on the right — the temporary
 // floating-window demo trigger (THEME-003 — replaced by the find palette's
-// search trigger when SEARCH-002 lands), the settings-panel gear (THEME-007),
-// and the color-mode switcher (THEME-010; the status bar only indicates the
-// mode). Configurable nav entries and extra action icons arrive with THEME-005.
+// search trigger when SEARCH-002 lands) and the color-mode switcher (THEME-010;
+// the status bar only indicates the mode). The settings gear moved to the
+// status bar (THEME-019). Configurable nav entries and extra action icons
+// arrive with THEME-005.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { useColorMode } from '../composables/useColorMode'
 import { useExplorer } from '../composables/useExplorer'
-import { useSettings } from '../composables/useSettings'
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeLocale } from '../composables/useThemeLocale'
 import { useWindowDemo } from '../composables/useWindowDemo'
@@ -30,9 +30,6 @@ const { available: explorerAvailable, toggle: toggleExplorer } = useExplorer()
 
 // Floating-window demo trigger (THEME-003, temporary until SEARCH-002)
 const { openDemo } = useWindowDemo()
-
-// Settings panel trigger (THEME-007) — font configuration + language switching
-const { openSettings } = useSettings()
 
 // Localized site title (I18N-004)
 const { title } = useSiteText()
@@ -74,8 +71,9 @@ const isHome = computed(() => page.value.relativePath === 'index.md')
       >~/{{ t('nav.home') }}</a>
     </nav>
 
-    <!-- Global actions (right): floating-window demo + mode switcher; more
-         icons land with THEME-005 -->
+    <!-- Global actions (right): floating-window demo + mode switcher; the
+         settings gear moved to the status bar (THEME-019); more icons land
+         with THEME-005 -->
     <div class="ct-toolbar__actions">
       <!-- Floating-window demo (THEME-003, temporary — SEARCH-002 replaces it
            with the find-palette trigger) -->
@@ -86,15 +84,6 @@ const isHome = computed(() => page.value.relativePath === 'index.md')
         @click="openDemo"
       >
         <i class="fa-solid fa-window-restore" aria-hidden="true"></i>
-      </button>
-      <!-- Settings panel (THEME-007) — font configuration + language switching -->
-      <button
-        class="ct-toolbar__action"
-        :title="t('settings.open')"
-        :aria-label="t('settings.open')"
-        @click="openSettings"
-      >
-        <i class="fa-solid fa-gear" aria-hidden="true"></i>
       </button>
       <button
         class="ct-toolbar__action"

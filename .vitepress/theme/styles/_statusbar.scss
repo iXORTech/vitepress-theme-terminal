@@ -57,9 +57,10 @@
   min-width: 0;
 }
 
-// Editor-mode chip — inverted accent block, statusline flavor. Near-black
-// text on the raw main color keeps contrast in every mode (the main color is
-// an accent by design, color-system.md §2).
+// Live state chip (THEME-019) — inverted accent block, statusline flavor.
+// Near-black text on the raw main color keeps contrast in every mode (the main
+// color is an accent by design, color-system.md §2). The 404 state swaps to the
+// error color so a broken location reads at a glance; HOME/READ keep the accent.
 .ct-statusbar__chip {
   padding: 0.1rem 0.5rem;
   border-radius: var(--ct-radius-small);
@@ -67,13 +68,66 @@
   color: var(--ct-gray-100);
   font-weight: 600;
   letter-spacing: 0.05em;
+
+  &--notfound {
+    background: var(--ct-error);
+  }
+}
+
+// Location + blinking cursor form one segment (so the statusline divider sits
+// before the path, not between the path and its cursor)
+.ct-statusbar__path {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0; // allow the location to truncate within the flex row
 }
 
 // Current location (home-relative path); truncates rather than wrapping
 .ct-statusbar__location {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// Blinking terminal cursor trailing the location — an underscore-style bar in
+// the main color with a hard on/off blink (steps, not a fade), reinforcing the
+// terminal metaphor (THEME-019). Sits on the text baseline flush after the path
+// text; never selectable.
+.ct-statusbar__cursor {
+  flex: none;
+  align-self: flex-end;
+  width: 0.55em;
+  height: 0.12em;
+  margin-bottom: 0.12em; // rest on the text baseline like a terminal underscore
+  background: var(--ct-main);
+  animation: ct-cursor-blink 1.1s steps(1) infinite;
+}
+
+@keyframes ct-cursor-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+// Respect reduced-motion: hold the cursor steady rather than blinking (§7)
+@media (prefers-reduced-motion: reduce) {
+  .ct-statusbar__cursor {
+    animation: none;
+  }
+}
+
+// Live clock at the far right — tabular figures keep it from shifting width as
+// the digits tick (THEME-019)
+.ct-statusbar__clock {
+  font-variant-numeric: tabular-nums;
 }
 
 // Text-button controls: the language & color-mode switchers take the accent
@@ -102,10 +156,12 @@
   }
 }
 
-// Mobile: reduced segments — the location crumb goes first
-// (design-language.md §8; full pass in MOBILE-001)
+// Mobile: reduced segments — drop the location (with its trailing cursor) and
+// the clock; the state chip, progress cluster, switchers, and settings gear
+// stay reachable (design-language.md §8; full pass in MOBILE-001)
 @media (max-width: 640px) {
-  .ct-statusbar__location {
+  .ct-statusbar__path,
+  .ct-statusbar__clock {
     display: none;
   }
 }

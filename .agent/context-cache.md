@@ -2,7 +2,12 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (STYLE-004 code-block
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-019 status-bar
+rework — live state chip (HOME/READ/404, `--notfound` error tint), blinking
+`.ct-statusbar__cursor` block trailing the location (in a `.ct-statusbar__path`
+wrapper, underscore style), a live `HH:MM:SS` clock (`useClock`, SSR-safe) at the far right, and
+the settings gear moved out of the tool bar into the status bar; new
+`status.home/.notFound/.clock` strings. Earlier same day: STYLE-004 code-block
 cards — markdown fence wrapper `.ct-code` + title bar (file name · language ·
 text `[copy]`), Shiki untouched, `[name]` info-string bracket, `useCodeCopy`
 copy + label re-localization; THEME-007 settings panel — prompt-less two-pane
@@ -246,7 +251,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   default `[]` = no explorer rendered.
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
-  `callout.*` ×8, `nav.label`/`nav.home` + `status.*` ×3 (THEME-001/009),
+  `callout.*` ×8, `nav.label`/`nav.home` + `status.*`
+      (read/home/notFound/clock/progress/top/bottom/backToTop — THEME-001/009/019),
   `explorer.*` ×3 — label/toggle/close (THEME-002),
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
@@ -327,6 +333,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   while composing, with cmd-modifiers, or when focus is in an
   input/textarea/select/contenteditable. Setup-time composables because the
   localized title getters need `useThemeLocale()`'s component context.
+- `theme/composables/useClock.ts` — THEME-019 live wall clock: a reactive
+  `HH:MM:SS` (24-hour, zero-padded) string for the status bar's right end.
+  SSR-safe — starts empty (server + first client render agree), fills and ticks
+  each second via an interval started `onMounted` and cleared `onBeforeUnmount`.
 - `theme/composables/useReadingProgress.ts` — scroll progress as an integer % for
   the status bar (THEME-001/008): tracks the `.ct-viewport` panel (the shell's
   only scroll container), 100 when the page fits inside it; updates on
@@ -380,10 +390,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
   state — and the right-side action icons: the temporary floating-window demo
   button (FA window-restore, THEME-003 — replaced by the find-palette trigger
-  in SEARCH-002), the settings gear (FA `fa-gear`, `settings.open` →
-  `useSettings().openSettings`, THEME-007), and the color-mode cycle button (FA
-  half-circle, `mode.switch`); configurable entries/more actions come with
-  THEME-005.
+  in SEARCH-002) and the color-mode cycle button (FA half-circle,
+  `mode.switch`); the settings gear moved to the status bar (THEME-019);
+  configurable entries/more actions come with THEME-005.
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -451,13 +460,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   custom license ships no icons — the localized `footer.licensedUnder`
   sentence (`{license}` placeholder) with the name as an underlined deed link
   (plain text without `url`).
-- `theme/components/StatusBar.vue` — bottom statusline (THEME-001/009/010): left
-  `READ` chip (`status.read`) + current location from the shared `formatPageLocation`
-  helper; right a tight progress-% + back-to-top cluster (FA
-  arrow-up smooth-scrolls `.ct-viewport` to 0), the permanent in-place language
-  switcher (cycles `languages`, hidden under two), and a read-only color-mode
-  indicator span (switching lives in the tool bar); replaces the I18N-002
-  placeholder controls.
+- `theme/components/StatusBar.vue` — bottom statusline (THEME-001/009/010/019):
+  left a **live state chip** — `state` computed from `page.isNotFound` /
+  `frontmatter.home` → `status.notFound`/`.home`/`.read`, `kind` driving
+  `.ct-statusbar__chip--{notfound,home,read}` — then a `.ct-statusbar__path`
+  wrapper (single divided segment) holding the `formatPageLocation` breadcrumb +
+  the blinking `.ct-statusbar__cursor`; right a tight progress-% + back-to-top
+  cluster (FA arrow-up smooth-scrolls `.ct-viewport` to 0), the permanent
+  in-place language switcher (cycles `languages`, hidden under two), a read-only
+  color-mode indicator span, the settings gear (`useSettings().openSettings`,
+  moved from the tool bar by THEME-019), and a `v-if`-gated
+  `.ct-statusbar__clock` (`useClock`, `HH:MM:SS`) at the far right; replaces the
+  I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
   settings/content/card/footer/prefooter-demo/code/callouts, then base document styles
@@ -578,12 +592,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   text/hint and the THEME-018 `.ct-window-search` input/prompt/field +
   result-row/path/hint (all retired with SEARCH-002).
 - `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
-  same panel finish, mono small; inverted accent `READ` chip (main-color bg,
-  gray-100 text), truncating location, accent text-button controls + `--icon`
-  modifier (back-to-top, THEME-009); THEME-010: `::before` pseudo-element
-  dividers between top-level group segments (pseudo, not border — survives the
-  buttons' border reset) and a tight `__cluster` (progress + back-to-top, no
-  divider inside); location hidden ≤640px; hidden in print.
+  same panel finish, mono small; inverted accent state `__chip` (main-color bg,
+  gray-100 text; `--notfound` swaps to `--ct-error`, THEME-019). A
+  `__path` inline-flex wraps the truncating `__location` and the
+  `__cursor` — a baseline-aligned `0.55em×0.12em` main-color underscore bar
+  with a hard `ct-cursor-blink` steps animation, `animation: none` under
+  `prefers-reduced-motion` (THEME-019);
+  `__clock` uses tabular-nums. Accent text-button controls + `--icon`
+  modifier (back-to-top THEME-009, settings gear THEME-019); THEME-010:
+  `::before` pseudo-element dividers between top-level group segments (pseudo,
+  not border — survives the buttons' border reset) and a tight `__cluster`
+  (progress + back-to-top, no divider inside); `__path` + `__clock` hidden
+  ≤640px (gear stays); hidden in print.
 
 ## src/ (site content — VitePress `srcDir`)
 

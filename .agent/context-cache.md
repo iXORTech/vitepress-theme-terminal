@@ -2,8 +2,19 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (I18N-007 localized
-page content — `::: lang <tag>` markdown container
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (SEARCH-001/002 find
+palette — `themeConfig.search.algolia` DocSearch keys + `resolveSearch()`/
+`isSearchConfigured()` (SEARCH-001; decision: the palette queries Algolia
+directly and IS the search UI — no `@docsearch/*`, no DocSearch modal); the real
+two-pane find palette (`useSearch` + `utils/algolia.ts` REST query,
+`SearchPalette`/`SearchResults`, `_search.scss`) opens from the tool-bar
+magnifier and `/`, replacing the retired THEME-003 demo (four components,
+`useWindowDemo.ts`, button, `~` shortcut, `window.demo*`/`window.search*`
+strings all removed); new `search.*` locale keys. 2026-07-13 follow-up: floating
+window panes are `flex: 0 0 auto` with `:last-child` `flex: 1 1 auto` so the
+results pane scrolls without shrinking/overlapping the search input box.
+Earlier: I18N-007
+localized page content — `::: lang <tag>` markdown container
 (`theme/markdown/localized-content.ts`) → `<div class="ct-lang"
 data-ct-lang>`; site-default block visible / rest `hidden` at build;
 `useLocalizedContent()` reveals one block per adjacent-sibling group via the
@@ -100,13 +111,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   and THEME-018 = `/` search-shaped input+results demo done 2026-07-12;
   THEME-006 = fully-custom `pre-footer` slot section with the full + inner
   footer separators done 2026-07-12; STYLE-004 = code-block cards (title bar +
-  COPY) and THEME-007 = settings panel (fonts + language) done 2026-07-12.
+  COPY) and THEME-007 = settings panel (fonts + language) done 2026-07-12;
+  SEARCH-001 (Algolia DocSearch config keys + decision: the palette is the
+  search UI) and SEARCH-002 (real find palette — input + results panes wired to
+  Algolia, replacing the THEME-003 demo) done 2026-07-12.
   Roadmap:
   theme chrome
-  (palette, tool bar extras), components (Fancybox/Swiper images, license card,
+  (tool bar extras), components (Fancybox/Swiper images, license card,
   Waline comments),
   content (tags/categories, series), pages (home, projects, about,
-  friends — spec TBD), Algolia DocSearch prep, demos, mobile pass. I18N-001 includes
+  friends — spec TBD), demos, mobile pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -204,7 +218,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
   generated yet),   and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
-  `markdown.math: true`
+  a commented `search.algolia` example documents the SEARCH-001 keys (demo
+  ships unconfigured → the palette shows its notice); `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002/004:
@@ -264,7 +279,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `explorer: TerminalExplorerItem[] | "auto"` — explicit tree or automatic
   discovery of `src/**/*.md`; explicit nodes retain `{ text, link?, items? }`,
   while source-local `explorer.json` files can provide localized folder labels;
-  default `[]` = no explorer rendered.
+  default `[]` = no explorer rendered. SEARCH-001: `search: TerminalSearchConfig`
+  (`provider?: 'algolia'`, `algolia?: {appId, apiKey, indexName}`) resolved via
+  `resolveSearch()` (partial creds → `algolia: null` = unconfigured) with the
+  exported `isSearchConfigured()` helper; default `{ provider:'algolia',
+  algolia:null }`.
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*`
@@ -273,9 +292,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
   `code.copy`/`code.copied` (STYLE-004),
-  `window.*` — close + window-demo title/open/body/hintsTitle/hint
-  + search-demo title/inputTitle/resultsTitle/placeholder/hint/sample1-3
-  (THEME-003/017/018; demo keys retire with SEARCH-002),
+  `window.close` (THEME-003), `search.*` — open/title/inputTitle/resultsTitle/
+  placeholder/hint + idle/loading/empty/error/unconfigured status + poweredBy
+  (Algolia attribution) (SEARCH-002),
   `footer.*` with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
   placeholders (THEME-004) + temporary `footer.demoCustom` label (THEME-006
   pre-footer demo) — grows per feature); exports
@@ -347,15 +366,25 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   they follow language switches; `icon` = optional FA classes) and content —
   plus `isOpen`, `open()` (replaces the current utility), `close()`.
   Hidden by default; only opened programmatically.
-- `theme/composables/useWindowDemo.ts` — temporary THEME-003/017/018 demo
-  wiring (retired by SEARCH-002): `useWindowDemo()` → `openDemo()` (tool-bar
-  button; description pane with the `fa-window-restore` icon + hints pane) and
-  `useSearchDemo()` → `openSearch()` (the find-palette-shaped input + results
-  panes, magnifier icon); `useWindowDemoShortcuts()` binds `~` (window demo)
-  and `/` (search demo) via the shared `useKeyShortcut()` helper — skipped
-  while composing, with cmd-modifiers, or when focus is in an
-  input/textarea/select/contenteditable. Setup-time composables because the
-  localized title getters need `useThemeLocale()`'s component context.
+- `theme/composables/useSearch.ts` — find-palette state & behavior
+  (SEARCH-002), module-singleton: `query`/`results`/`status`
+  (`unconfigured|idle|loading|results|empty|error`)/`activeIndex` shared by both
+  pane components; `setQuery()` debounces (200ms) an abortable Algolia request
+  via `utils/algolia.ts` (unconfigured/empty query never hit the network),
+  `move()`/`openActive()`/`openResult()` drive keyboard/click navigation
+  (navigates + `close()`s the window). `useSearch()` (setup-time — needs
+  `useThemeConfig`/`useThemeLocale`) also exposes `openSearch()` which resets
+  and opens the two-pane `search` utility (`SearchPalette` + `SearchResults`,
+  magnifier border icon). `useSearchShortcut()` binds `/` via the local
+  input-guarded `useKeyShortcut()` helper.
+- `theme/utils/algolia.ts` — framework-free Algolia DocSearch REST client
+  (SEARCH-001/002): `searchAlgolia(algolia, query, signal, hitsPerPage=8)`
+  POSTs to `{appId}-dsn.algolia.net/1/indexes/{indexName}/query` (credentials
+  as query params + `x-www-form-urlencoded` body = no CORS preflight, like
+  Algolia's lite client; empty highlight tags → plain snippets), mapping hits to
+  `SearchResult` (`objectID`/`title` = deepest hierarchy level ← content, /
+  `breadcrumb` = parent levels · ` › ` / `snippet` = `_snippetResult.content` ←
+  content / `url`); rows without a `url` are dropped. No npm dependency.
 - `theme/composables/useClock.ts` — THEME-019 live wall clock: a reactive
   `HH:MM:SS` (24-hour, zero-padded) string for the status bar's right end.
   SSR-safe — starts empty (server + first client render agree), fills and ticks
@@ -405,18 +434,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `$slots['pre-footer']`) above `<SiteFooter :divided="…" />`) —
   `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
   `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
-  `useWindowDemoShortcuts()` (binds `~` and `/`, THEME-018) +
+  `useSearchShortcut()` (binds `/` to open the find palette, SEARCH-002) +
   `useLocalizedContent()` (I18N-007 `::: lang` block switching) once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
   `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
-  state — and the right-side action icons: the temporary floating-window demo
-  button (FA window-restore, THEME-003 — replaced by the find-palette trigger
-  in SEARCH-002) and the color-mode cycle button (FA half-circle,
-  `mode.switch`); the settings gear moved to the status bar (THEME-019);
-  configurable entries/more actions come with THEME-005.
+  state — and the right-side action icons: the find-palette search trigger (FA
+  magnifying-glass → `useSearch().openSearch`, SEARCH-002) and the color-mode
+  cycle button (FA half-circle, `mode.switch`); the settings gear moved to the
+  status bar (THEME-019); configurable entries/more actions come with THEME-005.
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -452,19 +480,23 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   text `[x]` close control sits on the first pane's border; pane bodies are
   the scroll regions; dismissed via `[x]`, backdrop click, or `Esc`; focus
   moves into the container on open and returns on close.
-- `theme/components/WindowDemo.vue` — temporary logic-free demo content for the
-  floating window (THEME-003/017): the localized description pane; removed
-  when the find palette lands (SEARCH-002).
-- `theme/components/WindowDemoHints.vue` — the demo's second pane (THEME-017):
-  the localized `[~] open · [esc] close` hint row in its own framed box,
-  exercising the multi-pane window; removed with the demo (SEARCH-002).
-- `theme/components/SearchDemo.vue` — search demo input pane (THEME-018,
-  temporary): a static `<input type=search>` with a `>` prompt glyph and
-  localized placeholder; no query logic. Removed with the demo (SEARCH-002).
-- `theme/components/SearchDemoResults.vue` — search demo results pane
-  (THEME-018, temporary): three illustrative rows (localized `window.searchSample*`
-  labels + literal identifier paths) plus the localized keyboard hint row;
-  removed with the demo (SEARCH-002).
+- `theme/components/SearchPalette.vue` — find-palette input pane (SEARCH-002):
+  a `>` prompt glyph + a borderless search field bound to `useSearch().query`;
+  input runs `setQuery`, `↑`/`↓` `move` the active result, Enter `openActive`.
+  Auto-focuses the field via rAF on mount (wins over the window's own panel
+  focus). Placeholder/aria localized.
+- `theme/components/SearchResults.vue` — find-palette results pane (SEARCH-002):
+  renders the `useSearch()` result rows as real `<a>` links (title · optional
+  breadcrumb · clamped snippet), the active row accent-washed; a `watch` keeps
+  the keyboard-selected row scrolled into view; row click navigates through the
+  shared `openResult` (modifier/non-left clicks fall through to the browser for
+  open-in-new-tab). All other states show one localized status line
+  (idle/loading/empty/error/unconfigured). A `.ct-search__footer` row closes
+  the pane: the keyboard hint on the left, and — unless unconfigured — the
+  required **Algolia attribution** on the right (`.ct-search__algolia`, a link
+  to algolia.com wrapping the official single-path Algolia logo inline SVG in
+  `currentColor`; label localized via `search.poweredBy`. Note `fa-algolia` is
+  NOT in the loaded Font Awesome build, hence the inline SVG).
 - `theme/components/SettingsFonts.vue` — THEME-007 settings Fonts pane: two
   segmented controls (`.ct-settings__option`) for the content font family
   (Default/Sans/Serif/Mono) and size (Small/Medium/Large), driven by
@@ -498,7 +530,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  settings/content/card/footer/prefooter-demo/code/callouts, then base document styles
+  settings/content/card/footer/prefooter-demo/code/callouts (+ `search` after
+  `window`, SEARCH-002), then base document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
@@ -609,15 +642,28 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/styles/_window.scss` — THEME-003/016/017 shared floating window:
   backdrop z-40 (above the explorer drawer's z-30) + invisible window
   container z-50 (centered top 14vh, `min(40rem, …)` wide, 70vh max) stacking
-  framed `__pane` boxes with a `--ct-gap` flex gap; `__pane-title` (+ optional
+  framed `__pane` boxes with a `--ct-gap` flex gap; each `__pane` is
+  `flex: 0 0 auto` (natural height, no shrink) while `__pane:last-child` is
+  `flex: 1 1 auto` — so inside the height-capped window only the last pane
+  (e.g. the find palette's results) shrinks & scrolls and the earlier panes
+  (the search input) keep full height instead of being overlapped;
+  `__pane-title` (+ optional
   accent `__icon`) and the text `[x]` `__close` sit on the top border via
   absolute positioning + `translateY(-50%)` with a `--ct-surface` backing
   masking the line; `__pane-body` is each pane's scroll region; deeper
   `0 12px 32px` shadow per pane, mono chrome, 0.15s fade-in; ≤640px =
   near-full-screen sheet inset by `--ct-gap` with the last pane growing;
-  hidden in print; ends with the temporary demo styles — `.ct-window-demo`
-  text/hint and the THEME-018 `.ct-window-search` input/prompt/field +
-  result-row/path/hint (all retired with SEARCH-002).
+  hidden in print. (The temporary demo styles were removed with SEARCH-002;
+  the find palette's own styles live in `_search.scss`.)
+- `theme/styles/_search.scss` — SEARCH-002 find-palette content inside the
+  shared window's panes: `.ct-search__input` (`>` prompt + borderless
+  `__field`, native search-clear hidden), `.ct-search__result` link rows
+  (stacked `__result-title` accent / `__result-breadcrumb` dim / two-line
+  clamped `__result-snippet`, `--active`/hover accent wash), `.ct-search__status`
+  message line, and the `.ct-search__footer` (top rule, space-between) holding
+  the `.ct-search__hint` keyboard row and the right-aligned `.ct-search__algolia`
+  attribution link (dim → hover accent, 0.9375rem inline SVG). Mono is inherited
+  from the window chrome.
 - `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
   same panel finish, mono small; inverted accent state `__chip` (main-color bg,
   gray-100 text; `--notfound` swaps to `--ct-error`, THEME-019). A

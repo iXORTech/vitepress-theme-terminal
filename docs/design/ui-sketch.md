@@ -80,10 +80,16 @@ the last pane growing to fill the remaining height.
 
 *Implemented (THEME-003/016/017):* the generic shared window shell — framed panes
 with border titles (+ optional icon), text-based `[x]` close, dimmed backdrop,
-`Esc`/outside-click dismissal, mobile sheet — exists as `FloatingWindow.vue`; the
-find content sketched above arrives with SEARCH-002 (until then two temporary
-demo utilities exercise the window: a description/hints demo via `~` or the
-tool-bar button, and this search-shaped input+results demo via `/`).
+`Esc`/outside-click dismissal, mobile sheet — exists as `FloatingWindow.vue`.
+
+*Find palette (SEARCH-001/002):* the sketched find content is now the real
+utility — an input pane (`>` prompt + search field) over a results pane
+(title · breadcrumb · snippet · link, plus status/hint lines), opened from the
+tool-bar magnifier or `/`. It queries the site's **Algolia DocSearch** index
+directly (`themeConfig.search.algolia`) and renders hits in this window — no
+DocSearch modal; unconfigured sites see a "not configured" notice
+(`composables/useSearch.ts`, `SearchPalette.vue` / `SearchResults.vue`,
+`styles/_search.scss`).
 
 ## 3. Mobile layout (≈360 px)
 
@@ -223,6 +229,7 @@ given), language name, and a COPY button — not a shell-prompt decoration (STYL
 | Status bar | design-language.md §4–§5 | THEME-001 |
 | File explorer / mobile drawer | design-language.md §4, §8 | THEME-002 |
 | Floating find window | design-language.md §4, §7 | THEME-003 |
+| Find palette (search input + results) | design-language.md §4 (floating windows) | SEARCH-001, SEARCH-002 |
 | Footer (in-viewport) + custom section | design-language.md §4 (footer) | THEME-004, THEME-006 |
 | Card / floating window with prompt | design-language.md §4 (cards) | COMP-001 |
 | Code block card (file · lang · COPY) | design-language.md §4 (cards) | STYLE-004 |

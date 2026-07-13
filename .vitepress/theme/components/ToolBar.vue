@@ -5,19 +5,18 @@
 // The editor-style top bar of the TUI shell (design-language.md §4–5,
 // ui-sketch.md §1): the explorer toggle (THEME-002) and brand glyph +
 // localized site title on the left, site navigation rendered as editor tabs
-// beside it, and the global action icons on the right — the temporary
-// floating-window demo trigger (THEME-003 — replaced by the find palette's
-// search trigger when SEARCH-002 lands) and the color-mode switcher (THEME-010;
-// the status bar only indicates the mode). The settings gear moved to the
-// status bar (THEME-019). Configurable nav entries and extra action icons
-// arrive with THEME-005.
+// beside it, and the global action icons on the right — the find-palette search
+// trigger (SEARCH-002) and the color-mode switcher (THEME-010; the status bar
+// only indicates the mode). The settings gear moved to the status bar
+// (THEME-019). Configurable nav entries and extra action icons arrive with
+// THEME-005.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { useColorMode } from '../composables/useColorMode'
 import { useExplorer } from '../composables/useExplorer'
+import { useSearch } from '../composables/useSearch'
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeLocale } from '../composables/useThemeLocale'
-import { useWindowDemo } from '../composables/useWindowDemo'
 
 const { page } = useData()
 
@@ -28,8 +27,8 @@ const { cycleMode } = useColorMode()
 // hidden entirely when the explorer doesn't exist (no tree / paper mode).
 const { available: explorerAvailable, toggle: toggleExplorer } = useExplorer()
 
-// Floating-window demo trigger (THEME-003, temporary until SEARCH-002)
-const { openDemo } = useWindowDemo()
+// Find-palette search trigger (SEARCH-002) — also opens via the `/` shortcut
+const { openSearch } = useSearch()
 
 // Localized site title (I18N-004)
 const { title } = useSiteText()
@@ -71,19 +70,19 @@ const isHome = computed(() => page.value.relativePath === 'index.md')
       >~/{{ t('nav.home') }}</a>
     </nav>
 
-    <!-- Global actions (right): floating-window demo + mode switcher; the
+    <!-- Global actions (right): find-palette search + mode switcher; the
          settings gear moved to the status bar (THEME-019); more icons land
          with THEME-005 -->
     <div class="ct-toolbar__actions">
-      <!-- Floating-window demo (THEME-003, temporary — SEARCH-002 replaces it
-           with the find-palette trigger) -->
+      <!-- Find palette (SEARCH-002) — opens the shared floating window; also
+           reachable via the `/` shortcut -->
       <button
         class="ct-toolbar__action"
-        :title="t('window.demoOpen')"
-        :aria-label="t('window.demoOpen')"
-        @click="openDemo"
+        :title="t('search.open')"
+        :aria-label="t('search.open')"
+        @click="openSearch"
       >
-        <i class="fa-solid fa-window-restore" aria-hidden="true"></i>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
       </button>
       <button
         class="ct-toolbar__action"

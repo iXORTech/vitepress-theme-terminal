@@ -29,25 +29,24 @@ export const en = {
   'explorer.toggle': 'Toggle explorer',
   'explorer.close': 'Close explorer',
 
-  // Floating utility window (THEME-003). The demo strings are temporary and
-  // retire when the find palette lands (SEARCH-002).
+  // Floating utility window (THEME-003) — the shared window's own chrome.
   'window.close': 'Close window',
-  'window.demoTitle': 'Floating window',
-  'window.demoOpen': 'Open floating window demo',
-  'window.demoBody':
-    'This is the shared floating utility window — the find palette, the settings panel, and other utilities all render inside this single window as one or more framed panes.',
-  'window.demoHintsTitle': 'Hints',
-  'window.demoHint': '[~] open · [esc] close',
-  // Search demo (THEME-018, temporary — `/` opens it; retires with SEARCH-002).
-  // Sample result labels are illustrative; their paths are literal identifiers.
-  'window.searchTitle': 'Search',
-  'window.searchInputTitle': 'Find',
-  'window.searchResultsTitle': 'Results',
-  'window.searchPlaceholder': 'Search the site…',
-  'window.searchHint': '[enter] open · [esc] close · [↑↓] move',
-  'window.searchSample1': 'Color system',
-  'window.searchSample2': 'Syntax highlighting',
-  'window.searchSample3': 'About this site',
+
+  // Find palette (SEARCH-002): the search trigger, the two pane titles, the
+  // input field, and the result-state messages (idle/loading/empty/error/
+  // unconfigured). Opened from the tool-bar icon or the `/` shortcut.
+  'search.open': 'Search',
+  'search.title': 'Search',
+  'search.inputTitle': 'Find',
+  'search.resultsTitle': 'Results',
+  'search.placeholder': 'Search the site…',
+  'search.hint': '[enter] open · [esc] close · [↑↓] move',
+  'search.idle': 'Type to search',
+  'search.loading': 'Searching…',
+  'search.empty': 'No results found',
+  'search.error': 'Search failed — please try again',
+  'search.unconfigured': 'Search is not configured',
+  'search.poweredBy': 'Search by Algolia',
 
   // Settings panel (THEME-007) — font configuration + language switching.
   // Opened from the tool-bar gear; renders in the shared floating window.

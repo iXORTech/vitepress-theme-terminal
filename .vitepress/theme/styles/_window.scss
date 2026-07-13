@@ -59,12 +59,24 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: 0; // panes may shrink inside the capped window; bodies scroll
+  min-height: 0;
+  // Keep the natural height and DON'T shrink inside the height-capped window —
+  // otherwise a tall last pane (e.g. the find palette's results) squeezes the
+  // earlier panes so their opaque surface overlaps; the last pane scrolls
+  // instead (rule below).
+  flex: 0 0 auto;
   border: 1px solid var(--ct-border);
   border-radius: var(--ct-radius);
   background: var(--ct-surface);
   // Floats above every panel, so deeper than the shell chrome's 2px shadows
   box-shadow: 0 12px 32px rgb(0 0 0 / 32%);
+}
+
+// The last pane absorbs the remaining height of the capped window and scrolls
+// internally (its body is the scroll region), so the earlier panes stay full
+// height — the find palette's input box is never covered by the results.
+.ct-window__pane:last-child {
+  flex: 1 1 auto;
 }
 
 // Pane title — text over the top border line (`╭─ TITLE ──╮`): centered on
@@ -129,8 +141,8 @@
 
 // Mobile: a near-full-screen sheet with the shell's floating gap kept as a
 // margin, replacing the centered palette placement (design-language.md §8);
-// the last pane grows so the stack fills the sheet (results-style panes take
-// the room)
+// the last pane still grows (base rule above) so the stack fills the sheet
+// (results-style panes take the room)
 @media (max-width: 640px) {
   .ct-window {
     inset: var(--ct-gap);
@@ -140,10 +152,6 @@
     width: auto;
     max-height: none;
   }
-
-  .ct-window__pane:last-child {
-    flex: 1 1 auto;
-  }
 }
 
 // On-screen chrome only — never printed (paper mode on screen keeps it usable)
@@ -152,94 +160,4 @@
   .ct-window-backdrop {
     display: none;
   }
-}
-
-// ----------------------------------------------------------------------------
-// Demo content (THEME-003, temporary — removed with the demo by SEARCH-002)
-// ----------------------------------------------------------------------------
-
-.ct-window-demo__text {
-  margin: 0;
-  line-height: 1.6;
-  color: var(--ct-text-neutral);
-}
-
-// The sketch palette's hint row — its own pane since the THEME-017 rework
-.ct-window-demo__hint {
-  margin: 0;
-  color: var(--ct-text-dim);
-}
-
-// Search demo (THEME-018, temporary — removed with the demo by SEARCH-002):
-// the find-palette shape, an input pane over a results pane (ui-sketch.md §2)
-
-.ct-window-search__input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-// The `> ` shell-style prompt before the field
-.ct-window-search__prompt {
-  flex-shrink: 0;
-  color: var(--ct-link);
-  font-weight: 600;
-}
-
-// A borderless field — the pane frame is the visible box
-.ct-window-search__field {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  font: inherit;
-  color: var(--ct-text);
-
-  &::placeholder {
-    color: var(--ct-text-dim);
-  }
-
-  &:focus {
-    outline: none;
-  }
-}
-
-.ct-window-search__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-// One result row — label left, home-relative path right (dim), nvim-list feel
-.ct-window-search__result {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.25rem 0.375rem;
-  border-radius: var(--ct-radius-small);
-
-  &:hover {
-    background: var(--ct-main-subtle);
-  }
-}
-
-.ct-window-search__result-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--ct-text-neutral);
-}
-
-.ct-window-search__result-path {
-  flex-shrink: 0;
-  color: var(--ct-text-dim);
-}
-
-// Keyboard hint row at the bottom of the results pane, separated by a rule
-.ct-window-search__hint {
-  margin: 0.5rem 0 0;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--ct-border);
-  color: var(--ct-text-dim);
 }

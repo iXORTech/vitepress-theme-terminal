@@ -93,6 +93,38 @@ export interface TerminalFooterConfig {
 }
 
 /**
+ * Algolia DocSearch credentials (SEARCH-001). All three fields are required
+ * for search to work; supply the **search-only** (public) API key, never an
+ * admin key. The find palette (THEME-003, SEARCH-002) queries this index
+ * directly from the browser and renders results in its own TUI window — the
+ * theme does not use DocSearch's own modal.
+ */
+export interface TerminalAlgoliaConfig {
+  /** Algolia application ID. */
+  appId: string
+
+  /** Search-only (public) API key. */
+  apiKey: string
+
+  /** Name of the DocSearch index to query. */
+  indexName: string
+}
+
+/**
+ * Site search options (SEARCH-001). `provider` is reserved for future search
+ * back-ends; today only Algolia DocSearch is wired. When {@link algolia} is
+ * absent or incomplete, the find palette opens but shows a "not configured"
+ * notice instead of querying (design-language.md §4, floating windows).
+ */
+export interface TerminalSearchConfig {
+  /** Search back-end. Reserved — currently only `'algolia'`. */
+  provider?: 'algolia'
+
+  /** Algolia DocSearch credentials; see {@link TerminalAlgoliaConfig}. */
+  algolia?: TerminalAlgoliaConfig
+}
+
+/**
  * One node of the explorer navigation tree (THEME-002). A node with `items`
  * renders as a collapsible folder; a node with `link` navigates; a node may
  * be both. Plain data, so reorganizing the tree never requires component
@@ -158,6 +190,9 @@ export interface TerminalThemeConfig {
   /** Footer options (THEME-004); see {@link TerminalFooterConfig}. */
   footer?: TerminalFooterConfig
 
+  /** Site search options (SEARCH-001); see {@link TerminalSearchConfig}. */
+  search?: TerminalSearchConfig
+
   /**
    * File-explorer navigation tree (THEME-002); see {@link TerminalExplorerItem}.
    * Set to `"auto"` to discover Markdown pages below `src/`.
@@ -166,7 +201,7 @@ export interface TerminalThemeConfig {
   explorer?: TerminalExplorerConfig
 
   // Feature toggles are added here as their features land (e.g. POST-002
-  // series inclusion, SEARCH-001 DocSearch keys).
+  // series inclusion).
 }
 
 // -----------------------------------------------------------------------------
@@ -179,13 +214,23 @@ export interface ResolvedAuthorConfig {
   username: string
 }
 
+/**
+ * {@link TerminalSearchConfig} after resolution: `provider` is always set and
+ * `algolia` is either a complete credential set or `null` (search unconfigured).
+ */
+export interface ResolvedSearchConfig {
+  provider: 'algolia'
+  algolia: TerminalAlgoliaConfig | null
+}
+
 /** {@link TerminalThemeConfig} with every default applied — what components consume. */
 export type ResolvedTerminalThemeConfig = Required<
-  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer'>
+  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer' | 'search'>
 > & {
   author: ResolvedAuthorConfig
   license: Required<TerminalLicenseConfig>
   footer: Required<TerminalFooterConfig>
+  search: ResolvedSearchConfig
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -211,6 +256,9 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   footer: { rss: '', social: [] },
   // No explorer until the user configures a tree (THEME-002).
   explorer: [],
+  // Search stays unconfigured until Algolia credentials are supplied
+  // (SEARCH-001) — the find palette then shows its "not configured" notice.
+  search: { provider: 'algolia', algolia: null },
 }
 
 /**
@@ -267,6 +315,31 @@ function resolveLicense(
 }
 
 /**
+ * Resolve the search block: `provider` defaults to `algolia`, and `algolia`
+ * is kept only when the credential set is complete — a partial set counts as
+ * unconfigured (`null`) so the palette shows its notice instead of failing.
+ */
+function resolveSearch(search: TerminalSearchConfig): ResolvedSearchConfig {
+  const { algolia } = search
+  const complete = !!(algolia?.appId && algolia?.apiKey && algolia?.indexName)
+  return {
+    provider: search.provider ?? 'algolia',
+    algolia: complete
+      ? {
+          appId: algolia!.appId,
+          apiKey: algolia!.apiKey,
+          indexName: algolia!.indexName,
+        }
+      : null,
+  }
+}
+
+/** Whether search has usable credentials (i.e. the palette can query). */
+export function isSearchConfigured(search: ResolvedSearchConfig): boolean {
+  return search.algolia !== null
+}
+
+/**
  * Apply defaults over a (possibly partial or absent) user `themeConfig`.
  * Options are copied individually so an explicit `undefined` from the user
  * still falls back to the default.
@@ -288,5 +361,6 @@ export function resolveThemeConfig(
     }
   }
   if (user?.explorer) resolved.explorer = user.explorer
+  if (user?.search) resolved.search = resolveSearch(user.search)
   return resolved
 }

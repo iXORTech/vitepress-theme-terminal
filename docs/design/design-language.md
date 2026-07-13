@@ -115,14 +115,28 @@ language switches while open, and `icon` is optional Font Awesome classes
 accent glyph inside the border title. The window is a `role="dialog"` container
 (focus moves in on open and returns on close) of framed pane `<section>`s, each
 labeled by its title, with the pane body the scrolling region; styles in
-`styles/_window.scss`, layered above the explorer drawer. Until the find
-palette lands (SEARCH-002), two temporary logic-free **demos** exercise the
-window: a description/hints demo opened via the `~` shortcut (ignored while
-typing in inputs/editable regions) and a tool-bar demo button, and a
-find-palette-shaped **search demo** opened via the `/` shortcut — a static
-search-input pane over an illustrative results pane (ui-sketch.md §2). Both
-share the one instance, so opening either replaces the other; demo strings,
-components, button, and wiring all retire with SEARCH-002.
+`styles/_window.scss`, layered above the explorer drawer.
+
+*Find palette (SEARCH-001/002):* the site's search is a real utility rendered
+in this shared window — an **input pane** (a shell-style `>` prompt and a
+search field) over a **results pane** (title · breadcrumb context · snippet ·
+link, with idle/loading/empty/error/not-configured status lines and a keyboard
+hint row). It opens from the tool-bar magnifier action or the `/` shortcut
+(ignored while typing in inputs/editable regions), the field auto-focuses, the
+arrow keys move the active result and Enter opens it, and rows are real links
+(mouse, keyboard, and open-in-new-tab all work). **Search-wiring decision
+(SEARCH-001):** the palette queries the site's **Algolia DocSearch** index
+*directly from the browser* (`themeConfig.search.algolia` — `appId` / `apiKey`
+(search-only key) / `indexName`, `theme/utils/algolia.ts`, no `@docsearch/*`
+dependency) and renders the hits in this TUI window — the theme deliberately
+does **not** use DocSearch's own modal, so the find palette *is* the search UI.
+When credentials are absent or incomplete the palette still opens but shows a
+localized "not configured" notice instead of querying. The results pane's footer
+carries the keyboard hint and, as DocSearch requires, a small **"Search by
+Algolia" attribution** (an inline Algolia logo SVG linking to algolia.com —
+Font Awesome has no Algolia glyph — shown whenever search is configured). State
+and the debounced, abortable request live in `composables/useSearch.ts`; panes
+are `SearchPalette.vue` / `SearchResults.vue`; styles in `styles/_search.scss`.
 
 *Settings panel (THEME-007):* a real utility rendered in the shared window —
 opened from the gear action (`useSettings` → `openSettings`), which lives in the

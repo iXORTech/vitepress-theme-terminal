@@ -31,21 +31,20 @@ export const zhHans: ThemeLocaleStrings = {
 
   // Floating utility window
   'window.close': '关闭窗口',
-  'window.demoTitle': '浮动窗口',
-  'window.demoOpen': '打开浮动窗口演示',
-  'window.demoBody':
-    '这是共享的浮动工具窗口——查找面板、设置面板等工具都以一个或多个带边框窗格的形式渲染在这一个窗口中。',
-  'window.demoHintsTitle': '提示',
-  'window.demoHint': '[~] 打开 · [esc] 关闭',
-  // Search demo
-  'window.searchTitle': '搜索',
-  'window.searchInputTitle': '查找',
-  'window.searchResultsTitle': '结果',
-  'window.searchPlaceholder': '搜索站点……',
-  'window.searchHint': '[enter] 打开 · [esc] 关闭 · [↑↓] 移动',
-  'window.searchSample1': '色彩系统',
-  'window.searchSample2': '语法高亮',
-  'window.searchSample3': '关于本站',
+
+  // Find palette (SEARCH-002)
+  'search.open': '搜索',
+  'search.title': '搜索',
+  'search.inputTitle': '查找',
+  'search.resultsTitle': '结果',
+  'search.placeholder': '搜索站点……',
+  'search.hint': '[enter] 打开 · [esc] 关闭 · [↑↓] 移动',
+  'search.idle': '输入以搜索',
+  'search.loading': '搜索中……',
+  'search.empty': '未找到结果',
+  'search.error': '搜索失败——请重试',
+  'search.unconfigured': '搜索尚未配置',
+  'search.poweredBy': '由 Algolia 提供搜索',
 
   // Settings panel (THEME-007)
   'settings.title': '设置',

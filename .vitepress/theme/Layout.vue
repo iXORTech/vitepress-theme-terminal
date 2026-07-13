@@ -20,9 +20,9 @@ import { useCodeCopy } from './composables/useCodeCopy'
 import { useExplorer } from './composables/useExplorer'
 import { useLocalizedContent } from './composables/useLocalizedContent'
 import { useNerdFont } from './composables/useNerdFont'
+import { useSearchShortcut } from './composables/useSearch'
 import { useSiteText } from './composables/useSiteText'
 import { useViewportScroll } from './composables/useViewportScroll'
-import { useWindowDemoShortcuts } from './composables/useWindowDemo'
 
 const { frontmatter } = useData()
 
@@ -52,9 +52,8 @@ useLocalizedContent()
 // callouts and TUI chrome with a tofu-safe fallback (FONT-002 / MD-003)
 useNerdFont()
 
-// `~` opens the window demo, `/` the search demo (THEME-003/018, temporary
-// until SEARCH-002)
-useWindowDemoShortcuts()
+// `/` opens the find palette (SEARCH-002)
+useSearchShortcut()
 </script>
 
 <template>

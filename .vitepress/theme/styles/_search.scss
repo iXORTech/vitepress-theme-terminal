@@ -1,0 +1,149 @@
+// ============================================================================
+// _search.scss — find palette (SEARCH-002)
+// ============================================================================
+// The real find-palette content rendered inside the shared floating window's
+// framed panes (styles/_window.scss, THEME-017): an input pane over a results
+// pane (ui-sketch.md §2). Chrome inherits the window's mono TUI font; only the
+// palette-specific bits live here. The results pane is the window's last pane,
+// so on mobile it grows to fill the sheet.
+
+// ----------------------------------------------------------------------------
+// Input pane — a shell-style `> ` prompt beside a borderless search field
+// ----------------------------------------------------------------------------
+
+.ct-search__input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// The `> ` shell prompt before the field, accent-colored like the shell chrome
+.ct-search__prompt {
+  flex-shrink: 0;
+  color: var(--ct-link);
+  font-weight: 600;
+}
+
+// Borderless field — the pane frame is the visible box (no double border)
+.ct-search__field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--ct-text);
+
+  &::placeholder {
+    color: var(--ct-text-dim);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  // Hide the native search field's clear affordance for a clean TUI look
+  &::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Results pane — a list of hits (title · breadcrumb · snippet) or a status line
+// ----------------------------------------------------------------------------
+
+.ct-search__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// One result row is a real link (mouse / keyboard / new-tab all work); its
+// parts stack vertically, nvim-list style. The active row (keyboard cursor or
+// hover) gets the subtle accent wash used across the shell.
+.ct-search__result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--ct-radius-small);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &--active {
+    background: var(--ct-main-subtle);
+  }
+}
+
+// Primary line — the record's own heading, in the emphasis (link) color
+.ct-search__result-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ct-link);
+  font-weight: 600;
+}
+
+// Parent hierarchy for context (e.g. `Guide › Getting started`)
+.ct-search__result-breadcrumb {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ct-text-dim);
+  font-size: 0.75rem;
+}
+
+// A short content snippet around the match — clamped to two lines
+.ct-search__result-snippet {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--ct-text-neutral);
+  line-height: 1.4;
+}
+
+// Status line for the idle / loading / empty / error / unconfigured states
+.ct-search__status {
+  margin: 0;
+  padding: 0.375rem 0.5rem;
+  color: var(--ct-text-dim);
+}
+
+// Footer row closing the results pane with a separating rule — keyboard hints
+// on the left, the Algolia attribution pushed to the right
+.ct-search__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ct-border);
+}
+
+.ct-search__hint {
+  margin: 0;
+  color: var(--ct-text-dim);
+}
+
+// Algolia attribution (DocSearch requirement) — a small logo mark that follows
+// the dim chrome tone and accents on hover, like the shell's other icon links
+.ct-search__algolia {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--ct-text-dim);
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--ct-link-hover);
+  }
+
+  svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    display: block;
+  }
+}

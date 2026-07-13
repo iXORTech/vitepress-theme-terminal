@@ -3,7 +3,7 @@
 // =============================================================================
 // Module-singleton state for the theme's single floating utility window
 // (design-language.md §4, ui-sketch.md §2). All utilities — the find palette
-// (SEARCH-002), the settings panel (THEME-007), the temporary demo — share
+// (SEARCH-002), the settings panel (THEME-007) — share
 // this one instance: opening a utility replaces whatever is currently shown,
 // so at most one floating window exists at a time. The window is hidden by
 // default and only ever opened programmatically through `open()`.
@@ -34,7 +34,7 @@ export interface FloatingWindowPane {
 
 /** One utility rendered inside the shared floating window. */
 export interface FloatingWindowUtility {
-  /** Stable identifier, e.g. `'demo'`, `'find'`, `'settings'`. */
+  /** Stable identifier, e.g. `'search'`, `'settings'`. */
   id: string
   /** Accessible dialog name getter (not visually rendered; panes show titles). */
   label: () => string

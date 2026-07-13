@@ -61,6 +61,19 @@ const themeConfig: TerminalThemeConfig = {
       },
     ],
   },
+
+  // Site search (SEARCH-001) — the find palette (tool-bar magnifier or `/`)
+  // queries this Algolia DocSearch index directly and renders results in its
+  // own TUI window (no DocSearch modal). Use the search-only (public) API key.
+  // Without credentials the palette still opens, showing a "not configured"
+  // notice.
+  // search: {
+    // algolia: {
+      // appId: "YOUR_APP_ID",
+      // apiKey: "YOUR_SEARCH_ONLY_API_KEY",
+      // indexName: "YOUR_INDEX",
+    // },
+  // },
 };
 
 // Shiki themes for the three color modes (STYLE-003). VitePress registers

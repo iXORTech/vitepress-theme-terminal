@@ -712,15 +712,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Search
 
-- [ ] **SEARCH-001** — Algolia DocSearch preparation
+- [x] **SEARCH-001** — Algolia DocSearch preparation
   - **Category:** Search · **Deps:** CONF-001
   - **Acceptance criteria:** `themeConfig` keys for DocSearch (appId, apiKey,
     indexName) exist and are documented; the integration point is stubbed so a site
     with credentials gets a working DocSearch entry (e.g. via the tool bar search
     icon); the relationship with the find palette (THEME-003) is decided and
     documented.
+    *Landed 2026-07-12: `themeConfig.search.algolia`
+    (`appId`/`apiKey`/`indexName`) added to `theme/config.ts` with
+    `resolveSearch()` (a partial credential set resolves to `null` =
+    unconfigured) and the `isSearchConfigured()` helper; documented in the
+    config JSDoc, a commented example in `config.mts`, and design-language.md §4.
+    **Decision:** the find palette (THEME-003 shared window) IS the search UI —
+    it queries the Algolia index directly from the browser (no `@docsearch/*`
+    dep, no DocSearch modal); the tool-bar magnifier action opens it, and an
+    unconfigured site sees a localized notice.*
 
-- [ ] **SEARCH-002** — Find palette (floating window)
+- [x] **SEARCH-002** — Find palette (floating window)
   - **Category:** Search · **Deps:** SEARCH-001, THEME-003
   - **Acceptance criteria:** a floating-window find palette with a text input and
     a list of results; keyboard shortcut `/` to open and `Esc` to dismiss; presents
@@ -728,6 +737,19 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     site's Algolia DocSearch index (SEARCH-001) and returns results with titles,
     snippets, and links; strings localized; styles in dedicated SCSS. Also remove the
     included floating-window demo (THEME-003) when this lands.
+    *Landed 2026-07-12: `useSearch()` (module-singleton query/results/status/
+    activeIndex + debounced, abortable Algolia fetch via `utils/algolia.ts`)
+    opens a two-pane `search` utility in the shared window — `SearchPalette.vue`
+    (auto-focused `>`-prompt field; `↑`/`↓` move, Enter opens) over
+    `SearchResults.vue` (title · breadcrumb · snippet · link rows, real anchors;
+    idle/loading/empty/error/unconfigured status; keyboard hint). `/` binds via
+    `useSearchShortcut()` (input-guarded) and the tool-bar magnifier; `Esc`/
+    backdrop dismiss; mobile last-pane-grows sheet. New `search.*` locale keys
+    (en + zh-Hans); styles in `styles/_search.scss`. The THEME-003 demo — its
+    four components, `useWindowDemo.ts`, the tool-bar button, the `~` shortcut,
+    and the `window.demo*`/`window.search*` strings — is removed. Verified
+    headless 16/16 (interactions, localization, mobile) + 11/11 (mocked-Algolia
+    results, keyboard nav, navigation).*
 
 ### Responsive
 

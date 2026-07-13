@@ -160,6 +160,18 @@
   }
 }
 
+// Per-language content blocks (I18N-007): `::: lang <tag>` wrappers are
+// layout-neutral so the shown block flows exactly like inline content — its
+// children keep their normal margins. useLocalizedContent reveals one block
+// per group and `hidden`s the rest (the wins-by-specificity rule below removes
+// them from flow despite `display: contents`).
+.ct-lang {
+  display: contents;
+}
+.ct-lang[hidden] {
+  display: none;
+}
+
 // Mobile: tighter padding, keep the single readable column
 @media (max-width: 480px) {
   .ct-content {

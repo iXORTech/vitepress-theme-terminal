@@ -274,6 +274,28 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `__pageData`, and `ExplorerTree` resolves every generated label through
     the existing language resolver.*
 
+- [x] **I18N-007** — Localized page content (`::: lang` blocks)
+  - **Category:** i18n · **Deps:** I18N-003, MD-001
+  - **Acceptance criteria:** an author can supply per-language versions of a
+    page's body — the rendered content switches with the client-side UI
+    language (`ct-lang`), no URL change, exactly like the localized `title`
+    frontmatter drives the explorer label; a `::: lang <tag>` markdown
+    container wraps each language's content, content left **outside** any
+    `::: lang` block always shows, and the active block is chosen by the
+    theme's standard fallback (exact tag → primary subtag → site default →
+    first block); the site-default block is server-rendered visible (no flash,
+    correct with JS off); `deep-dive.md` demonstrates it (English + Simplified
+    Chinese bodies); recorded in `design-language.md` §9 and the user guide.
+    *Landed 2026-07-12: `theme/markdown/localized-content.ts` registers the
+    `::: lang <tag>` container → `<div class="ct-lang" data-ct-lang="tag">`
+    (non-default-language blocks emitted `hidden` for a flash-free, JS-off-safe
+    SSR); `useLocalizedContent()` (called once from Layout) groups adjacent
+    `.ct-lang` siblings and reveals one per group via the shared fallback on
+    mount / content update / language switch; `.ct-lang` is layout-neutral
+    (`display: contents`) in `_content.scss`; `deep-dive.md` ships en +
+    zh-Hans bodies; documented in design-language.md §9 and
+    guide/getting-started.md. Verified headless.*
+
 ### Theme components
 
 - [x] **THEME-001** — Layout shell: tool bar · viewport · status bar

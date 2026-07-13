@@ -348,8 +348,34 @@ components is localizable. Adding a language must not require editing components
 `locales` trees: there is no `/<lang>/` segment in URLs. The UI language is a
 **client-side preference** — switching it changes the theme strings in place on the
 same URL, exactly like the color mode: persisted in `localStorage` (`ct-lang`),
-defaulting to the site's `lang` value. Page *content* is whatever the author wrote;
-only theme UI strings switch.
+defaulting to the site's `lang` value. Theme UI strings switch on this preference;
+page *content* is whatever the author wrote — unless the author opts a page's body
+into localization with `::: lang` blocks (see **Localized page content** below).
+
+**Localized page content (I18N-007).** A page body can offer per-language versions
+without a `/<lang>/` URL, mirroring how a localized `title` frontmatter map drives the
+explorer label. Each language's content goes in a `::: lang <tag>` markdown container:
+
+```markdown
+::: lang en
+English body…
+:::
+
+::: lang zh-Hans
+中文正文…
+:::
+```
+
+Only one block per group of adjacent `::: lang` blocks is shown; it is chosen by the
+standard fallback (exact tag → primary subtag → site default → first block) against
+the active UI language, and re-chosen in place on every language switch. Content left
+**outside** any `::: lang` block always shows (shared code, images, headings that need
+not vary). The site-default-language block is server-rendered visible — so there is no
+flash, and the default-language reader sees correct content with JavaScript off.
+Implementation: the `::: lang` container (`theme/markdown/localized-content.ts`) emits
+`<div class="ct-lang" data-ct-lang="<tag>">` with the non-default blocks `hidden`, and
+`useLocalizedContent()` (called once from the layout) reveals the right one on load,
+navigation, and language switch.
 
 **Localizable config text (I18N-004).** Every user-facing text value in the
 configuration surface is a `LocalizableText`: either a plain string (used for all

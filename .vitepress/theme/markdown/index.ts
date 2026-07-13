@@ -23,6 +23,7 @@ import sub from 'markdown-it-sub'
 import sup from 'markdown-it-sup'
 import { calloutsPlugin } from './callouts'
 import { codeBlockCardsPlugin } from './codeblock'
+import { localizedContentPlugin } from './localized-content'
 
 /**
  * Build the `markdown.config` hook. `lang` is the site's default language —
@@ -46,6 +47,10 @@ export function createMarkdownConfig(lang: string) {
 
     // MD-002 callouts (markdown-it-container based)
     calloutsPlugin(md, lang)
+
+    // I18N-007 per-language content blocks (`::: lang <tag>`) — the matching
+    // block is emitted visible at build time, the client switches on language
+    localizedContentPlugin(md, lang)
 
     // STYLE-004 code-block cards — wrap VitePress's Shiki fence output in the
     // card frame + title bar (file name · language · COPY)

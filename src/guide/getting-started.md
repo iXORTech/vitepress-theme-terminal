@@ -49,3 +49,24 @@ localized title with its content.
 
 Explicit `explorer` arrays remain supported when a hand-authored tree is
 preferred. Folder expansion follows the existing depth and persistence rules.
+
+## Localizing page content
+
+A page's body can switch with the site language — no `/<lang>/` URL. Wrap each
+language's content in a `::: lang <tag>` block:
+
+```markdown
+::: lang en
+English body…
+:::
+
+::: lang zh-Hans
+中文正文…
+:::
+```
+
+When the reader switches language in the status bar, the matching block is shown
+in place (the same fallback the rest of the theme uses: exact tag → primary
+subtag → site default → first block). Anything left **outside** a `::: lang`
+block always shows, so shared code samples and images need not be duplicated.
+The `guide/advanced/deep-dive` page is a working example.

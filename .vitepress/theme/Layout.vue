@@ -18,6 +18,7 @@ import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useCodeCopy } from './composables/useCodeCopy'
 import { useExplorer } from './composables/useExplorer'
+import { useLocalizedContent } from './composables/useLocalizedContent'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSiteText } from './composables/useSiteText'
 import { useViewportScroll } from './composables/useViewportScroll'
@@ -42,6 +43,10 @@ useCalloutTitles()
 
 // Wire code-block COPY buttons and re-localize their labels (STYLE-004)
 useCodeCopy()
+
+// Reveal the active language's `::: lang` content block, switch on language
+// change (I18N-007)
+useLocalizedContent()
 
 // Flag <html> once the symbols Nerd Font is usable — gates the PUA glyphs in
 // callouts and TUI chrome with a tofu-safe fallback (FONT-002 / MD-003)

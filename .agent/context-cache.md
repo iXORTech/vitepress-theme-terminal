@@ -2,8 +2,15 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (THEME-019 status-bar
-rework — live state chip (HOME/READ/404, `--notfound` error tint), blinking
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (I18N-007 localized
+page content — `::: lang <tag>` markdown container
+(`theme/markdown/localized-content.ts`) → `<div class="ct-lang"
+data-ct-lang>`; site-default block visible / rest `hidden` at build;
+`useLocalizedContent()` reveals one block per adjacent-sibling group via the
+shared fallback on mount/nav/language switch; `.ct-lang` is layout-neutral
+(`display: contents`) in `_content.scss`; `deep-dive.md` ships en + zh-Hans
+bodies; documented in design-language.md §9 + guide/getting-started.md. Earlier
+same day: THEME-019 status-bar rework — live state chip (HOME/READ/404, `--notfound` error tint), blinking
 `.ct-statusbar__cursor` block trailing the location (in a `.ct-statusbar__path`
 wrapper, underscore style), a live `HH:MM:SS` clock (`useClock`, SSR-safe) at the far right, and
 the settings gear moved out of the tool bar into the status bar; new
@@ -148,7 +155,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   on desktop & absent in paper mode,
   modern finish, mode list, keyboard/mobile/i18n principles; §9: hard rule — no
   `/<lang>/` URL trees, UI language is a client-side preference (`ct-lang`);
-  LocalizableText pattern for all config text (I18N-004); I18N-001/003
+  LocalizableText pattern for all config text (I18N-004); optional per-language
+  page bodies via `::: lang <tag>` blocks that switch client-side with the
+  default block SSR-visible (I18N-007); I18N-001/003
   implementation notes (tables, resolution order, `useThemeLocale()`); the
   auto-discovery contract (THEME-012/I18N-006) for `explorer: "auto"`, folder
   indexes, deterministic ordering, and localized frontmatter/config labels.
@@ -209,8 +218,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin`. Math goes through
-  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead. Also calls
-  `codeBlockCardsPlugin(md, lang)` last (STYLE-004).
+  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead. Then
+  `localizedContentPlugin(md, lang)` (I18N-007) and `codeBlockCardsPlugin(md,
+  lang)` last (STYLE-004).
+- `theme/markdown/localized-content.ts` — I18N-007 per-language content:
+  registers a `::: lang <tag>` markdown-it-container → `<div class="ct-lang"
+  data-ct-lang="<tag>">`. The block whose tag matches the build `lang`
+  (exact or primary subtag) is emitted visible; every other block gets `hidden`
+  (flash-free, JS-off-safe SSR). Client `useLocalizedContent` re-resolves with
+  the full fallback and switches on language change.
 - `theme/markdown/codeblock.ts` — STYLE-004 code-block cards: wraps VitePress's
   Shiki `fence` output in a `.ct-code` card + `.ct-code__titlebar` (file name ·
   language · text `[copy]` button). Reads `token.info` BEFORE delegating (VitePress
@@ -285,6 +301,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/composables/useCalloutTitles.ts` — rewrites `[data-ct-callout-title]`
   elements from the locale table on mount, content update, and language switch;
   called once from the layout (MD-002).
+- `theme/composables/useLocalizedContent.ts` — I18N-007 client switch of
+  `::: lang` page content; called once from the layout. Groups adjacent
+  `.ct-content .ct-lang` siblings and, per group, `hidden`s all but the block
+  chosen for the active `useThemeLocale().language` (fallback exact tag →
+  primary subtag → site default `lang` → first block); runs on mount,
+  `onContentUpdated`, and language switch. Content outside `::: lang` is
+  untouched.
 - `theme/composables/useCodeCopy.ts` — STYLE-004 code-block COPY behavior +
   label localization; called once from the layout. A delegated document click
   copies the `.ct-code pre code` source and flashes a localized "Copied"
@@ -382,7 +405,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `$slots['pre-footer']`) above `<SiteFooter :divided="…" />`) —
   `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
   `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
-  `useWindowDemoShortcuts()` (binds `~` and `/`, THEME-018) once.
+  `useWindowDemoShortcuts()` (binds `~` and `/`, THEME-018) +
+  `useLocalizedContent()` (I18N-007 `::: lang` block switching) once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -510,7 +534,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   so it grows in the viewport column and pins the footer to the panel bottom
   (THEME-004). Font uses `var(--ct-content-font, var(--ct-font-body))` and size
   `var(--ct-content-font-size, 1rem)` so the THEME-007 settings override the
-  reader font (else follow the mode default).
+  reader font (else follow the mode default). Also carries the I18N-007
+  `.ct-lang` rules: `display: contents` (layout-neutral wrapper) with
+  `.ct-lang[hidden]{display:none}` winning by specificity so hidden
+  language blocks leave the flow.
 - `theme/styles/_settings.scss` — THEME-007: maps `<html data-ct-font-family|size>`
   to `--ct-content-font`/`--ct-content-font-size` (default family = no attr =
   follow mode; medium size = base), and styles the settings-panel controls —
@@ -613,7 +640,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `guide/advanced/deep-dive.md`, and
   `guide/advanced/advanced-2/{deep-dive.md,explorer.json}` — explorer demo
   content with localized title frontmatter; the getting-started page documents
-  `"auto"`, source-local JSON folder metadata, and explicit-tree compatibility.
+  `"auto"`, source-local JSON folder metadata, explicit-tree compatibility, and
+  the I18N-007 `::: lang` localized-content blocks. `advanced/deep-dive.md`
+  wraps its body in `::: lang en` / `::: lang zh-Hans` blocks as the I18N-007
+  demo (body switches with the UI language).
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting incl. a `[main.scss]` file-name code-block card (STYLE-004),
   every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,

@@ -125,6 +125,59 @@ export interface TerminalSearchConfig {
 }
 
 /**
+ * One navigation tab in the tool bar's tabline (THEME-005). Plain data, so
+ * adding, reordering, or relabeling a tab never requires component edits. Tabs
+ * render after the built-in `~/home` tab and highlight when the current page
+ * matches their {@link link}.
+ */
+export interface TerminalNavItem {
+  /** Tab label, localizable (I18N-004). */
+  text: LocalizableText
+
+  /**
+   * Destination — a site-absolute path (`/guide/`) or an external URL. The tab
+   * is marked active when it maps to the current page; external links open in a
+   * new tab.
+   */
+  link: string
+}
+
+/**
+ * One extra action icon in the tool bar's right-side action group (THEME-005).
+ * This is the extensible icon-slot mechanism: a site can add feature icons
+ * (important social links, external tools, …) beside the theme's built-in
+ * search and color-mode controls purely from configuration — no component
+ * edits. Each entry renders as a Font Awesome icon linking to {@link link}.
+ */
+export interface TerminalToolbarAction {
+  /** Font Awesome class list, e.g. `fa-brands fa-github`. */
+  icon: string
+
+  /** Destination URL — a site-absolute path or an external URL. */
+  link: string
+
+  /**
+   * Accessible name (tooltip / `aria-label`), localizable (I18N-004). Falls
+   * back to the link URL when unset.
+   */
+  label?: LocalizableText
+}
+
+/**
+ * Tool bar options (THEME-005): configurable navigation tabs and the extensible
+ * extra action-icon slots. The built-in `~/home` tab and the search /
+ * color-mode controls are always present — these entries add to them
+ * (design-language.md §4, tool bar).
+ */
+export interface TerminalToolbarConfig {
+  /** Navigation tabs shown after the built-in home tab. */
+  nav?: TerminalNavItem[]
+
+  /** Extra action icons shown before the built-in search / mode controls. */
+  actions?: TerminalToolbarAction[]
+}
+
+/**
  * One node of the explorer navigation tree (THEME-002). A node with `items`
  * renders as a collapsible folder; a node with `link` navigates; a node may
  * be both. Plain data, so reorganizing the tree never requires component
@@ -187,6 +240,9 @@ export interface TerminalThemeConfig {
   /** Content license (CONF-002); see {@link TerminalLicenseConfig}. */
   license?: TerminalLicenseConfig
 
+  /** Tool bar options (THEME-005); see {@link TerminalToolbarConfig}. */
+  toolbar?: TerminalToolbarConfig
+
   /** Footer options (THEME-004); see {@link TerminalFooterConfig}. */
   footer?: TerminalFooterConfig
 
@@ -225,12 +281,13 @@ export interface ResolvedSearchConfig {
 
 /** {@link TerminalThemeConfig} with every default applied — what components consume. */
 export type ResolvedTerminalThemeConfig = Required<
-  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer' | 'search'>
+  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer' | 'search' | 'toolbar'>
 > & {
   author: ResolvedAuthorConfig
   license: Required<TerminalLicenseConfig>
   footer: Required<TerminalFooterConfig>
   search: ResolvedSearchConfig
+  toolbar: Required<TerminalToolbarConfig>
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -254,6 +311,9 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   },
   // No feed and no social icons until the user configures them (THEME-004).
   footer: { rss: '', social: [] },
+  // No extra nav tabs or action icons until configured (THEME-005) — the
+  // built-in home tab and the search / color-mode controls always render.
+  toolbar: { nav: [], actions: [] },
   // No explorer until the user configures a tree (THEME-002).
   explorer: [],
   // Search stays unconfigured until Algolia credentials are supplied
@@ -358,6 +418,12 @@ export function resolveThemeConfig(
     resolved.footer = {
       rss: user.footer.rss ?? '',
       social: user.footer.social ?? [],
+    }
+  }
+  if (user?.toolbar) {
+    resolved.toolbar = {
+      nav: user.toolbar.nav ?? [],
+      actions: user.toolbar.actions ?? [],
     }
   }
   if (user?.explorer) resolved.explorer = user.explorer

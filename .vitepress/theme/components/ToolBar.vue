@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ============================================================================
-// ToolBar.vue — top tool bar / tabline (THEME-001)
+// ToolBar.vue — top tool bar / tabline (THEME-001/005)
 // ============================================================================
 // The editor-style top bar of the TUI shell (design-language.md §4–5,
 // ui-sketch.md §1): the explorer toggle (THEME-002) and brand glyph +
@@ -8,14 +8,22 @@
 // beside it, and the global action icons on the right — the find-palette search
 // trigger (SEARCH-002) and the color-mode switcher (THEME-010; the status bar
 // only indicates the mode). The settings gear moved to the status bar
-// (THEME-019). Configurable nav entries and extra action icons arrive with
-// THEME-005.
+// (THEME-019).
+//
+// THEME-005 makes the tabline configurable: the built-in `~/home` tab is
+// followed by `themeConfig.toolbar.nav` tabs, and `themeConfig.toolbar.actions`
+// adds extra icon slots before the built-in search / mode controls — both from
+// configuration, no component edits.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
+import type { LocalizableText } from '../locales'
+import { resolveLocalizedText } from '../locales'
+import { isExternalLink, linkRelativePath } from '../utils/pagePath'
 import { useColorMode } from '../composables/useColorMode'
 import { useExplorer } from '../composables/useExplorer'
 import { useSearch } from '../composables/useSearch'
 import { useSiteText } from '../composables/useSiteText'
+import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
 const { page } = useData()
@@ -33,12 +41,36 @@ const { openSearch } = useSearch()
 // Localized site title (I18N-004)
 const { title } = useSiteText()
 
-// All UI text resolves through the locale layer (AGENTS.md §6.7)
-const { t } = useThemeLocale()
+// Resolved config (THEME-005 nav tabs + extra action icons) and the locale
+// layer (AGENTS.md §6.7 — all UI text resolves through it).
+const config = useThemeConfig()
+const { t, language } = useThemeLocale()
 
-// Home is the only built-in tab until navigation becomes configurable
-// (THEME-005); active state follows the current page.
+// The built-in home tab; its active state follows the current page.
 const isHome = computed(() => page.value.relativePath === 'index.md')
+
+// Configurable navigation tabs (THEME-005), rendered after the home tab.
+const navItems = computed(() => config.value.toolbar.nav)
+
+// A nav tab is active when its link maps to the current page (base- and
+// clean-URL-proof, shared with the explorer via pagePath.ts).
+const isTabActive = (link: string): boolean =>
+  linkRelativePath(link) === page.value.relativePath
+
+// Extra action icons (THEME-005), rendered before the built-in controls.
+const actions = computed(() => config.value.toolbar.actions)
+
+// Localized label for a nav tab / action icon; the action label falls back to
+// its URL when unset.
+const localize = (text: LocalizableText): string =>
+  resolveLocalizedText(text, language.value) ?? ''
+const actionLabel = (label: LocalizableText | undefined, link: string): string =>
+  resolveLocalizedText(label, language.value) || link
+
+// Resolve a config link for an <a href>: external URLs pass through untouched,
+// site-absolute paths are prefixed with the configured base.
+const href = (link: string): string =>
+  isExternalLink(link) ? link : withBase(link)
 </script>
 
 <template>
@@ -61,19 +93,44 @@ const isHome = computed(() => page.value.relativePath === 'index.md')
       <span class="ct-toolbar__title">{{ title }}</span>
     </a>
 
-    <!-- Navigation as editor tabs (configurable entries land with THEME-005) -->
+    <!-- Navigation as editor tabs: the built-in home tab plus the configurable
+         `themeConfig.toolbar.nav` entries (THEME-005) -->
     <nav class="ct-toolbar__nav" :aria-label="t('nav.label')">
       <a
         class="ct-toolbar__tab"
         :class="{ 'ct-toolbar__tab--active': isHome }"
         :href="withBase('/')"
       >~/{{ t('nav.home') }}</a>
+      <a
+        v-for="(item, index) in navItems"
+        :key="index"
+        class="ct-toolbar__tab"
+        :class="{ 'ct-toolbar__tab--active': isTabActive(item.link) }"
+        :href="href(item.link)"
+        :target="isExternalLink(item.link) ? '_blank' : undefined"
+        :rel="isExternalLink(item.link) ? 'noreferrer' : undefined"
+      >{{ localize(item.text) }}</a>
     </nav>
 
-    <!-- Global actions (right): find-palette search + mode switcher; the
-         settings gear moved to the status bar (THEME-019); more icons land
-         with THEME-005 -->
+    <!-- Global actions (right): the configurable extra action icons
+         (THEME-005) then the built-in find-palette search + mode switcher; the
+         settings gear moved to the status bar (THEME-019) -->
     <div class="ct-toolbar__actions">
+      <!-- Extensible icon slots — extra feature icons from configuration
+           (important social links, external tools, …), no component edits -->
+      <a
+        v-for="(action, index) in actions"
+        :key="index"
+        class="ct-toolbar__action"
+        :href="href(action.link)"
+        :title="actionLabel(action.label, action.link)"
+        :aria-label="actionLabel(action.label, action.link)"
+        :target="isExternalLink(action.link) ? '_blank' : undefined"
+        :rel="isExternalLink(action.link) ? 'noreferrer' : undefined"
+      >
+        <i :class="action.icon" aria-hidden="true"></i>
+      </a>
+
       <!-- Find palette (SEARCH-002) — opens the shared floating window; also
            reachable via the `/` shortcut -->
       <button

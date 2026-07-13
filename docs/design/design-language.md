@@ -37,6 +37,31 @@ UI text, default content, or shipped assets.
 Flavor details are welcome where they reinforce the metaphor without hurting usability —
 e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
 
+**Tool bar (THEME-001/005/010)** — the editor-style top bar: on the left the
+explorer toggle (`[=]`, THEME-002) and the brand (site glyph + localized title,
+links home), the navigation tabs beside it, and the global action icons pushed to
+the right edge. The theme keeps a small always-present core — the built-in
+`~/home` tab, and the find-palette search trigger + color-mode switcher controls
+(THEME-010; the status bar only *indicates* the mode) — and everything else is
+configurable from `themeConfig.toolbar` **without editing components** (THEME-005):
+
+- `toolbar.nav` — additional navigation tabs rendered after the home tab. Each is
+  `{ text, link }` where `text` is a `LocalizableText` (§9) and `link` is a
+  site-absolute path or external URL; a tab highlights when its link maps to the
+  current page (matched against `relativePath`, so `base` / clean URLs never
+  matter — the same matcher the explorer uses), and external links open in a new
+  tab.
+- `toolbar.actions` — the extensible icon-slot mechanism: extra action icons
+  (important social links, external tools, …) rendered *before* the built-in
+  search / color-mode controls, so those two stay anchored at the right edge as a
+  consistent cluster. Each is `{ icon, link, label? }` — `icon` is a Font Awesome
+  class list (general-icon context, typography-and-icons.md §2), `label` is a
+  localizable accessible name that falls back to the URL.
+
+Both lists are plain data and default to empty; the tool bar renders identically
+to before when they are unset. On mobile the tabline collapses (the explorer
+drawer takes over navigation, §8) while the action icons remain.
+
 **File explorer (THEME-002/011)** — the side navigation tree, presented in the
 NeoVim file-browser idiom. Its contents are configured as a tree in
 `themeConfig.explorer`: nodes of `{ text, link?, items? }`, where `text`

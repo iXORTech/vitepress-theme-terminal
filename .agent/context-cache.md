@@ -2,7 +2,16 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-12 (SEARCH-001/002 find
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (THEME-005 tool-bar
+configurability — `themeConfig.toolbar = { nav?, actions? }` (`TerminalNavItem`
+`{ text, link }` tabs after the built-in `~/home`, active via the shared
+`linkRelativePath`; `TerminalToolbarAction` `{ icon, link, label? }` extra
+Font Awesome icon slots before the built-in search + mode controls); the
+active-matcher/external-link helpers extracted to `utils/pagePath.ts`
+(`isExternalLink`/`linkRelativePath`) and shared with `ExplorerTree.vue`;
+`_toolbar.scss` action rule now covers `<a>` slots (inline-flex, no underline);
+demo config adds a `guide` tab + GitHub action icon; docs in design-language.md §4
+(tool bar note) + ui-sketch.md §1. Earlier: SEARCH-001/002 find
 palette — `themeConfig.search.algolia` DocSearch keys + `resolveSearch()`/
 `isSearchConfigured()` (SEARCH-001; decision: the palette queries Algolia
 directly and IS the search UI — no `@docsearch/*`, no DocSearch modal); the real
@@ -216,7 +225,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `themeConfig` demos per-language `title`/`description` maps, an MIT
   `license` (exercises the footer's icon-less text fallback), a `footer`
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
-  generated yet),   and `explorer: "auto"` to discover every Markdown page under `src/`;
+  generated yet), a `toolbar` block (THEME-005: a `guide` nav tab +
+  a GitHub action icon), and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
   a commented `search.algolia` example documents the SEARCH-001 keys (demo
   ships unconfigured → the palette shows its notice); `markdown.math: true`
@@ -275,7 +285,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   url/icons — bring your own); single source for footer/prompt/license-card
   consumers (THEME-004, COMP-001, COMP-003). THEME-004: `footer`
   (`rss` feed URL, default `''`; `social: TerminalSocialLink[]` — FA `icon` +
-  `link` + optional LocalizableText `label`). THEME-002/011/012:
+  `link` + optional LocalizableText `label`). THEME-005: `toolbar?:
+  TerminalToolbarConfig` — `{ nav?: TerminalNavItem[] ({ text, link }),
+  actions?: TerminalToolbarAction[] ({ icon FA classes, link, label? }) }`,
+  resolved to `Required<>` with `[]`/`[]` defaults (built-in home tab +
+  search/mode controls always render). THEME-002/011/012:
   `explorer: TerminalExplorerItem[] | "auto"` — explicit tree or automatic
   discovery of `src/**/*.md`; explicit nodes retain `{ text, link?, items? }`,
   while source-local `explorer.json` files can provide localized folder labels;
@@ -436,15 +450,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
   `useSearchShortcut()` (binds `/` to open the find palette, SEARCH-002) +
   `useLocalizedContent()` (I18N-007 `::: lang` block switching) once.
-- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/010): the
+- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
-  `<nav>` of editor tabs — currently the single built-in `~/home` tab with active
-  state — and the right-side action icons: the find-palette search trigger (FA
-  magnifying-glass → `useSearch().openSearch`, SEARCH-002) and the color-mode
-  cycle button (FA half-circle, `mode.switch`); the settings gear moved to the
-  status bar (THEME-019); configurable entries/more actions come with THEME-005.
+  `<nav>` of editor tabs — the built-in `~/home` tab followed by the configurable
+  `themeConfig.toolbar.nav` tabs (localized labels, active when the link maps to
+  the current page via the shared `linkRelativePath`, external = `_blank`,
+  THEME-005) — and the right-side action icons: the configurable
+  `themeConfig.toolbar.actions` FA icon anchors (THEME-005), then the built-in
+  find-palette search trigger (FA magnifying-glass → `useSearch().openSearch`,
+  SEARCH-002) and the color-mode cycle button (FA half-circle, `mode.switch`);
+  the settings gear moved to the status bar (THEME-019).
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -460,7 +477,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   A folder-with-link label is a plain navigational anchor; route awareness
   expands it without persistence; link nodes use `withBase` (external `_blank
   noreferrer`); the active row matched by mapping the link to
-  `page.relativePath` form (base- and clean-URL-proof); active-route ancestors
+  `page.relativePath` form (base- and clean-URL-proof, via the shared
+  `linkRelativePath`/`isExternalLink` in `utils/pagePath.ts`, THEME-005);
+  active-route ancestors
   expand temporarily without storage writes; labels via `resolveLocalizedText`
   against the active language.
 - `theme/components/Card.vue` — reusable TUI floating card (COMP-001) with an
@@ -608,9 +627,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   behind `[data-ct-nerdfont]`; `<details>` variant hides the native marker and
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity).
-- `theme/utils/pagePath.ts` — framework-free `formatPageLocation()` helper shared
-  by the status bar and card prompt defaults; maps `relativePath` to `~` or a
-  home-relative path without the Markdown extension.
+- `theme/utils/pagePath.ts` — framework-free page-path helpers: `formatPageLocation()`
+  (maps `relativePath` to `~` or a home-relative path without the Markdown
+  extension; status bar + card prompt defaults), and the active-link matchers
+  `isExternalLink()` + `linkRelativePath()` (map a site-absolute link onto the
+  `relativePath` form, base-/clean-URL-proof; external → `null`) shared by the
+  explorer tree (`ExplorerTree.vue`) and the tool-bar nav tabs (`ToolBar.vue`,
+  THEME-005).
 - `theme/styles/_shell.scss` — THEME-001/008 shell frame: `.ct-shell` FIXED
   100dvh flex column with `--ct-gap` gaps/padding; `.ct-main` middle flex row
   (explorer beside viewport, THEME-002 — a retracted explorer is display:none
@@ -623,8 +646,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   flattens `.ct-main` to a block so the full article prints.
 - `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
   + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
-  `[data-ct-nerdfont]`; editor-tab links with accent hover/active; right-aligned
-  `__actions` group with accent icon buttons (mode switcher, THEME-010); tabs
+  `[data-ct-nerdfont]`; editor-tab links with accent hover/active (home + the
+  configurable THEME-005 nav tabs); right-aligned `__actions` group with accent
+  icon controls — `.ct-toolbar__action` now covers both `<button>` (search/mode)
+  and the configurable `<a>` action slots (THEME-005: `inline-flex`,
+  `text-decoration:none`); tabs
   hidden ≤640px (the explorer drawer takes over, THEME-002); hidden in print.
 - `theme/styles/_explorer.scss` — THEME-002/011 file-explorer sidebar: desktop
   15rem surface panel with own scroll (`--closed` = display:none, instant

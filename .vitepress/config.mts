@@ -42,6 +42,22 @@ const themeConfig: TerminalThemeConfig = {
   // author: { name: "Ada Lovelace", username: "ada" },
   // license: { name: "MIT", url: "https://opensource.org/license/mit/" },
 
+  // Tool bar (THEME-005) — the tabline and its action icons are configurable
+  // without editing components. `nav` tabs render after the built-in `~/home`
+  // tab (labels are LocalizableText, highlighted when the page matches);
+  // `actions` are extra icon slots (Font Awesome) shown before the built-in
+  // search / color-mode controls, for important social links or external tools.
+  toolbar: {
+    nav: [{ text: { en: "guide", "zh-Hans": "指南" }, link: "/guide/" }],
+    actions: [
+      {
+        icon: "fa-brands fa-github",
+        link: "https://github.com/iXORTech/vitepress-theme-terminal",
+        label: "GitHub",
+      },
+    ],
+  },
+
   // Auto-discover every Markdown file below src/. Folder index pages become
   // folder links; page labels come from frontmatter title metadata. An
   // index-less folder can keep its localized label and initial state in an
@@ -56,7 +72,7 @@ const themeConfig: TerminalThemeConfig = {
     social: [
       {
         icon: "fa-brands fa-github",
-        link: "https://github.com/iXORTech/vitepress-theme-terminal-reforged",
+        link: "https://github.com/iXORTech/vitepress-theme-terminal",
         label: "GitHub",
       },
     ],

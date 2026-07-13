@@ -418,13 +418,27 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     orange icon + "RSS" wordmark (`--ct-rss` over Carbon orange) with the license
     glyphs as one tight cluster; implemented note in design-language.md §4.*
 
-- [ ] **THEME-005** — Tool bar configurability & extras
+- [x] **THEME-005** — Tool bar configurability & extras
   - **Category:** Theme · **Deps:** THEME-001, CONF-001
   - **Acceptance criteria:** navigation entries are easy to configure via
     `themeConfig`; the color-mode (theme) switcher lives in the tool bar
     (landed early via THEME-010); an
     extensible icon-slot mechanism lets extra feature icons (e.g. search trigger,
     important social links) be added from configuration without component edits.
+    *Landed 2026-07-13: `themeConfig.toolbar = { nav?, actions? }` (config.ts —
+    `TerminalNavItem` `{ text: LocalizableText, link }` + `TerminalToolbarAction`
+    `{ icon, link, label? }`, both defaulting to `[]`). `ToolBar.vue` renders the
+    `nav` tabs after the built-in `~/home` tab (localized labels, active when the
+    link maps to the current page via the shared `linkRelativePath()`, external =
+    `_blank`) and the `actions` as extra Font Awesome icon anchors **before** the
+    built-in search + color-mode controls (which stay anchored at the right edge).
+    The active-matcher/external-link helpers were extracted to
+    `utils/pagePath.ts` (`isExternalLink`/`linkRelativePath`) and shared with
+    `ExplorerTree.vue`. Demo config adds a `guide` tab + a GitHub action icon;
+    documented in design-language.md §4 (tool bar note) and ui-sketch.md §1.
+    Verified headless 11/11 (nav/action render, active state on navigation,
+    zh-Hans tab localization, external target, no underline) + explorer
+    regression.*
 
 - [x] **THEME-006** — Fully-custom section above the footer
   - **Category:** Theme · **Deps:** THEME-001

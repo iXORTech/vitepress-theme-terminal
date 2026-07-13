@@ -79,8 +79,8 @@ html[data-ct-nerdfont] .ct-toolbar__glyph::before {
   }
 }
 
-// Global action icons, pushed to the right edge (THEME-010; more slots land
-// with THEME-003/005)
+// Global action icons, pushed to the right edge — configurable extra slots
+// (THEME-005) precede the built-in search + mode controls (THEME-003/010).
 .ct-toolbar__actions {
   display: flex;
   align-items: center;
@@ -88,14 +88,20 @@ html[data-ct-nerdfont] .ct-toolbar__glyph::before {
   margin-left: auto;
 }
 
-// Icon-only action button — controls take the accent (color-system.md §2)
+// Icon-only action control — controls take the accent (color-system.md §2).
+// Applies to both the built-in <button> controls and the configurable
+// <a> action-icon slots (THEME-005), so the group reads as one cluster.
 .ct-toolbar__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.25rem 0.5rem;
   border: none;
   border-radius: var(--ct-radius-small);
   background: transparent;
   font-size: 0.875rem;
   color: var(--ct-link);
+  text-decoration: none;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 

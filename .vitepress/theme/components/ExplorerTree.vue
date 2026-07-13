@@ -17,6 +17,7 @@ import { useData, withBase } from 'vitepress'
 import type { TerminalExplorerItem } from '../config'
 import type { LocalizableText } from '../locales'
 import { resolveLocalizedText } from '../locales'
+import { isExternalLink, linkRelativePath } from '../utils/pagePath'
 import { useExplorer } from '../composables/useExplorer'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
@@ -50,20 +51,9 @@ const nodeKey = (item: TerminalExplorerItem): string =>
 // useExplorer store.
 const defaultOpen = (): boolean => props.depth === 0
 
-const isExternal = (link: string): boolean => /^[a-z][a-z0-9+.-]*:/i.test(link)
-
-// Map a site-absolute link onto the page `relativePath` form so the current
-// page can be highlighted without caring about `base` or clean-URL settings;
-// external URLs never match.
-function linkRelativePath(link: string): string | null {
-  if (isExternal(link)) return null
-  let path = link
-    .replace(/[?#].*$/, '')
-    .replace(/^\//, '')
-    .replace(/\.html$/, '')
-  if (path === '' || path.endsWith('/')) path += 'index'
-  return `${path}.md`
-}
+// Active-row highlighting and external-link handling reuse the shared
+// page-path helpers (pagePath.ts), the same ones the tool-bar tabs use.
+const isExternal = isExternalLink
 
 const isActive = (link?: string): boolean =>
   !!link && linkRelativePath(link) === page.value.relativePath

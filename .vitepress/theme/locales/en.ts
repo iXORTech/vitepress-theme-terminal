@@ -69,6 +69,12 @@ export const en = {
   'code.copy': 'Copy',
   'code.copied': 'Copied',
 
+  // Image containers (COMP-002) — the card deck's arrow controls. (The
+  // lightbox chrome localizes through Fancybox's own shipped l10n tables —
+  // design-language.md §4.)
+  'swiper.prev': 'Previous image',
+  'swiper.next': 'Next image',
+
   // Status bar segments (THEME-001/009/019). The chip is a live state
   // indicator: READ on an article, HOME on the home page, 404 on not-found.
   'status.read': 'READ',

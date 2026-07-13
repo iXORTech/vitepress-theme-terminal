@@ -644,13 +644,42 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     reusable component; `styles/_card.scss` provides the responsive floating-window
     finish, softened shadow, and mode-aware Oxocarbon prompt coloring.*
 
-- [ ] **COMP-002** — Image containers: lightbox + Swiper
+- [x] **COMP-002** — Image containers: lightbox + Swiper
   - **Category:** Components · **Deps:** MD-001, STYLE-001
   - **Acceptance criteria:** content images gain enlarge-on-click, and all images on a
     page can be browsed as slides (Fancybox); a `:::: swiper` container with nested
     `::: swiper-slide-no-shadow` blocks renders images as SwiperJS slides with the
     cards effect (cards stacked on top of each other), supporting exactly the block
     syntax documented in the requirement.
+    *Landed 2026-07-13: `useLightbox()` marks every `.ct-content img` (skipping
+    linked / `data-no-lightbox` images) as one `ct-gallery` Fancybox group on
+    mount/navigation — one delegated bind, re-bound on language switch with
+    Fancybox's own shipped l10n tables mapped from the theme tags (`en`,
+    `zh-Hans` → `zh_CN`; the documented vendor-chrome exception to the locale
+    rule). The `:::: swiper` / `::: swiper-slide-no-shadow` containers
+    (`theme/markdown/swiper.ts`) emit inert `.ct-swiper.swiper` markup that
+    `useSwipers()` upgrades to a cards-effect Swiper (`slideShadows: false`,
+    stale instances destroyed after navigation); both libraries lazy-load
+    client-side only. Vendor CSS + theme overrides in `styles/_lightbox.scss`
+    / `_swiper.scss`; three palette SVGs in `src/public/images/`; demo section
+    in `markdown-examples.md`. 2026-07-13 follow-up: prev/next arrow buttons
+    (Navigation module wired to `<button>`s emitted by the container, TUI
+    `❮`/`❯` text chevrons replacing the vendor SVG, ≥44px targets, localized
+    `swiper.prev`/`swiper.next` labels re-applied on language switch) and
+    native image dragging disabled on slides (`draggable=false` +
+    `-webkit-user-drag: none`) so a real mouse drag slides the deck instead
+    of starting a ghost-image drag; verified headless 14/14. Second follow-up
+    same day: the arrows moved fully OUTSIDE the images — the container now
+    emits a `.ct-swiper` flex row (prev button · `.ct-swiper__deck.swiper` ·
+    next button, deck shrinking between them on mobile; vendor navigation CSS
+    dropped) — and closing the lightbox no longer scrolls the article back to
+    top: `useViewportScroll` (THEME-008) now resets the panel only when
+    `page.relativePath` actually changed, since `onContentUpdated` also fires
+    on same-page re-renders (dev-server zoom/fullscreen close paths reproduced
+    it; in-place language switches keep their position too). Verified headless
+    13/13 build + dev repro paths. **`@fancyapps/ui` pinned to v5** — the last
+    GPLv3/commercial dual-licensed line (v6 is commercial-only); Swiper is
+    MIT. Verified headless 16/16 + SPA-navigation regression.*
 
 - [ ] **COMP-003** — License card
   - **Category:** Components · **Deps:** THEME-001, COMP-001, CONF-002

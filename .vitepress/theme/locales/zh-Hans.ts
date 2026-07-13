@@ -65,6 +65,10 @@ export const zhHans: ThemeLocaleStrings = {
   'code.copy': '复制',
   'code.copied': '已复制',
 
+  // Image containers (COMP-002) — card deck arrows
+  'swiper.prev': '上一张',
+  'swiper.next': '下一张',
+
   // Status bar segments
   'status.read': '阅读',
   'status.home': '主页',

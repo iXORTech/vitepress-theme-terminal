@@ -1,0 +1,126 @@
+// ============================================================================
+// _swiper.scss — cards-effect image slider (COMP-002)
+// ============================================================================
+// Pulls in the Swiper vendor stylesheets (core + cards effect; the SCSS entry
+// is where the theme loads vendor CSS — AGENTS.md §6.3) and styles the
+// `:::: swiper` deck emitted by theme/markdown/swiper.ts in the theme's card
+// visual language: rounded frame, subtle border, surface background. The
+// slides ship shadowless (`slideShadows: false` in useSwipers) — this finish
+// supplies the depth instead. The prev/next arrows are the theme's own flex
+// siblings BESIDE the card stack (never over the images), so the vendor
+// navigation stylesheet is not used.
+
+// Vendor stylesheets (resolved from node_modules by the Vite sass importer).
+@use "swiper/css";
+@use "swiper/css/effect-cards";
+
+// The wrapper row: prev arrow · card deck · next arrow, centered in the
+// article column with the arrows vertically centered on the deck.
+.ct-swiper {
+  display: flex;
+  gap: clamp(0.25rem, 2vw, 1rem);
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto;
+
+  // The browser's native image drag (ghost image) would hijack the card
+  // swipe mid-gesture; useSwipers also sets draggable=false on the images.
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+}
+
+// The deck itself: a fixed-aspect box the stacked cards fill. Cards need
+// explicit dimensions; it grows to a comfortable width inside the article
+// column and shrinks (min-width: 0) so the arrows always fit beside it.
+.ct-swiper__deck {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 24rem;
+  aspect-ratio: 4 / 3;
+}
+
+// One card of the deck, in the theme's floating-card finish.
+.ct-swiper__slide {
+  overflow: hidden;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+
+  // Markdown wraps the slide image in a paragraph — collapse it so the image
+  // owns the whole card.
+  p {
+    height: 100%;
+    margin: 0;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Prev/next arrow controls flanking the deck: TUI text chevrons in the main
+// color, disabled at the deck's ends (class set by the Navigation module).
+.ct-swiper__nav {
+  flex: 0 0 auto;
+  width: 2.75rem; // ≥44px touch target (design-language.md §8)
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ct-radius-small);
+  background: none;
+  color: var(--ct-main);
+  cursor: pointer;
+
+  &::after {
+    font-family: var(--ct-font-mono);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  &:hover {
+    background: var(--ct-main-subtle);
+  }
+
+  // The Navigation module injects its own SVG arrow into the button — the
+  // deck uses the TUI text chevron instead (same glyph family as the
+  // explorer), so the vendor icon is suppressed.
+  svg {
+    display: none;
+  }
+
+  &.ct-swiper__nav--prev::after {
+    content: "❮";
+  }
+
+  &.ct-swiper__nav--next::after {
+    content: "❯";
+  }
+
+  // States set by the Navigation module: deck end reached / too few slides.
+  &.swiper-button-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  &.swiper-button-lock {
+    display: none;
+  }
+}
+
+// Paper/print: the deck is an interactive control — print the first card
+// only, untransformed, so the article still shows the image; the arrows
+// are pointless on paper.
+@media print {
+  .ct-swiper__deck {
+    aspect-ratio: auto;
+  }
+
+  .ct-swiper__nav {
+    display: none;
+  }
+}

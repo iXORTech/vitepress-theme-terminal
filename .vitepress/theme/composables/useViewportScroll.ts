@@ -15,9 +15,10 @@
 
 import { onMounted } from 'vue'
 import type { Ref } from 'vue'
-import { onContentUpdated } from 'vitepress'
+import { onContentUpdated, useData } from 'vitepress'
 
 export function useViewportScroll(viewport: Ref<HTMLElement | null>): void {
+  const { page } = useData()
   // Scroll the element addressed by a location hash into view (inside the
   // panel — scrollIntoView scrolls the panel, the only scrollable ancestor).
   const scrollToHash = (hash: string, smooth = false): boolean => {
@@ -32,8 +33,15 @@ export function useViewportScroll(viewport: Ref<HTMLElement | null>): void {
     return target !== null
   }
 
-  // Page navigations (and initial mount): hash target, else back to the top
+  // Page navigations (and initial mount): hash target, else back to the top.
+  // onContentUpdated also fires on mere re-renders of the same page (an
+  // in-place language switch, dev-mode updates, DOM work around the COMP-002
+  // lightbox) — those must never move the reader, so only a real page change
+  // may touch the scroll position.
+  let handledPath: string | null = null
   onContentUpdated(() => {
+    if (page.value.relativePath === handledPath) return
+    handledPath = page.value.relativePath
     if (!scrollToHash(location.hash) && viewport.value) {
       viewport.value.scrollTop = 0
     }

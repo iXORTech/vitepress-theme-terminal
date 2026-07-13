@@ -22,6 +22,8 @@
 @use "prefooter-demo"; // custom pre-footer demo content (THEME-006, temporary)
 @use "code";    // code blocks & Shiki mode switching (STYLE-003)
 @use "callouts"; // TUI-card callout containers (MD-002)
+@use "lightbox"; // enlarge-on-click image gallery (COMP-002)
+@use "swiper";  // cards-effect image slider (COMP-002)
 
 // ----------------------------------------------------------------------------
 // Base document styles

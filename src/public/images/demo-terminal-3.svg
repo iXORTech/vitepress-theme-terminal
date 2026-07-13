@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Demo image 3 — "paper" · theme-palette terminal art (COMP-002 demo) -->
+  <rect width="800" height="600" fill="#f4f4f4"/>
+  <rect x="60" y="80" width="680" height="440" rx="12" fill="#ffffff" stroke="#c6c6c6"/>
+  <g font-family="IBM Plex Mono, Menlo, monospace" font-size="24">
+    <text x="100" y="160" fill="#161616">user@terminal:~$ mode --paper</text>
+    <text x="100" y="228" fill="#525252"># the reader-optimized mode,</text>
+    <text x="100" y="272" fill="#525252"># ink on paper</text>
+    <text x="100" y="340" fill="#198038">✓ light chrome, serif body</text>
+    <text x="100" y="408" fill="#161616">user@terminal:~$ █</text>
+  </g>
+  <text x="700" y="560" font-family="IBM Plex Mono, Menlo, monospace" font-size="28" fill="#198038" text-anchor="end">[ 3 / 3 ]</text>
+</svg>

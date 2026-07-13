@@ -205,6 +205,61 @@ directly as inline HTML in any page.
 <i class="fa-brands fa-github"></i> github ·
 <i class="fa-solid fa-rss"></i> rss
 
+## Images
+
+Content images are interactive by default (COMP-002): **click any image** to
+enlarge it in a lightbox, and browse every image on the page as slides with the
+arrow keys or controls — the plain image below and the three cards in the deck
+further down all belong to the same gallery. Images wrapped in a link keep
+their link, and `data-no-lightbox` opts a single image out.
+
+**Input**
+
+```md
+![A terminal session mock in the theme palette](/images/demo-terminal-1.svg)
+```
+
+**Output**
+
+![A terminal session mock in the theme palette](/images/demo-terminal-1.svg)
+
+### Swiper cards
+
+A `:::: swiper` container with nested `::: swiper-slide-no-shadow` blocks
+renders its images as SwiperJS slides with the **cards effect** — the slides
+sit stacked on top of each other like a deck. Drag a card away (or swipe on
+touch) to reveal the next one.
+
+**Input**
+
+```md
+:::: swiper
+::: swiper-slide-no-shadow
+![A terminal session mock](/images/demo-terminal-1.svg)
+:::
+::: swiper-slide-no-shadow
+![A split-pane terminal mock](/images/demo-terminal-2.svg)
+:::
+::: swiper-slide-no-shadow
+![A paper-mode terminal mock](/images/demo-terminal-3.svg)
+:::
+::::
+```
+
+**Output**
+
+:::: swiper
+::: swiper-slide-no-shadow
+![A terminal session mock](/images/demo-terminal-1.svg)
+:::
+::: swiper-slide-no-shadow
+![A split-pane terminal mock](/images/demo-terminal-2.svg)
+:::
+::: swiper-slide-no-shadow
+![A paper-mode terminal mock](/images/demo-terminal-3.svg)
+:::
+::::
+
 ## Card component
 
 The reusable card is a floating window with an optional shell-prompt

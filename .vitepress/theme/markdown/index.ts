@@ -24,6 +24,7 @@ import sup from 'markdown-it-sup'
 import { calloutsPlugin } from './callouts'
 import { codeBlockCardsPlugin } from './codeblock'
 import { localizedContentPlugin } from './localized-content'
+import { swiperPlugin } from './swiper'
 
 /**
  * Build the `markdown.config` hook. `lang` is the site's default language —
@@ -47,6 +48,10 @@ export function createMarkdownConfig(lang: string) {
 
     // MD-002 callouts (markdown-it-container based)
     calloutsPlugin(md, lang)
+
+    // COMP-002 image slider containers (`:::: swiper` decks of
+    // `::: swiper-slide-no-shadow` cards; client-initialized by useSwipers)
+    swiperPlugin(md)
 
     // I18N-007 per-language content blocks (`::: lang <tag>`) — the matching
     // block is emitted visible at build time, the client switches on language

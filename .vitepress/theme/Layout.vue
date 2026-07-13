@@ -18,10 +18,12 @@ import ToolBar from './components/ToolBar.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useCodeCopy } from './composables/useCodeCopy'
 import { useExplorer } from './composables/useExplorer'
+import { useLightbox } from './composables/useLightbox'
 import { useLocalizedContent } from './composables/useLocalizedContent'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSearchShortcut } from './composables/useSearch'
 import { useSiteText } from './composables/useSiteText'
+import { useSwipers } from './composables/useSwipers'
 import { useViewportScroll } from './composables/useViewportScroll'
 
 const { frontmatter } = useData()
@@ -54,6 +56,11 @@ useNerdFont()
 
 // `/` opens the find palette (SEARCH-002)
 useSearchShortcut()
+
+// Content images: enlarge-on-click gallery + `:::: swiper` card decks
+// (COMP-002); both lazy-load their libraries client-side
+useLightbox()
+useSwipers()
 </script>
 
 <template>

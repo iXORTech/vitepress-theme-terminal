@@ -2,7 +2,24 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (THEME-005 tool-bar
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (COMP-002 fixes:
+deck arrows moved OUTSIDE the images — `.ct-swiper` is now a flex row of
+prev button · `.ct-swiper__deck.swiper` · next button (vendor navigation CSS
+dropped) — and `useViewportScroll` resets the panel only on a real
+`relativePath` change, so closing the lightbox / same-page re-renders keep
+the reading position. Earlier: deck prev/next arrow buttons —
+Navigation module on container-emitted
+`<button>`s, TUI `❮`/`❯` chevrons (vendor SVG suppressed), localized
+`swiper.prev`/`swiper.next` — and native image drag disabled on slides so
+mouse swipes work. Earlier same day: COMP-002 image
+containers — Fancybox enlarge-on-click gallery over all `.ct-content` images
+(`useLightbox`, `data-fancybox="ct-gallery"`, vendor l10n mapped from theme
+tags) + `:::: swiper`/`::: swiper-slide-no-shadow` cards-effect decks
+(`theme/markdown/swiper.ts` + `useSwipers`, shadowless slides); vendor CSS via
+`_lightbox.scss`/`_swiper.scss`; `@fancyapps/ui` pinned ^5 (GPLv3/commercial
+dual license — v6 is commercial-only) + `swiper` ^14; demo SVGs in
+`src/public/images/`, demo section in `markdown-examples.md`. Earlier same
+day: THEME-005 tool-bar
 configurability — `themeConfig.toolbar = { nav?, actions? }` (`TerminalNavItem`
 `{ text, link }` tabs after the built-in `~/home`, active via the shared
 `linkRelativePath`; `TerminalToolbarAction` `{ icon, link, label? }` extra
@@ -75,9 +92,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## Root
 
 - `package.json` — pnpm project; devDeps: `vitepress 2.0.0-alpha.18`, `vue ^3.5.39`,
-  `sass ^1.101.0` (INFRA-001), and the MD-001 markdown-it suite (emoji, sub, sup,
+  `sass ^1.101.0` (INFRA-001), the MD-001 markdown-it suite (emoji, sub, sup,
   ins, mark, footnote, deflist, abbr, container; mathjax3 pinned ^4 — v5 emits
-  inline <style> per formula, which breaks Vue template compilation). Scripts
+  inline <style> per formula, which breaks Vue template compilation), and the
+  COMP-002 image libraries: `@fancyapps/ui` pinned `^5.0.36` (the last
+  GPLv3/commercial dual-licensed line — v6 moved to commercial-only) +
+  `swiper ^14`. Scripts
   `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
@@ -124,10 +144,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   SEARCH-001 (Algolia DocSearch config keys + decision: the palette is the
   search UI) and SEARCH-002 (real find palette — input + results panes wired to
   Algolia, replacing the THEME-003 demo) done 2026-07-12.
+  COMP-002 image containers (Fancybox lightbox gallery + `:::: swiper` cards
+  decks) done 2026-07-13.
   Roadmap:
-  theme chrome
-  (tool bar extras), components (Fancybox/Swiper images, license card,
-  Waline comments),
+  components (license card, Waline comments),
   content (tags/categories, series), pages (home, projects, about,
   friends — spec TBD), demos, mobile pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
@@ -242,7 +262,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   so no flash/reflow.
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
-  sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin`. Math goes through
+  sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin` and
+  `swiperPlugin` (COMP-002). Math goes through
   VitePress's `markdown.math: true` (markdown-it-mathjax3) instead. Then
   `localizedContentPlugin(md, lang)` (I18N-007) and `codeBlockCardsPlugin(md,
   lang)` last (STYLE-004).
@@ -259,6 +280,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   name = `[...]` group. COPY label emitted in the build `lang`, tagged
   `data-ct-code-copy-label` for client re-localization (useCodeCopy). Highlighting
   untouched inside the card.
+- `theme/markdown/swiper.ts` — COMP-002 image-slider containers: registers
+  `:::: swiper` (→ a `.ct-swiper` flex row: `.ct-swiper__nav--prev` button ·
+  `.ct-swiper__deck.swiper > .swiper-wrapper` · `.ct-swiper__nav--next`
+  button, arrows beside the card stack) and
+  `::: swiper-slide-no-shadow` (→ `.ct-swiper__slide.swiper-slide`) via
+  markdown-it-container; emits inert static markup that `useSwipers()`
+  upgrades client-side — Swiper itself never runs at build/SSR time.
 - `theme/markdown/callouts.ts` — MD-002 containers: overrides VitePress's built-in
   info/tip/warning/danger/details renderer rules and registers note/caution/important
   fresh; emits `.ct-callout .ct-callout--<kind>` cards with `.ct-callout__title`
@@ -306,6 +334,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
   `code.copy`/`code.copied` (STYLE-004),
+  `swiper.prev`/`swiper.next` (COMP-002 deck arrows),
   `window.close` (THEME-003), `search.*` — open/title/inputTitle/resultsTitle/
   placeholder/hint + idle/loading/empty/error/unconfigured status + poweredBy
   (Algolia attribution) (SEARCH-002),
@@ -346,6 +375,23 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   copies the `.ct-code pre code` source and flashes a localized "Copied"
   (`--copied` class, WeakSet guards the flash); `[data-ct-code-copy-label]` +
   aria/title re-localized on mount, `onContentUpdated`, and language switch.
+- `theme/composables/useLightbox.ts` — COMP-002 enlarge-on-click gallery:
+  marks every `.ct-content img` (skipping linked / `data-no-lightbox` images)
+  with `data-fancybox="ct-gallery"` on mount + `onContentUpdated`, lazy-loads
+  Fancybox (client-only) and keeps ONE delegated bind; re-binds on language
+  switch with the vendor's shipped l10n tables mapped from theme tags
+  (`en` → `en`, `zh-Hans` → `zh_CN`, primary-subtag → English fallback — the
+  documented vendor-chrome exception to the locale-table rule).
+- `theme/composables/useSwipers.ts` — COMP-002 deck initializer: lazy-loads
+  Swiper + EffectCards + Navigation and instantiates every uninitialized
+  `.ct-swiper__deck` with `effect: 'cards'`, `slideShadows: false`,
+  `grabCursor`, arrows wired to the sibling `.ct-swiper__nav--prev/--next`
+  buttons in the `.ct-swiper` wrapper; sets
+  `draggable=false` on slide images (native ghost-image drag would hijack the
+  swipe); localizes the arrows' aria-label/title from the locale table
+  (`swiper.prev`/`swiper.next`) on init + language switch; prunes/destroys
+  instances whose element left the DOM after navigation, destroys all on
+  unmount. Client-only, no-op during SSR.
 - `theme/composables/useFontSettings.ts` — THEME-007 content font preferences
   (singleton): `family` (`default`/sans/serif/mono) + `size` (small/medium/large),
   mirrored onto `<html data-ct-font-*>` (attr only for a non-default value),
@@ -410,7 +456,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/composables/useViewportScroll.ts` — router-facing scroll behaviors for
   the fixed frame (THEME-008), wired to the viewport ref from Layout: on
   `onContentUpdated` jumps to the URL-hash target or resets the panel to top
-  (VitePress's own window.scrollTo is a no-op); a panel click listener scrolls
+  (VitePress's own window.scrollTo is a no-op) — but ONLY when
+  `page.relativePath` changed since the last run: the hook also fires on
+  same-page re-renders (in-place language switch, dev-mode updates, COMP-002
+  lightbox DOM work), which must keep the reading position; a panel click
+  listener scrolls
   same-page anchor targets (footnotes/header anchors) smoothly into view.
 - `theme/composables/useSiteText.ts` — localized site `title`/`description`
   (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
@@ -449,7 +499,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
   `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
   `useSearchShortcut()` (binds `/` to open the find palette, SEARCH-002) +
-  `useLocalizedContent()` (I18N-007 `::: lang` block switching) once.
+  `useLocalizedContent()` (I18N-007 `::: lang` block switching) +
+  `useLightbox()` / `useSwipers()` (COMP-002 image containers) once.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -549,7 +600,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  settings/content/card/footer/prefooter-demo/code/callouts (+ `search` after
+  settings/content/card/footer/prefooter-demo/code/callouts/lightbox/swiper
+  (COMP-002 vendor CSS + overrides; `search` after
   `window`, SEARCH-002), then base document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
@@ -690,6 +742,25 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   the `.ct-search__hint` keyboard row and the right-aligned `.ct-search__algolia`
   attribution link (dim → hover accent, 0.9375rem inline SVG). Mono is inherited
   from the window chrome.
+- `theme/styles/_lightbox.scss` — COMP-002 lightbox: `@use`s the Fancybox
+  vendor CSS from node_modules (the SCSS entry is where vendor stylesheets
+  load), zoom-in cursor on marked images, theme-token overlay
+  (`--fancybox-bg` from `--ct-bg` via color-mix, mono chrome font), hidden in
+  print.
+- `theme/styles/_swiper.scss` — COMP-002 deck: `@use`s Swiper core +
+  effect-cards vendor CSS (no navigation CSS — the arrows are the theme's
+  own flex siblings); `.ct-swiper` centered flex row (clamp gap,
+  `-webkit-user-drag: none` on images) around the `.ct-swiper__deck`
+  fixed-aspect (4/3) box (`flex: 1 1 auto; max-width: 24rem; min-width: 0`
+  so it shrinks between the arrows on mobile);
+  `.ct-swiper__slide` in the card finish (border,
+  `--ct-radius`, surface bg, shadowless — the `-no-shadow` flavor), slide
+  `<p>` collapsed so the `object-fit: cover` image owns the card;
+  `.ct-swiper__nav` arrows as 44px TUI buttons beside the deck — mono
+  `❮`/`❯` `::after` chevrons, module-injected vendor SVG hidden,
+  `--ct-main-subtle` hover wash, module-set `swiper-button-disabled`/`-lock`
+  states styled locally; print
+  releases the aspect ratio and hides the arrows.
 - `theme/styles/_statusbar.scss` — bottom statusline: fixed floating panel,
   same panel finish, mono small; inverted accent state `__chip` (main-color bg,
   gray-100 text; `--notfound` swaps to `--ct-error`, THEME-019). A
@@ -719,10 +790,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting incl. a `[main.scss]` file-name code-block card (STYLE-004),
   every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
-  deflists, abbr), math, inline Font Awesome icons (FONT-002), all 8 callout
+  deflists, abbr), math, inline Font Awesome icons (FONT-002), the COMP-002
+  image demos (a lightbox gallery image + a `:::: swiper` /
+  `::: swiper-slide-no-shadow` three-card deck), all 8 callout
   types + custom-title example (MD-002), the defaulted, fully overridden, and
   prompt-free COMP-001 card demo (including current-page path defaults and a long
   overridden path for prompt-overflow behavior), and localized explorer title
   metadata.
+- `public/images/demo-terminal-{1,2,3}.svg` — static demo art for the COMP-002
+  image demos: three 800×600 terminal-mock SVGs in the theme palette (session /
+  split panes / paper mode), served from the VitePress public dir as
+  `/images/…`.
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`) with
   localized explorer title metadata.

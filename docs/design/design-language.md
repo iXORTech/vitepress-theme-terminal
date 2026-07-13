@@ -2,7 +2,7 @@
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-12.
+> Last updated: 2026-07-13.
 
 ## 1. Identity
 
@@ -315,6 +315,74 @@ VitePress strips the bracket), so it never collides with the `{highlight}` /
 `data-ct-code-copy-label` so the client re-localizes it on a language switch
 (useCodeCopy), which also copies the block source and flashes a localized "Copied";
 styles in `styles/_code.scss`.
+
+**Image containers (COMP-002)** — content images are interactive by default:
+
+- **Lightbox** — every image in the article body enlarges on click, opening in a
+  [Fancybox](https://fancyapps.com/fancybox/) overlay; all of a page's content
+  images join **one gallery**, so the reader can browse them as slides with the
+  arrow controls/keys. Images wrapped in a link are left alone (the link wins),
+  and an author can opt a single image out with a `data-no-lightbox` attribute.
+- **Swiper cards** — a `:::: swiper` markdown container with nested
+  `::: swiper-slide-no-shadow` blocks renders its images as
+  [SwiperJS](https://swiperjs.com/) slides using the **cards effect** — the
+  slides sit stacked on top of each other like a deck and are swiped/dragged
+  away, or stepped with the **prev/next arrow controls** flanking the deck
+  (TUI text chevrons `❮`/`❯` — the explorer's glyph family — not the vendor's
+  SVG arrows; accessible names localized via `swiper.prev`/`swiper.next`);
+  the `-no-shadow` flavor renders the cards **without** Swiper's own
+  slide-shadow overlay (the theme's card finish supplies the depth instead).
+  The exact block syntax:
+
+  ```markdown
+  :::: swiper
+  ::: swiper-slide-no-shadow
+  ![First](/images/first.png)
+  :::
+  ::: swiper-slide-no-shadow
+  ![Second](/images/second.png)
+  :::
+  ::::
+  ```
+
+Both libraries are client-only and load **lazily on demand** (dynamic import on
+mount), so they never run during SSR and cost nothing on pages without images.
+Their UI text follows the language switcher through **Fancybox's own shipped
+l10n tables** (mapped from the theme's canonical tags — `en` → `en`,
+`zh-Hans` → `zh_CN` — with the usual primary-subtag → English fallback): the
+lightbox chrome is vendor UI with a complete vendor translation set, so the
+theme maps languages to tables instead of duplicating ~20 vendor strings into
+its own locale files (recorded exception to §9's locale-table rule). Slides
+render in the theme's card visual language: rounded frame, `--ct-border`
+border, surface background.
+
+**Dependency & license note:** `@fancyapps/ui` is pinned to **v5** — the last
+line dual-licensed GPLv3 / commercial (v6 moved to a commercial-only license);
+sites using the theme's lightbox commercially need their own Fancybox license.
+Swiper is MIT.
+
+*Implemented (COMP-002):* the `:::: swiper` / `::: swiper-slide-no-shadow`
+containers are registered in `theme/markdown/swiper.ts`, emitting a
+`.ct-swiper` flex row of prev `<button>` · `.ct-swiper__deck.swiper` (holding
+`.swiper-wrapper > .ct-swiper__slide.swiper-slide`) · next `<button>` — the
+arrows are laid out **beside** the card stack, never over the images, and the
+deck shrinks between them on narrow viewports;
+`useLightbox()` marks content images (`data-fancybox="ct-gallery"`, skipping
+linked/opted-out ones) on mount/navigation and binds one delegated Fancybox
+instance, re-bound with the mapped l10n on language switch; `useSwipers()`
+instantiates the cards-effect Swiper per container on mount/navigation
+(Navigation module wired to the emitted buttons; native image dragging
+disabled on the slides so the browser's ghost-image drag cannot hijack the
+swipe) and destroys stale instances; the arrows' accessible names come from
+the theme locale table (`swiper.prev`/`swiper.next`), re-applied on language
+switch. Both composables are called once from the layout. Related shell fix:
+`useViewportScroll` (THEME-008) only resets the panel scroll when the route's
+`relativePath` actually changed — `onContentUpdated` also fires on same-page
+re-renders (in-place language switches, dev-mode updates, lightbox DOM work),
+and those must never move the reader.
+Vendor stylesheets are pulled in through the theme's SCSS entry partials
+`styles/_lightbox.scss` / `styles/_swiper.scss`, which also carry the theme
+overrides (zoom-in cursor, theme-token backdrop/chrome, card-finish slides).
 
 **Author & license system (CONF-002)** — the author identity and the content license
 are configured once, in `themeConfig`, and every consuming surface reads from that

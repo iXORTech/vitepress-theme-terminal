@@ -1,0 +1,30 @@
+// ============================================================================
+// _lightbox.scss — enlarge-on-click image gallery (COMP-002)
+// ============================================================================
+// Pulls in the Fancybox vendor stylesheet (the SCSS entry is where the theme
+// loads vendor CSS — AGENTS.md §6.3) and layers the theme's own chrome on
+// top: a zoom affordance on gallery images and theme-token colors on the
+// overlay so the lightbox reads as part of the TUI shell in every mode.
+
+// Vendor stylesheet (resolved from node_modules by the Vite sass importer).
+@use "@fancyapps/ui/dist/fancybox/fancybox.css";
+
+// Marked content images advertise the enlarge-on-click behavior.
+.ct-content img[data-fancybox] {
+  cursor: zoom-in;
+}
+
+// Theme the overlay: near-opaque page background as the backdrop (mode-aware)
+// and the TUI mono face for the chrome (counter, captions).
+.fancybox__container {
+  --fancybox-bg: color-mix(in srgb, var(--ct-bg) 94%, transparent);
+
+  font-family: var(--ct-font-mono);
+}
+
+// The lightbox never prints — paper gets the article, not the overlay.
+@media print {
+  .fancybox__container {
+    display: none;
+  }
+}

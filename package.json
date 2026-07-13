@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@fancyapps/ui": "^5.0.36",
     "markdown-it-abbr": "^2.0.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-deflist": "^3.0.1",
@@ -11,6 +12,7 @@
     "markdown-it-sub": "^2.0.0",
     "markdown-it-sup": "^2.0.0",
     "sass": "^1.101.0",
+    "swiper": "^14.0.5",
     "vitepress": "2.0.0-alpha.18",
     "vue": "^3.5.39"
   },

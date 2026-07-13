@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Demo image 2 — "panels" · theme-palette terminal art (COMP-002 demo) -->
+  <rect width="800" height="600" fill="#161616"/>
+  <rect x="60" y="80" width="330" height="440" rx="12" fill="#262626" stroke="#393939"/>
+  <rect x="410" y="80" width="330" height="200" rx="12" fill="#262626" stroke="#78a9ff"/>
+  <rect x="410" y="320" width="330" height="200" rx="12" fill="#262626" stroke="#393939"/>
+  <g font-family="IBM Plex Mono, Menlo, monospace" font-size="22">
+    <text x="90" y="140" fill="#ff7eb6">~ EXPLORER</text>
+    <text x="90" y="190" fill="#f4f4f4">❯ 📁 guide/</text>
+    <text x="90" y="230" fill="#f4f4f4">  - index.md</text>
+    <text x="90" y="270" fill="#80e0a7">  - deep-dive.md</text>
+    <text x="440" y="140" fill="#78a9ff">~ BUFFER 2</text>
+    <text x="440" y="190" fill="#f4f4f4">split panes,</text>
+    <text x="440" y="230" fill="#f4f4f4">one deck</text>
+    <text x="440" y="380" fill="#525252">~ BUFFER 3</text>
+    <text x="440" y="430" fill="#525252">(inactive)</text>
+  </g>
+  <text x="700" y="560" font-family="IBM Plex Mono, Menlo, monospace" font-size="28" fill="#78a9ff" text-anchor="end">[ 2 / 3 ]</text>
+</svg>

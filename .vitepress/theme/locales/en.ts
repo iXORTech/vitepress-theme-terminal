@@ -113,6 +113,31 @@ export const en = {
   'comments.title': 'Comments',
   'comments.views': 'Views',
 
+  // Posts, taxonomy & listing pages (POST-001). `{term}` is interpolated with
+  // the active tag/category name by TermPosts.vue.
+  'post.postsTitle': 'Posts',
+  'post.archivesTitle': 'Archives',
+  'post.categoriesTitle': 'Categories',
+  'post.tagsTitle': 'Tags',
+  'post.categories': 'Categories',
+  'post.tags': 'Tags',
+  'post.empty': 'No posts yet',
+  'post.undated': 'Undated',
+  'post.taggedWith': 'Posts tagged {term}',
+  'post.inCategory': 'Posts in {term}',
+  'post.allTags': 'All tags',
+  'post.allCategories': 'All categories',
+  'post.pagination': 'Pagination',
+  'post.prevPage': 'Previous',
+  'post.nextPage': 'Next',
+
+  // Series article breadcrumb (ARCH-001; full series chrome lands in POST-002)
+  'series.label': 'Series',
+
+  // 404 page type (ARCH-001)
+  'notFound.title': 'Page not found',
+  'notFound.home': 'Back to home',
+
   // Callout default titles (MD-002)
   'callout.info': 'Info',
   'callout.note': 'Note',

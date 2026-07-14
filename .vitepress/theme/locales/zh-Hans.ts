@@ -99,6 +99,30 @@ export const zhHans: ThemeLocaleStrings = {
   'comments.title': '评论',
   'comments.views': '浏览',
 
+  // Posts, taxonomy & listing pages (POST-001)
+  'post.postsTitle': '文章',
+  'post.archivesTitle': '归档',
+  'post.categoriesTitle': '分类',
+  'post.tagsTitle': '标签',
+  'post.categories': '分类',
+  'post.tags': '标签',
+  'post.empty': '暂无文章',
+  'post.undated': '未标注日期',
+  'post.taggedWith': '标签 {term} 下的文章',
+  'post.inCategory': '分类 {term} 下的文章',
+  'post.allTags': '全部标签',
+  'post.allCategories': '全部分类',
+  'post.pagination': '分页',
+  'post.prevPage': '上一页',
+  'post.nextPage': '下一页',
+
+  // Series article breadcrumb (ARCH-001)
+  'series.label': '系列',
+
+  // 404 page type (ARCH-001)
+  'notFound.title': '页面未找到',
+  'notFound.home': '返回主页',
+
   // Callout default titles
   'callout.info': '信息',
   'callout.note': '备注',

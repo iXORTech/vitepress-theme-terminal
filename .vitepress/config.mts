@@ -51,7 +51,12 @@ const themeConfig: TerminalThemeConfig = {
   // `actions` are extra icon slots (Font Awesome) shown before the built-in
   // search / color-mode controls, for important social links or external tools.
   toolbar: {
-    nav: [{ text: { en: "guide", "zh-Hans": "指南" }, link: "/guide/" }],
+    nav: [
+      { text: { en: "guide", "zh-Hans": "指南" }, link: "/guide/" },
+      { text: { en: "posts", "zh-Hans": "文章" }, link: "/posts" },
+      { text: { en: "tags", "zh-Hans": "标签" }, link: "/tags" },
+      { text: { en: "archives", "zh-Hans": "归档" }, link: "/archives" },
+    ],
     actions: [
       {
         icon: "fa-brands fa-github",

@@ -7,6 +7,16 @@ import DemoLayout from './DemoLayout.vue'
 // Theme styles: single SCSS entry; all styling lives in `styles/` partials.
 import './styles/main.scss'
 
+// Listing components (POST-001) used inside the generated listing pages
+// (`posts.md`, `archives.md`, `categories.md`, `tags.md`, and the
+// `categories/[name]` / `tags/[name]` / `page/[num]` routes). Registered
+// globally so those markdown files can place them without a per-file import.
+import ArchivesList from './components/ArchivesList.vue'
+import CategoriesIndex from './components/CategoriesIndex.vue'
+import PostsIndex from './components/PostsIndex.vue'
+import TagsIndex from './components/TagsIndex.vue'
+import TermPosts from './components/TermPosts.vue'
+
 // Export the reusable card for future theme components (COMP-001).
 export { default as Card } from './components/Card.vue'
 
@@ -18,7 +28,12 @@ export default {
   // Demo wrapper (THEME-006 example); the theme's own Layout is the named
   // export above — swap this back to it to ship without the demo section.
   Layout: DemoLayout,
-  enhanceApp({ app, router, siteData }) {
-    // ...
+  enhanceApp({ app }) {
+    // Listing components for the POST-001 content pages (ARCH-001 architecture).
+    app.component('PostsIndex', PostsIndex)
+    app.component('ArchivesList', ArchivesList)
+    app.component('CategoriesIndex', CategoriesIndex)
+    app.component('TagsIndex', TagsIndex)
+    app.component('TermPosts', TermPosts)
   }
 } satisfies Theme

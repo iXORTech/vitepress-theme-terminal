@@ -108,6 +108,16 @@ This generalizes the current ad-hoc branching in `Layout.vue` — the placeholde
 home branch and the `isArticle` guard that appends `ArticleMeta` / `ArticleLicense`
 / `ArticleComments` — into one explicit, extensible page-type layer.
 
+> **Implemented (ARCH-001, 2026-07-14).** The resolver is
+> `.vitepress/theme/utils/pageType.ts` `resolvePageType()`, called by `Layout.vue`
+> to pick a `theme/pages/*Page.vue`. The explicit override key is frontmatter
+> `pageType` (one of the six type names). `article: false` drops a post/series
+> article to the normal type; `license: false` / `comments: false` still drop just
+> the respective end-of-article cards within `PostPage`. The series-article banner
+> is currently derived from the folder name — the `series.yml` icon/title chrome
+> is completed by POST-002. `NotFoundPage` is client-rendered: VitePress emits a
+> `404.html` with an empty app root that hydrates through the dispatch.
+
 ## 5. Series configuration
 
 Each series folder under `src/series/` carries a config file (the reference uses
@@ -133,3 +143,14 @@ COMP-002 swiper demo.
 | Tags, categories, archives, and their listing/route pages | `POST-001` |
 | Posts, series, series config, archive-inclusion toggles | `POST-002` |
 | Home / Projects / About / Friends normal pages | `PAGE-001`…`PAGE-004` |
+
+> **Implemented (POST-001, 2026-07-14).** Posts under `src/posts/` declare
+> `tags` / `categories` (a string or a list) in frontmatter; each becomes a link
+> to `/tags/<slug>` or `/categories/<slug>` (slug = lowercased, accent-stripped,
+> space-to-`-`). The build-time index is `.vitepress/theme/posts.data.mts`
+> (a `createContentLoader('posts/**/*.md')`), with the aggregation helpers in
+> `theme/posts.ts` shared by the dynamic-route `[name].paths.mjs` loaders. The
+> post index paginates at `POSTS_PER_PAGE = 10`: **page 1 is `/posts`**, and
+> `/page/<n>` covers pages 2…N. Series articles are intentionally excluded from
+> these listings — whether they join is a POST-002 toggle. Labels are localized
+> (`post.*`); the tag/category *names* are authored content and stay verbatim.

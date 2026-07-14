@@ -1,0 +1,11 @@
+# Series configuration (content-architecture.md §5). The schema — localized
+# icon/title/description and the archive-inclusion toggles — is finalized and
+# parsed by POST-002; for now this file establishes the structure.
+title:
+  en: Terminal Internals
+  zh-Hans: 终端内幕
+description:
+  en: A short series on how the theme's shell is built.
+  zh-Hans: 关于主题外壳如何构建的简短系列。
+icon: nf-fa-terminal
+order: 0

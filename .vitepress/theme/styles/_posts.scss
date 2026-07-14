@@ -1,0 +1,333 @@
+// ============================================================================
+// _posts.scss — posts, taxonomy & listing pages (ARCH-001 / POST-001)
+// ============================================================================
+// Styles for the post byline (PostTaxonomy on PostPage), the reusable post
+// cards (PostList), the listing pages (post index, archives, tag/category
+// indexes, per-term listings), pagination, the series-article breadcrumb, and
+// the 404 page. Scoped under `.ct-content` so these rules out-specify the base
+// markdown list/heading styling (_content.scss) — the components render inside
+// the content column. Mono chrome, accent links, and the theme's card finish,
+// consistent with the rest of the TUI (design-language.md §4).
+
+.ct-content {
+  // --------------------------------------------------------------------------
+  // Taxonomy links (post byline + card footers)
+  // --------------------------------------------------------------------------
+  .ct-taxonomy {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem 1rem;
+    align-items: baseline;
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+  }
+
+  .ct-taxonomy__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    align-items: baseline;
+  }
+
+  .ct-taxonomy__label {
+    color: var(--ct-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+  }
+
+  .ct-taxonomy__term {
+    color: var(--ct-link);
+    text-decoration: none;
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-small);
+    transition: background 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background: var(--ct-main-subtle);
+      border-color: var(--ct-main-border);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Post byline above the article body (PostPage)
+  // --------------------------------------------------------------------------
+  .ct-post-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--ct-border);
+  }
+
+  .ct-post-header__date {
+    margin: 0;
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+    color: var(--ct-text-dim);
+  }
+
+  // --------------------------------------------------------------------------
+  // Listing page shell (shared by every listing component)
+  // --------------------------------------------------------------------------
+  .ct-listing__title {
+    margin-top: 0;
+  }
+
+  .ct-listing__back {
+    margin-top: -0.5rem;
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+  }
+
+  // --------------------------------------------------------------------------
+  // Post cards (PostList)
+  // --------------------------------------------------------------------------
+  .ct-postlist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-gap);
+  }
+
+  .ct-postlist__item {
+    margin: 0;
+  }
+
+  .ct-postcard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius);
+    background: var(--ct-surface);
+  }
+
+  .ct-postcard__title {
+    margin: 0;
+    font-size: 1.25rem;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .ct-postcard__date {
+    margin: 0;
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    color: var(--ct-text-dim);
+  }
+
+  .ct-postcard__excerpt {
+    margin: 0;
+    color: var(--ct-text-neutral);
+  }
+
+  .ct-postlist__empty {
+    font-family: var(--ct-font-mono);
+    color: var(--ct-text-dim);
+  }
+
+  // --------------------------------------------------------------------------
+  // Pagination (PostsIndex)
+  // --------------------------------------------------------------------------
+  .ct-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+  }
+
+  .ct-pagination__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-small);
+    color: var(--ct-link);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--ct-main-subtle);
+      border-color: var(--ct-main-border);
+    }
+  }
+
+  .ct-pagination__num--active {
+    background: var(--ct-main);
+    border-color: var(--ct-main);
+    color: var(--ct-gray-100);
+
+    &:hover {
+      background: var(--ct-main);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Taxonomy index pages (CategoriesIndex list + TagsIndex cloud)
+  // --------------------------------------------------------------------------
+  .ct-terms__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ct-terms__cloud {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ct-terms__item,
+  .ct-terms__chip {
+    margin: 0;
+  }
+
+  .ct-terms__link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-small);
+    font-family: var(--ct-font-mono);
+    color: var(--ct-link);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--ct-main-subtle);
+      border-color: var(--ct-main-border);
+    }
+  }
+
+  .ct-terms--categories .ct-terms__link {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .ct-terms__count {
+    color: var(--ct-text-dim);
+    font-size: 0.8125rem;
+  }
+
+  // --------------------------------------------------------------------------
+  // Archives timeline (ArchivesList)
+  // --------------------------------------------------------------------------
+  .ct-archives__heading {
+    margin: 1.5rem 0 0.75rem;
+    font-family: var(--ct-font-mono);
+    color: var(--ct-main);
+  }
+
+  .ct-archives__list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 0.5rem;
+    border-left: 1px solid var(--ct-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ct-archives__item {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    margin: 0;
+  }
+
+  .ct-archives__date {
+    flex: 0 0 auto;
+    min-width: 10rem;
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    color: var(--ct-text-dim);
+  }
+
+  .ct-archives__link {
+    text-decoration: none;
+  }
+
+  // --------------------------------------------------------------------------
+  // Series-article breadcrumb (SeriesArticlePage) — full chrome in POST-002
+  // --------------------------------------------------------------------------
+  .ct-series-banner {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    margin-bottom: 1.25rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-small);
+    background: var(--ct-surface);
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+  }
+
+  .ct-series-banner__label {
+    color: var(--ct-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+  }
+
+  .ct-series-banner__name {
+    text-decoration: none;
+  }
+
+  // --------------------------------------------------------------------------
+  // 404 page (NotFoundPage)
+  // --------------------------------------------------------------------------
+  .ct-notfound {
+    text-align: center;
+    padding: 3rem 0;
+  }
+
+  .ct-notfound__code {
+    margin: 0;
+    font-family: var(--ct-font-mono);
+    font-size: 4rem;
+    color: var(--ct-main);
+  }
+
+  .ct-notfound__title {
+    margin: 0.5rem 0;
+    font-size: 1.25rem;
+    color: var(--ct-text-strong);
+  }
+
+  .ct-notfound__home {
+    font-family: var(--ct-font-mono);
+  }
+}
+
+// Mobile: stacked archive rows and full-width term chips (design-language §8).
+@media (max-width: 640px) {
+  .ct-content {
+    .ct-archives__item {
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .ct-archives__date {
+      min-width: 0;
+    }
+  }
+}

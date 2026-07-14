@@ -766,7 +766,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Architecture
 
-- [ ] **ARCH-001** — Content architecture: `src/` layout & page-type components
+- [x] **ARCH-001** — Content architecture: `src/` layout & page-type components
   - **Category:** Architecture · **Deps:** THEME-001, I18N-001
   - **Acceptance criteria:** the `src/` directory follows the content architecture in
     [`docs/design/content-architecture.md`](../docs/design/content-architecture.md)
@@ -791,10 +791,25 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     explorer auto-discovery still works, and `pnpm build` succeeds. The convention is
     recorded in `docs/design/content-architecture.md` and linked from `docs/README.md`
     and `AGENTS.md`.
+    *Landed 2026-07-14: `theme/utils/pageType.ts` `resolvePageType()` classifies a
+    page from its `src/` path + frontmatter (`pageType` override, `home`, fixed
+    listing filenames / `categories|tags|page/` prefixes, `article:false` escape
+    hatch, `series/`|`posts/` prefixes) into six types, each a
+    `theme/pages/*Page.vue` (Home/Normal/Post/SeriesArticle/Listing/NotFound).
+    `Layout.vue` now renders `<component :is=pageComponent>` — the old home
+    placeholder + `isArticle` branching folded into HomePage/PostPage. PostPage
+    owns the article chrome (ArticleMeta/License/Comments) + the POST-001 byline;
+    SeriesArticlePage reuses PostPage under a folder-derived series breadcrumb
+    (full series.yml chrome → POST-002); NotFoundPage is client-rendered (404.html
+    hydrates through the dispatch). `src/` restructured: `posts/` (5 demo posts),
+    `series/terminal-internals/` (index + 2 parts + structural `series.yml`),
+    listing pages and dynamic routes. Existing guide/demo pages render as normal
+    pages (no article cards — by design). Explorer skips dynamic-route templates
+    (`[` in path). Build green; headless-verified.*
 
 ### Content & pages
 
-- [ ] **POST-001** — Tags & categories
+- [x] **POST-001** — Tags & categories
   - **Category:** Content · **Deps:** ARCH-001
   - **Acceptance criteria:** posts/articles declare tags and categories in their
     frontmatter; the listing pages defined by the content architecture
@@ -803,6 +818,22 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     [`docs/design/content-architecture.md`](../docs/design/content-architecture.md))
     list all tags and all categories and the posts under each; post metadata links to
     them; labels localized.
+    *Landed 2026-07-14: posts under `src/posts/` declare `tags`/`categories` (string
+    or list) + `date`/`description` in frontmatter. `theme/posts.ts` (framework-free:
+    `normalizePosts`/`slugify`/`groupByTag`/`groupByCategory`/`pageCount`,
+    `POSTS_PER_PAGE=10`) backs both the `theme/posts.data.mts` content loader (globs
+    `posts/**/*.md`; series excluded — POST-002 owns their inclusion) and the
+    dynamic-route `[name]/[num].paths.mjs` loaders. Listing components (registered
+    globally in `theme/index.ts`): `PostsIndex` (rich cards + `/page/[num]`
+    pagination, page 1 = `/posts`), `ArchivesList` (by-year timeline),
+    `CategoriesIndex`/`TagsIndex` (counts), `TermPosts` (per-tag/-category, slug-
+    matched via route params `{name,term}`), `PostList`/`PostTaxonomy` shared.
+    PostPage byline links each post's categories→`/categories/<slug>` and tags→
+    `/tags/<slug>`. Pages: `posts.md`/`archives.md`/`categories.md`/`tags.md`,
+    `{categories,tags}/[name].md`, `page/[num].md` (+ `.paths.mjs`), `series.md`
+    placeholder. New `post.*`/`series.label` locale keys (en + zh-Hans); styles in
+    `styles/_posts.scss`. Build generated 7 tag / 3 category / page-2 routes;
+    headless-verified pagination, filtering, and zh-Hans re-localization.*
 
 - [ ] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001

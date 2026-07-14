@@ -2,7 +2,27 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-14 (ARCH-001 planning:
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-14 (**ARCH-001 + POST-001
+landed**: page-type architecture + tags/categories. `theme/utils/pageType.ts`
+`resolvePageType()` maps every page (from its `src/` path + frontmatter escape
+hatches) to one of six types, each a `theme/pages/*Page.vue`
+(Home/Normal/Post/SeriesArticle/Listing/NotFound); `Layout.vue` renders
+`<component :is=pageComponent>`, folding away the old home placeholder +
+`isArticle` branching (PostPage now owns ArticleMeta/License/Comments + the
+POST-001 byline; SeriesArticlePage reuses PostPage under a series breadcrumb;
+NotFoundPage is client-rendered). POST-001: posts under `src/posts/` declare
+`tags`/`categories`; `theme/posts.ts` helpers + `theme/posts.data.mts` content
+loader feed the listing components (`PostsIndex` w/ `/page/[num]` pagination,
+`ArchivesList`, `CategoriesIndex`, `TagsIndex`, `TermPosts`, shared
+`PostList`/`PostTaxonomy`, registered globally in `index.ts`) and the dynamic
+routes `src/{categories,tags}/[name].{md,paths.mjs}` + `src/page/[num].*`; listing
+pages `src/{posts,archives,categories,tags,series}.md`; demo `src/posts/*` (5) +
+`src/series/terminal-internals/` (index + 2 parts + structural `series.yml`).
+New `post.*`/`series.label`/`notFound.*` locale keys; `styles/_posts.scss`;
+explorer now skips dynamic-route templates (`[` in path). Existing guide/demo
+pages became normal pages (no article cards — by design). Build green,
+headless-verified 9/10 (the 1 miss was an over-strict URL-string assertion —
+navigation confirmed correct). Earlier 2026-07-14 (ARCH-001 planning:
 extracted the `src/` refactoring out of POST-002 into a new **ARCH-001** task —
 content architecture (`src/` layout modeled on `vitepress-theme-arch/src` + per-
 page-type Vue components) recorded in new binding doc
@@ -308,7 +328,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `themeConfig` demos per-language `title`/`description` maps, an MIT
   `license` (exercises the footer's icon-less text fallback), a `footer`
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
-  generated yet), a `toolbar` block (THEME-005: a `guide` nav tab +
+  generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
+  nav tabs — the last three surface the POST-001 listing pages — +
   a GitHub action icon), and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
   a commented `search.algolia` example documents the SEARCH-001 keys (demo
@@ -415,8 +436,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (Algolia attribution) (SEARCH-002),
   `footer.*` with `{year}/{author}`/`{vitepress}/{theme}`/`{license}`
   placeholders (THEME-004) + temporary `footer.demoCustom` label (THEME-006
-  pre-footer demo) — grows per feature); exports
-  `ThemeLocaleStrings`/`ThemeLocaleKey`.
+  pre-footer demo),
+  `post.*` — postsTitle/archivesTitle/categoriesTitle/tagsTitle + categories/tags
+  (byline labels) + empty/undated/taggedWith/inCategory (`{term}`)/allTags/
+  allCategories/pagination/prevPage/nextPage (POST-001), `series.label`
+  (ARCH-001 series breadcrumb), `notFound.title`/`.home` (ARCH-001 404) —
+  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
 - `theme/locales/index.ts` — framework-free registry (`en`, `zh-Hans`; tag rule
@@ -502,7 +527,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   under the 640px matchMedia query, the desktop retract above it;
   `closeDrawer()`. THEME-011: per-folder expanded state remains in
   `ct-explorer-nodes`; route-only reveals and current-view user overrides live
-  in transient state and are cleared after navigation.
+  in transient state and are cleared after navigation. ARCH-001: discovery now
+  skips dynamic-route source templates (relativePath containing `[`, e.g.
+  `tags/[name].md`, `page/[num].md`) — only their generated listing routes are
+  real, and those are not file-tree entries.
 - `theme/composables/useFloatingWindow.ts` — shared floating-window singleton
   (THEME-003/016/017): `active` shallowRef holding the current utility payload
   `{ id, label(), panes: [{ title(), icon?, component }] }` — `label()` names
@@ -558,10 +586,26 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `data-ct-mode` attribute set pre-paint by head.ts, persists to localStorage
   `ct-mode`; SSR-safe.
 - `theme/index.ts` — theme entry: default-exports `DemoLayout` (the demo site's
-  wrapper filling the `pre-footer` slot, THEME-006) + empty `enhanceApp`, and
-  named-exports the reusable `Card` component and the theme's own `Layout` (so
-  users can wrap it to fill the slot); imports `styles/main.scss`. Swap the
+  wrapper filling the `pre-footer` slot, THEME-006); `enhanceApp` globally
+  registers the POST-001 listing components (`PostsIndex`, `ArchivesList`,
+  `CategoriesIndex`, `TagsIndex`, `TermPosts`) so the listing `.md` pages can
+  place them without per-file imports; named-exports the reusable `Card`
+  component and the theme's own `Layout`; imports `styles/main.scss`. Swap the
   default `Layout` back to the real one to ship without the demo section.
+- `theme/posts.ts` — POST-001 framework-free post helpers: `PostEntry`/`RawContentEntry`/
+  `TermGroup` types; `normalizePosts(raw)` (maps + date-sorts the content-loader
+  output, unzoned `YYYY-MM-DD` = UTC), `toStringList`, `slugify` (the `/tags`,
+  `/categories` URL slug), `groupByTag`/`groupByCategory` (term → posts, most-used
+  first), `POSTS_PER_PAGE=10`, `pageCount`. Imported by the data loader, the
+  dynamic `.paths.mjs` route loaders, and the listing components.
+- `theme/posts.data.mts` — POST-001 VitePress data loader: `createContentLoader(
+  'posts/**/*.md', { excerpt })` → `normalizePosts`; exports typed `data:
+  PostEntry[]` inlined at build. Series articles excluded (POST-002 owns their
+  inclusion). Components import `{ data as posts }` from it.
+- `theme/utils/date.ts` — POST-001 deterministic date helpers: `formatListDate`
+  (ISO → localized `long` date in **UTC** so SSR/hydration agree — unlike the
+  license card's reader-timezone formatter), `toIsoDate` (frontmatter date shape
+  → ISO, unzoned = UTC), `yearOf` (UTC year for archive grouping).
 - `theme/DemoLayout.vue` — temporary THEME-006 demo wrapper: wraps `Layout.vue`
   and fills its `#pre-footer` slot with `PreFooterDemo.vue` — the exact
   extend-and-wrap pattern a consuming site uses. Registered as this demo site's
@@ -571,25 +615,46 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   name (`useSiteText`); right = a Font Awesome icon (`fa-palette`), a Nerd Font
   icon (`.ct-prefooter-demo__nf`), and the localized `footer.demoCustom` label.
   Demonstrates arbitrary content, both icon systems, and i18n inside the slot.
-- `theme/Layout.vue` — the TUI shell (THEME-001/008): `.ct-shell` composing
-  `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when `useExplorer().available`
-  (THEME-002: tree configured ∧ not paper mode; truly unrendered otherwise)
-  beside the `.ct-viewport` panel (template ref wired to
-  `useViewportScroll()`; wraps `.ct-content` with the placeholder home branch —
-  localized title/description, PAGE-001 pending — or `<Content/>`, then the
-  `.ct-footer-region` (THEME-004/006): it owns the full separator and wraps the
-  optional `.ct-prefooter` (rendered only when the `pre-footer` slot is filled —
-  `$slots['pre-footer']`) above `<SiteFooter :divided="…" />`) —
-  `<StatusBar/>`, and the shared `<FloatingWindow/>` (THEME-003); calls
-  `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
-  `useSearchShortcut()` (binds `/` to open the find palette, SEARCH-002) +
-  `useLocalizedContent()` (I18N-007 `::: lang` block switching) +
-  `useLightbox()` / `useSwipers()` (COMP-002 image containers) +
-  `useWaline()` (COMP-004 comments) once. Under an `isArticle` guard (not
-  home / not 404 / not `article:false`) the non-home content branch renders
-  `<ArticleMeta>` (above `<Content>`, when comments configured), then
-  `<ArticleLicense>` (COMP-003, unless `license:false`) and `<ArticleComments>`
-  (COMP-004, when configured, unless `comments:false`) after it.
+- `theme/Layout.vue` — the TUI shell (THEME-001/008 + ARCH-001 dispatch): `.ct-shell`
+  composing `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when
+  `useExplorer().available` (THEME-002: tree configured ∧ not paper mode)
+  beside the `.ct-viewport` panel (template ref wired to `useViewportScroll()`;
+  wraps `.ct-content` with a single **page-type dispatch** — `<component
+  :is=pageComponent>` where `pageComponent` maps `resolvePageType(page,
+  frontmatter)` → the matching `pages/*Page.vue` — then the `.ct-footer-region`
+  (THEME-004/006) with the optional `.ct-prefooter` slot above
+  `<SiteFooter :divided/>`) — `<StatusBar/>`, and the shared `<FloatingWindow/>`
+  (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
+  License/Comments) moved into HomePage/PostPage. Still calls
+  `useCalloutTitles()` + `useCodeCopy()` + `useNerdFont()` + `useSearchShortcut()`
+  + `useLocalizedContent()` + `useLightbox()` / `useSwipers()` + `useWaline()`
+  once (these are shell-wide, independent of page type).
+- `theme/utils/pageType.ts` — ARCH-001 page-type resolver (framework-free):
+  `PageType` = home|normal|post|series|listing|notFound; `resolvePageType({
+  relativePath, isNotFound, frontmatter })` precedence = not-found → `pageType`
+  frontmatter override → `home` → fixed listing filenames
+  (`posts/archives/categories/tags/series.md`) & dynamic prefixes
+  (`categories/`,`tags/`,`page/`) → `article:false` escape hatch (→ normal) →
+  `series/`|`posts/` prefixes → normal. Single dispatch point for Layout.
+- `theme/pages/HomePage.vue` — ARCH-001 home type: localized welcome placeholder
+  (title/description via `useSiteText`, links to posts/demos), no `<Content/>`
+  or article chrome; PAGE-001 replaces it with the prompt-card welcome.
+- `theme/pages/NormalPage.vue` — ARCH-001 normal type: bare `<Content/>`, no
+  article footer (about/projects/guide/demo pages).
+- `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline: `<ArticleMeta>`
+  (when comments configured), a `.ct-post-header` byline (formatted date +
+  `<PostTaxonomy>` category/tag links), `<Content/>`, then `<ArticleLicense>`
+  (unless `license:false`) and `<ArticleComments>` (when configured, unless
+  `comments:false`). Reused wholesale by SeriesArticlePage.
+- `theme/pages/SeriesArticlePage.vue` — ARCH-001 series type: a
+  `.ct-series-banner` breadcrumb (series folder name → `/series/<name>/`; full
+  `series.yml` icon/title chrome deferred to POST-002) above `<PostPage/>`.
+- `theme/pages/ListingPage.vue` — ARCH-001 listing type: bare `<Content/>`; the
+  listing `.md` files place the relevant globally-registered listing component,
+  and this type carries no article footer.
+- `theme/pages/NotFoundPage.vue` — ARCH-001 404 type: minimal localized
+  not-found (`notFound.title`/`.home`) inside the shell; client-rendered
+  (VitePress's `404.html` app div is empty and hydrates through the dispatch).
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -653,6 +718,31 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   a small mono strip (eye + comment FA icons) with `.ct-article-meta__views` /
   `.ct-article-meta__comments` count spans (localized aria-labels) that Waline
   populates; rendered above the content on articles when comments are configured.
+- `theme/components/PostTaxonomy.vue` — POST-001 categories/tags as links
+  (shared by PostPage byline + PostList cards): categories → `/categories/<slug>`,
+  tags → `/tags/<slug>` (`slugify`, `withBase`); localized `post.categories`/
+  `post.tags` labels; term names verbatim (`#tag` marker on tags).
+- `theme/components/PostList.vue` — POST-001 reusable list of post cards
+  (PostsIndex / TermPosts): per post a `.ct-postcard` (title link · date via
+  `formatListDate` · excerpt · `<PostTaxonomy>`); localized `post.empty` when
+  the list is empty.
+- `theme/components/PostsIndex.vue` — POST-001 post-index landing + pagination:
+  reads `posts.data.mts`, slices the current page (`useData().params.num`,
+  else 1), renders `<PostList>` + a `.ct-pagination` nav (prev · numbered ·
+  next; page 1 = `/posts`, deeper = `/page/<n>`). Rendered by both `posts.md`
+  and `page/[num].md`.
+- `theme/components/ArchivesList.vue` — POST-001 by-year timeline: groups the
+  date-sorted posts by descending UTC year (`yearOf`) into `.ct-archives__year`
+  sections of date + title rows; no cards/excerpts. Rendered by `archives.md`.
+- `theme/components/CategoriesIndex.vue` / `TagsIndex.vue` — POST-001 taxonomy
+  indexes: `groupByCategory`/`groupByTag(posts)` → a list (categories) / cloud
+  (tags) of `/…/<slug>` links with post counts. Rendered by `categories.md` /
+  `tags.md`.
+- `theme/components/TermPosts.vue` — POST-001 per-tag/-category listing (the
+  `field` prop selects the taxonomy): reads route params `{ name: slug, term:
+  display }` from the `[name].paths.mjs` loaders, filters posts by slug match,
+  shows the localized `post.taggedWith`/`post.inCategory` heading, a back link
+  to the index, and `<PostList>`. Rendered by `{tags,categories}/[name].md`.
 - `theme/components/FloatingWindow.vue` — the single shared floating utility
   window (THEME-003/016/017), rendered once from Layout: `role="dialog"` +
   aria-modal container over a dimmed backdrop, stacking the active utility's
@@ -711,10 +801,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  settings/content/card/license/comments/footer/prefooter-demo/code/callouts/
-  lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after `window`,
-  SEARCH-002; `license`/`comments` after `card`, COMP-003/004), then base
-  document styles
+  settings/content/**posts**/card/license/comments/footer/prefooter-demo/code/
+  callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
+  `window`, SEARCH-002; `license`/`comments` after `card`, COMP-003/004;
+  `posts` after `content`, ARCH-001/POST-001), then base document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
@@ -754,6 +844,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-lang` rules: `display: contents` (layout-neutral wrapper) with
   `.ct-lang[hidden]{display:none}` winning by specificity so hidden
   language blocks leave the flow.
+- `theme/styles/_posts.scss` — ARCH-001/POST-001 posts, taxonomy & listing
+  styles, all scoped under `.ct-content` (out-specifies the base markdown
+  list/heading rules): `.ct-taxonomy` link chips + `.ct-post-header` byline;
+  `.ct-postlist`/`.ct-postcard` cards (surface + border, radius); `.ct-pagination`
+  mono buttons (`--num--active` = accent fill); `.ct-terms__list`/`__cloud`
+  index chips with counts; `.ct-archives` year timeline (border-left guide,
+  fixed-width mono date); `.ct-series-banner` breadcrumb; `.ct-notfound` centered
+  404. Mono chrome, accent hover (`--ct-main-subtle`/`--ct-main-border`); ≤640px
+  stacks archive rows.
 - `theme/styles/_settings.scss` — THEME-007: maps `<html data-ct-font-family|size>`
   to `--ct-content-font`/`--ct-content-font-size` (default family = no attr =
   follow mode; medium size = base), and styles the settings-panel controls —
@@ -941,3 +1040,29 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `/images/…`.
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`) with
   localized explorer title metadata.
+- `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —
+  ARCH-001/POST-001 demo posts (post page type): each declares `title`/`date`/
+  `categories`/`tags`/`description` frontmatter. Dates span 2024–2025 (exercise
+  the archives year grouping); categories Guides/Design/Ops and overlapping tags
+  (vitepress/theme/tui/terminal/color/markdown/deploy) give the tag/category
+  listings multiple posts; 5 posts × 3/page = 2 index pages.
+- `series/terminal-internals/{index,part-1,part-2}.md` + `series.yml` — ARCH-001
+  demo series (series-article page type): `index.md` landing + two ordered parts;
+  `series.yml` (localized icon/title/description + `order`) is a structural
+  placeholder — POST-002 finalizes and parses the schema. Series articles are not
+  aggregated into the POST-001 post listings.
+- `posts.md`/`archives.md`/`categories.md`/`tags.md` — POST-001 listing pages
+  (listing page type): each places its globally-registered component
+  (`<PostsIndex/>`/`<ArchivesList/>`/`<CategoriesIndex/>`/`<TagsIndex/>`); the
+  component renders the localized heading, so the files carry only a plain-string
+  `title` frontmatter for the browser tab.
+- `series.md` — POST-002 placeholder series index (listing type): a heading + a
+  link to the demo series so the route exists.
+- `categories/[name].{md,paths.mjs}`, `tags/[name].{md,paths.mjs}` — POST-001
+  dynamic taxonomy routes: the `.md` places `<TermPosts field="categories|tags"/>`;
+  the `.paths.mjs` loader runs `createContentLoader('posts/**/*.md')` →
+  `groupBy{Category,Tag}` and emits one path per term (`params { name: slug, term:
+  display }`). Build generated 3 category + 7 tag pages.
+- `page/[num].{md,paths.mjs}` — POST-001 post-index pagination: `<PostsIndex/>`;
+  the loader emits `/page/2 … /page/N` (page 1 lives at `/posts`). Build generated
+  `/page/2`.

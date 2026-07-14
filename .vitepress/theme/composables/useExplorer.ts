@@ -179,7 +179,15 @@ function toExplorerItem(
 function discoverExplorer(): TerminalExplorerItem[] {
   const root: ExplorerBranch = { name: '', children: new Map() }
   const pages = Object.values(sourcePages)
-    .filter((page) => page.relativePath.endsWith('.md') && !page.isNotFound)
+    .filter(
+      (page) =>
+        page.relativePath.endsWith('.md') &&
+        !page.isNotFound &&
+        // Skip dynamic-route source templates (e.g. `tags/[name].md`,
+        // `page/[num].md`) — only their generated pages are real routes, and
+        // those are listing routes, not file-tree entries (POST-001).
+        !page.relativePath.includes('['),
+    )
     .sort((left, right) => left.relativePath.localeCompare(right.relativePath))
 
   for (const data of pages) {

@@ -416,9 +416,13 @@ and the author & license system above:
   date prefers an explicit frontmatter `updated`/`lastUpdated` and otherwise
   uses VitePress's git-derived `lastUpdated` timestamp (`lastUpdated: true` in
   the site config). Dates accept any frontmatter shape (a bare `YYYY-MM-DD`, a
-  full ISO datetime with an offset, a YAML `Date`, or a numeric timestamp) and
-  are formatted in UTC — deterministic/SSR-safe and free of a local-timezone
-  off-by-one. A Creative Commons license also draws a large, faint **CC
+  full ISO datetime with an offset, a YAML `Date`, or a numeric timestamp).
+  Explicit timezone offsets and `Z` values preserve their source instant; a
+  frontmatter value without a timezone is interpreted as UTC. The SSR and
+  initial client render use UTC, then the card formats both dates in the
+  reader's current timezone after hydration, so a date near midnight may show
+  a different local calendar day. A Creative Commons license also draws a large,
+  faint **CC
   watermark** that spans the card's height, is slightly rotated
   counter-clockwise, and is clipped by the card's right edge (decorative, CC
   licenses only — a custom license has no CC branding, so no watermark). The

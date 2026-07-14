@@ -724,6 +724,22 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     height, square, rotated, doesn't change card height) + dark/light/mobile
     screenshots.*
 
+- [x] **COMP-005** — Timezone-aware article dates
+  - **Category:** Components · **Deps:** COMP-003
+  - **Acceptance criteria:** explicit date offsets/Z values preserve their source
+    instant; frontmatter date values without a timezone are interpreted as UTC;
+    valid YAML `Date` objects and numeric timestamps remain instant-based; the
+    license card formats release and updated dates in the reader's current
+    timezone after hydration, while the SSR/initial-client render remains UTC
+    to avoid hydration mismatch; dates that cross a timezone boundary show the
+    corresponding local calendar day; the date behavior is documented and
+    verified on the rendered site.
+    *Landed 2026-07-13: `ArticleLicense.vue` normalizes unzoned ISO strings with
+    an explicit UTC suffix, keeps offset-bearing strings/`Date` objects/numeric
+    timestamps as instants, and switches the formatter from SSR-safe UTC to the
+    browser's resolved timezone after mount. Verified with source-offset and
+    quoted unzoned frontmatter pages across UTC−12, UTC, UTC−07, and UTC+14.*
+
 - [x] **COMP-004** — Waline comments & counts
   - **Category:** Components · **Deps:** THEME-001, COMP-001, CONF-001
   - **Acceptance criteria:** a Waline-powered comment section renders at the end of

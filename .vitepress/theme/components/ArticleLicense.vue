@@ -41,21 +41,42 @@ const isCreativeCommons = computed(() => {
 // Article title: the page's resolved title, falling back to the site title.
 const title = computed(() => page.value.title || site.value.title)
 
-// Localized date formatter, accepting any frontmatter date shape: a date-only
-// string (`YYYY-MM-DD`), a full ISO datetime with a zone/offset
-// (`2021-08-08T12:38:02-04:00`), a YAML-parsed `Date`, or a numeric timestamp
-// (VitePress's git `lastUpdated`). All are normalized to a single instant and
-// formatted in **UTC** — deterministic and SSR-safe (server and client agree),
-// and for a bare `YYYY-MM-DD` it also avoids a local-timezone off-by-one day.
+// Normalize frontmatter values to an instant. ISO values without an explicit
+// zone are UTC by contract instead of inheriting the build/runtime timezone.
+function parseDate(raw: string | number | Date | undefined): Date | null {
+  if (raw == null || raw === '') return null
+  if (raw instanceof Date) {
+    return Number.isNaN(raw.getTime()) ? null : raw
+  }
+  if (typeof raw === 'number') {
+    const date = new Date(raw)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  const value = raw.trim()
+  if (!value) return null
+
+  const hasTimeZone = /(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(value)
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? `${value}T00:00:00Z`
+    : hasTimeZone
+      ? value
+      : `${value}Z`
+  const date = new Date(normalized)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+// Render instants in UTC until hydration completes, then use the reader's
+// browser timezone so source offsets can affect the displayed calendar day.
+const displayTimeZone = ref('UTC')
 function formatDate(raw: string | number | Date | undefined): string {
-  if (raw == null || raw === '') return ''
-  const date = new Date(raw)
-  if (Number.isNaN(date.getTime())) return ''
+  const date = parseDate(raw)
+  if (!date) return ''
   return new Intl.DateTimeFormat(language.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    timeZone: 'UTC',
+    timeZone: displayTimeZone.value,
   }).format(date)
 }
 
@@ -81,6 +102,8 @@ const updated = computed(() => {
 const permalink = computed(() => route.path)
 const displayUrl = ref('')
 onMounted(() => {
+  displayTimeZone.value =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   displayUrl.value = window.location.href.split('#')[0].split('?')[0]
 })
 

@@ -4,13 +4,15 @@ Brief per-file summaries of the repository — purpose plus the essentials, 1–
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
 [`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (CONF-003 added the
 configurable `themeConfig.siteName` shell-host override with automatic normalized
-title fallback; COMP-003 follow-ups:
+title fallback; COMP-003/005 follow-ups:
 license card gained a **last-updated** row (`license.updated` — explicit
 frontmatter `updated`/`lastUpdated`, else VitePress git `page.lastUpdated`,
 `lastUpdated: true` now set in config.mts) beside the release date;
 `formatDate` accepts any date shape (bare `YYYY-MM-DD`, full ISO datetime with
-offset, YAML `Date`, numeric timestamp) and formats in UTC (deterministic/
-SSR-safe, no off-by-one); and a decorative **CC watermark**
+offset, YAML `Date`, numeric timestamp), treats unzoned strings as UTC, and
+formats in UTC for SSR/initial hydration before switching to the reader's
+current browser timezone (so a date can cross a local calendar boundary); and
+a decorative **CC watermark**
 (`.ct-license__watermark`) — now a mask-scaled `<span>` (top/bottom insets →
 height = the card's native height, CC SVG `mask` + mode-tinted
 `background-color`, rotated CCW, right-cropped by the card's `overflow:hidden`),
@@ -22,7 +24,8 @@ margin was opening a large gap above each card's title. Earlier same day: COMP-0
 article footer components — every article (a content page that is not the home
 or 404 page, opt out via `article`/`license`/`comments: false` frontmatter)
 ends with two prompt cards: `ArticleLicense.vue` (COMP-003, prompt `license` —
-title · localized UTC publish date from frontmatter `date` · permalink ·
+title · localized publish date from frontmatter `date` (SSR UTC, then reader
+timezone) · permalink ·
 author, + license statement/CC icons, all from CONF-002) and
 `ArticleComments.vue` (COMP-004, prompt `comments`) with `ArticleMeta.vue`
 view/comment counters in the title section. `useWaline()` lazy-loads
@@ -615,9 +618,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   → deed link) + CC brand icons. Author & license from CONF-002 via
   `useThemeConfig()`; labels localized; a shared `formatDate(raw)` normalizes
   any date shape (bare `YYYY-MM-DD`, full ISO datetime with offset, YAML `Date`,
-  numeric git timestamp) to a single instant formatted in UTC (deterministic/
-  SSR-safe, no off-by-one). Renders a `.ct-license__watermark` `<span>` (CC SVG
-  mask) when `isCreativeCommons` (deed URL / CC icons).
+  numeric git timestamp) to a single instant, assumes UTC when an ISO string
+  has no zone, and formats in UTC until mount before switching to the reader's
+  browser timezone. Renders a `.ct-license__watermark` `<span>` (CC SVG mask)
+  when `isCreativeCommons` (deed URL / CC icons).
 - `theme/components/ArticleComments.vue` — end-of-article comment card
   (COMP-004): a `Card` with `showPrompt` (command `comments`) holding the
   localized `comments.title` heading and the `.ct-comments__waline` mount point

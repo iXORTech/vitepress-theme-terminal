@@ -763,7 +763,10 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     description, each with localized versions; series and the articles within a series
     sort by an `order` attribute (default 0, smaller = higher) falling back to
     alphabetical; `themeConfig` toggles control whether series posts are included in
-    the general posts' archive/category/tag pages.
+    the general posts' archive/category/tag pages. Also refactor the `src/` directory
+    so it also has a `src/pages/` folder for the home/about/projects/friends and similar
+    non-article pages. Proper, separate Vue components should be used for all these different
+    page types (e.g. normal pages, posts, 404, etc.) so that the layout can be customized for each type.
 
 - [ ] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** THEME-001, COMP-001

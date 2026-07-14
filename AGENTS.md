@@ -26,6 +26,7 @@ Design decisions are **binding** and recorded in `docs/design/`:
 | Identity, TUI/editor design language, layout, no-branding rule, modes, keyboard, mobile, i18n | [`docs/design/design-language.md`](docs/design/design-language.md) |
 | Colors: main color & derivation rule, IBM Carbon base, Oxocarbon code colors, the three color modes | [`docs/design/color-system.md`](docs/design/color-system.md) |
 | Fonts (IBM Plex) and icons (Font Awesome, Nerd Font), and how they are loaded | [`docs/design/typography-and-icons.md`](docs/design/typography-and-icons.md) |
+| Content architecture: `src/` directory layout and the per-page-type component dispatch | [`docs/design/content-architecture.md`](docs/design/content-architecture.md) |
 
 ## 2. Session protocol — MANDATORY, every session
 

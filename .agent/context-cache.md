@@ -2,7 +2,13 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (CONF-003 added the
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-14 (ARCH-001 planning:
+extracted the `src/` refactoring out of POST-002 into a new **ARCH-001** task —
+content architecture (`src/` layout modeled on `vitepress-theme-arch/src` + per-
+page-type Vue components) recorded in new binding doc
+`docs/design/content-architecture.md` (indexed in `docs/README.md` + `AGENTS.md`
+§1); POST-001/POST-002/PAGE-001–004 deps rethreaded onto ARCH-001; POST-002 slimmed
+to posts/series behavior. Earlier 2026-07-13: CONF-003 added the
 configurable `themeConfig.siteName` shell-host override with automatic normalized
 title fallback; COMP-003/005 follow-ups:
 license card gained a **last-updated** row (`license.updated` — explicit
@@ -184,9 +190,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   COMP-002 image containers (Fancybox lightbox gallery + `:::: swiper` cards
   decks) done 2026-07-13.
   Roadmap:
-  components (license card, Waline comments),
-  content (tags/categories, series), pages (home, projects, about,
-  friends — spec TBD), demos, mobile pass. I18N-001 includes
+  ARCH-001 (content architecture — `src/` layout + page-type components, foundation
+  for the content/pages work, see `docs/design/content-architecture.md`),
+  content (tags/categories POST-001, posts/series POST-002 — both now depend on
+  ARCH-001), pages (home, projects, about, friends — spec TBD — all depend on
+  ARCH-001), demos, mobile pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -271,6 +279,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   with normalized-title fallback, and code-block variant with file/lang/COPY title
   bar (§6); legend of placeholder
   glyphs and a region → spec → build-task map.
+- `design/content-architecture.md` — binding (ARCH-001): the `src/` content layout
+  modeled on `iXORTech/vitepress-theme-arch/src` — normal/standalone pages (home
+  `index.md`, `about`, `projects`, `friends`) sit **directly in `src/`** (no `pages/`
+  folder); regular posts under `src/posts/`, series articles under
+  `src/series/<name>/` (each with a localized `series.yml` icon/title/description),
+  static assets under `src/public/`; listing/dynamic-route pages `archives.md`,
+  `categories.md` + `categories/[name]`, `tags.md` + `tags/[name]`, `series.md`,
+  optional `page/[num]` pagination. Defines the six **page types** (home / normal
+  page / post / series article / listing / 404), detected by `src/` path prefix +
+  frontmatter escape hatches (`article`/`license`/`comments: false`), each rendered
+  by a dedicated `pages/*Page.vue` component via a single page-type dispatch in the
+  theme `Layout` (generalizing the current home placeholder + `isArticle` branching).
+  Structure binding; demo file names illustrative. Behavior split across
+  ARCH-001 (structure + dispatch), POST-001 (tags/categories/listings), POST-002
+  (posts/series).
 
 ## .vitepress/
 

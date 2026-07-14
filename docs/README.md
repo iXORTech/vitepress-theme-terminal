@@ -14,6 +14,7 @@ site's pages live in `src/`, the VitePress `srcDir`).
 | [`design/color-system.md`](design/color-system.md) | Main color (`#80E0A7` default) and the derivation-only rule, IBM Carbon supporting palette, Oxocarbon code colors, the three color modes |
 | [`design/typography-and-icons.md`](design/typography-and-icons.md) | IBM Plex family allocation, Font Awesome vs Nerd Font usage, stylesheet-based loading rule |
 | [`design/ui-sketch.md`](design/ui-sketch.md) | ASCII wireframes: desktop layout, floating find window, mobile layout with explorer drawer, paper mode; region → spec → task map |
+| [`design/content-architecture.md`](design/content-architecture.md) | `src/` directory layout (normal pages flat in `src/`, `posts/`, `series/`, listing & dynamic-route pages, `public/`) and the per-page-type Vue component dispatch; modeled on `vitepress-theme-arch` |
 
 ### Process & agent files (outside `docs/`)
 

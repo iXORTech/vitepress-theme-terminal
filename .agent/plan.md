@@ -764,47 +764,77 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     meta strip); `@waline/client` added as a devDependency. Verified headless
     (widget mounts `.wl-comment`/`.wl-panel`, counters + localization).*
 
+### Architecture
+
+- [ ] **ARCH-001** — Content architecture: `src/` layout & page-type components
+  - **Category:** Architecture · **Deps:** THEME-001, I18N-001
+  - **Acceptance criteria:** the `src/` directory follows the content architecture in
+    [`docs/design/content-architecture.md`](../docs/design/content-architecture.md)
+    (modeled on
+    [`vitepress-theme-arch/src`](https://github.com/iXORTech/vitepress-theme-arch/tree/main/src)):
+    normal/standalone pages (home `index.md`, `about`, `projects`, `friends`, and
+    similar non-article pages) sit **directly in `src/`** with no `pages/` folder;
+    regular posts live under `src/posts/`, series articles under
+    `src/series/<series-name>/`, static assets under `src/public/`; the listing/route
+    pages (`archives.md`, `categories.md`, `tags.md`, `series.md`, and the
+    `categories/[name]`, `tags/[name]`, `page/[num]` dynamic routes) occupy their
+    documented paths (their content/behavior lands in POST-001/POST-002). The theme
+    `Layout` resolves every page to exactly one **page type** — home, normal page,
+    post, series article, listing page, 404 — from its location under `src/` plus the
+    frontmatter escape hatches (`article`/`license`/`comments: false`), and renders a
+    dedicated Vue component per type (e.g. `pages/HomePage.vue`, `pages/NormalPage.vue`,
+    `pages/PostPage.vue`, `pages/SeriesArticlePage.vue`, `pages/ListingPage.vue`,
+    `pages/NotFoundPage.vue`) so each type's chrome is customizable independently, while
+    the shared shell chrome still wraps them; the existing home placeholder and the
+    inline `isArticle` branching in `Layout.vue` are folded into this page-type layer.
+    Existing demo content keeps rendering (under the normal-page / post types), the
+    explorer auto-discovery still works, and `pnpm build` succeeds. The convention is
+    recorded in `docs/design/content-architecture.md` and linked from `docs/README.md`
+    and `AGENTS.md`.
+
 ### Content & pages
 
 - [ ] **POST-001** — Tags & categories
-  - **Category:** Content · **Deps:** THEME-001
+  - **Category:** Content · **Deps:** ARCH-001
   - **Acceptance criteria:** posts/articles declare tags and categories in their
-    frontmatter; dedicated pages list all tags and all categories and the posts under
-    each; post metadata links to them; labels localized.
+    frontmatter; the listing pages defined by the content architecture
+    (`archives.md`, `categories.md` + `categories/[name]`, `tags.md` + `tags/[name]`,
+    *posts index*, optional `page/[num]` pagination, and related components — see
+    [`docs/design/content-architecture.md`](../docs/design/content-architecture.md))
+    list all tags and all categories and the posts under each; post metadata links to
+    them; labels localized.
 
-- [ ] **POST-002** — Post series
-  - **Category:** Content · **Deps:** POST-001, CONF-001, I18N-001
+- [ ] **POST-002** — Posts & post series
+  - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in
-    `src/series`; each series has a YAML configuration for its icon, title, and
-    description, each with localized versions; series and the articles within a series
-    sort by an `order` attribute (default 0, smaller = higher) falling back to
-    alphabetical; `themeConfig` toggles control whether series posts are included in
-    the general posts' archive/category/tag pages. Also refactor the `src/` directory
-    so it also has a `src/pages/` folder for the home/about/projects/friends and similar
-    non-article pages. Proper, separate Vue components should be used for all these different
-    page types (e.g. normal pages, posts, 404, etc.) so that the layout can be customized for each type.
+    `src/series/<series-name>` (per the ARCH-001 content architecture); each series
+    folder carries a YAML configuration for its icon, title, and description, each with
+    localized versions; series and the articles within a series sort by an `order`
+    attribute (default 0, smaller = higher) falling back to alphabetical; `themeConfig`
+    toggles control whether series posts are included in the general posts'
+    archive/category/tag pages.
 
 - [ ] **PAGE-001** — Home page
-  - **Category:** Pages · **Deps:** THEME-001, COMP-001
+  - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a home page with basic personal-website welcome content
     presented in a card component that **does** carry the shell-prompt decoration;
     content configurable; strings localized; mobile-correct.
 
 - [ ] **PAGE-002** — Projects page
-  - **Category:** Pages · **Deps:** THEME-001, COMP-001
+  - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a page demonstrating all projects with grid/card
     components; cards may or may not carry the shell prompt — more featured content
     carries the extra decoration; data easy to configure; localized; grid adapts on
     mobile.
 
 - [ ] **PAGE-003** — About Me page
-  - **Category:** Pages · **Deps:** THEME-001, COMP-001
+  - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** an About Me page organizing info with grid/card
     components; shell prompt used judiciously — more featured blocks carry the extra
     decoration; localized; mobile-correct.
 
 - [ ] **PAGE-004** — Friends page (spec incoming)
-  - **Category:** Pages · **Deps:** THEME-001, COMP-001
+  - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a page listing friends, fed by a formatted data source.
     **The data-source spec is still to be provided — do not start this task until the
     spec lands and this entry is updated.**

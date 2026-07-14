@@ -125,6 +125,31 @@ export interface TerminalSearchConfig {
 }
 
 /**
+ * Waline comment server settings (COMP-004). Only `serverURL` — the deployed
+ * Waline backend — is required to enable comments; every other Waline option
+ * keeps its default. The comment card and the article view/comment counts
+ * query this server directly from the browser.
+ */
+export interface TerminalWalineConfig {
+  /** URL of the deployed Waline server, e.g. `https://waline.example.com`. */
+  serverURL: string
+}
+
+/**
+ * Article comment options (COMP-004). `provider` is reserved for future
+ * comment back-ends; today only Waline is wired. When {@link waline} is absent
+ * or carries no `serverURL`, the end-of-article comment card and the
+ * view/comment counts are not rendered (design-language.md §4, comments).
+ */
+export interface TerminalCommentsConfig {
+  /** Comment back-end. Reserved — currently only `'waline'`. */
+  provider?: 'waline'
+
+  /** Waline server settings; see {@link TerminalWalineConfig}. */
+  waline?: TerminalWalineConfig
+}
+
+/**
  * One navigation tab in the tool bar's tabline (THEME-005). Plain data, so
  * adding, reordering, or relabeling a tab never requires component edits. Tabs
  * render after the built-in `~/home` tab and highlight when the current page
@@ -226,6 +251,12 @@ export interface TerminalThemeConfig {
   description?: LocalizableText
 
   /**
+   * Shell-safe site name used as the default host in card prompt decorations.
+   * When unset or blank, the active site title is normalized automatically.
+   */
+  siteName?: string
+
+  /**
    * Per-language overrides of theme UI strings, keyed by BCP 47 tag:
    * `{ "zh-Hans": { "mode.paper": "阅读" } }`. Applied on top of the built-in
    * tables (theme/locales/) for the active UI language — a complete table
@@ -248,6 +279,9 @@ export interface TerminalThemeConfig {
 
   /** Site search options (SEARCH-001); see {@link TerminalSearchConfig}. */
   search?: TerminalSearchConfig
+
+  /** Article comment options (COMP-004); see {@link TerminalCommentsConfig}. */
+  comments?: TerminalCommentsConfig
 
   /**
    * File-explorer navigation tree (THEME-002); see {@link TerminalExplorerItem}.
@@ -279,14 +313,27 @@ export interface ResolvedSearchConfig {
   algolia: TerminalAlgoliaConfig | null
 }
 
+/**
+ * {@link TerminalCommentsConfig} after resolution: `provider` is always set and
+ * `waline` is either a usable config or `null` (comments unconfigured).
+ */
+export interface ResolvedCommentsConfig {
+  provider: 'waline'
+  waline: TerminalWalineConfig | null
+}
+
 /** {@link TerminalThemeConfig} with every default applied — what components consume. */
 export type ResolvedTerminalThemeConfig = Required<
-  Omit<TerminalThemeConfig, 'author' | 'license' | 'footer' | 'search' | 'toolbar'>
+  Omit<
+    TerminalThemeConfig,
+    'author' | 'license' | 'footer' | 'search' | 'comments' | 'toolbar'
+  >
 > & {
   author: ResolvedAuthorConfig
   license: Required<TerminalLicenseConfig>
   footer: Required<TerminalFooterConfig>
   search: ResolvedSearchConfig
+  comments: ResolvedCommentsConfig
   toolbar: Required<TerminalToolbarConfig>
 }
 
@@ -296,6 +343,8 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // Empty text = unset: consumers fall back to the site config's title/description.
   title: '',
   description: '',
+  // Empty name = Card falls back to the automatically normalized site title.
+  siteName: '',
   localeStrings: {},
   author: { name: 'Admin', username: 'admin' },
   // Default content license (CONF-002): CC BY-NC-SA 4.0 with the CC brand icons.
@@ -319,6 +368,9 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // Search stays unconfigured until Algolia credentials are supplied
   // (SEARCH-001) — the find palette then shows its "not configured" notice.
   search: { provider: 'algolia', algolia: null },
+  // Comments stay unconfigured until a Waline server URL is supplied
+  // (COMP-004) — the comment card and article counts then render.
+  comments: { provider: 'waline', waline: null },
 }
 
 /**
@@ -400,6 +452,26 @@ export function isSearchConfigured(search: ResolvedSearchConfig): boolean {
 }
 
 /**
+ * Resolve the comments block: `provider` defaults to `waline`, and `waline` is
+ * kept only when it carries a non-empty `serverURL` — an absent or blank URL
+ * counts as unconfigured (`null`) so the comment card and counts stay hidden.
+ */
+function resolveComments(
+  comments: TerminalCommentsConfig,
+): ResolvedCommentsConfig {
+  const serverURL = comments.waline?.serverURL?.trim()
+  return {
+    provider: comments.provider ?? 'waline',
+    waline: serverURL ? { serverURL } : null,
+  }
+}
+
+/** Whether comments have a usable server (i.e. the card/counts can render). */
+export function isCommentsConfigured(comments: ResolvedCommentsConfig): boolean {
+  return comments.waline !== null
+}
+
+/**
  * Apply defaults over a (possibly partial or absent) user `themeConfig`.
  * Options are copied individually so an explicit `undefined` from the user
  * still falls back to the default.
@@ -411,6 +483,7 @@ export function resolveThemeConfig(
   if (user?.mainColor) resolved.mainColor = user.mainColor
   if (user?.title) resolved.title = user.title
   if (user?.description) resolved.description = user.description
+  if (user?.siteName?.trim()) resolved.siteName = user.siteName.trim()
   if (user?.localeStrings) resolved.localeStrings = user.localeStrings
   if (user?.author) resolved.author = resolveAuthor(user.author)
   if (user?.license) resolved.license = resolveLicense(user.license)
@@ -428,5 +501,6 @@ export function resolveThemeConfig(
   }
   if (user?.explorer) resolved.explorer = user.explorer
   if (user?.search) resolved.search = resolveSearch(user.search)
+  if (user?.comments) resolved.comments = resolveComments(user.comments)
   return resolved
 }

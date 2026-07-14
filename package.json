@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@fancyapps/ui": "^5.0.36",
+    "@waline/client": "^3.15.2",
     "markdown-it-abbr": "^2.0.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-deflist": "^3.0.1",

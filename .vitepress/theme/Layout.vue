@@ -8,13 +8,17 @@
 // which holds the content column and the in-viewport footer region (THEME-004)
 // with its optional user-supplied custom pre-footer section (THEME-006) — the
 // bottom status bar, and the shared floating utility window (THEME-003).
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
+import ArticleComments from './components/ArticleComments.vue'
+import ArticleLicense from './components/ArticleLicense.vue'
+import ArticleMeta from './components/ArticleMeta.vue'
 import Explorer from './components/Explorer.vue'
 import FloatingWindow from './components/FloatingWindow.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
+import { isCommentsConfigured } from './config'
 import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useCodeCopy } from './composables/useCodeCopy'
 import { useExplorer } from './composables/useExplorer'
@@ -24,13 +28,37 @@ import { useNerdFont } from './composables/useNerdFont'
 import { useSearchShortcut } from './composables/useSearch'
 import { useSiteText } from './composables/useSiteText'
 import { useSwipers } from './composables/useSwipers'
+import { useThemeConfig } from './composables/useThemeConfig'
 import { useViewportScroll } from './composables/useViewportScroll'
+import { useWaline } from './composables/useWaline'
 
-const { frontmatter } = useData()
+const { frontmatter, page } = useData()
+const config = useThemeConfig()
 
 // The explorer exists only when a tree is configured and the mode isn't
 // paper (THEME-002) — then it is not rendered at all, not merely hidden.
 const { available: explorerAvailable } = useExplorer()
+
+// An "article" is any regular content page — not the home page or the 404
+// page. It carries the end-of-article license card (COMP-003) and, when a
+// comment server is configured, the comment card + view/comment counts
+// (COMP-004). Authors can opt a page out entirely (`article: false`) or drop
+// just one part (`license: false` / `comments: false`) in frontmatter.
+const isArticle = computed(
+  () =>
+    !frontmatter.value.home &&
+    !page.value.isNotFound &&
+    frontmatter.value.article !== false,
+)
+const showLicense = computed(
+  () => isArticle.value && frontmatter.value.license !== false,
+)
+const showComments = computed(
+  () =>
+    isArticle.value &&
+    frontmatter.value.comments !== false &&
+    isCommentsConfigured(config.value.comments),
+)
 
 // The viewport panel is the scroll container of the fixed shell frame
 // (THEME-008); this wires the router-facing scroll behaviors onto it.
@@ -61,6 +89,10 @@ useSearchShortcut()
 // (COMP-002); both lazy-load their libraries client-side
 useLightbox()
 useSwipers()
+
+// Waline comment widget + article view/comment counts (COMP-004); lazy-loaded
+// client-side, and a no-op unless a comment server is configured
+useWaline()
 </script>
 
 <template>
@@ -86,7 +118,17 @@ useSwipers()
               <li><a href="/api-examples.html">API Examples</a></li>
             </ul>
           </template>
-          <Content v-else />
+          <template v-else>
+            <!-- Article view/comment counts in the title section (COMP-004) -->
+            <ArticleMeta v-if="showComments" />
+
+            <Content />
+
+            <!-- End-of-article cards: license (COMP-003) then comments
+                 (COMP-004), both prompt-decorated -->
+            <ArticleLicense v-if="showLicense" />
+            <ArticleComments v-if="showComments" />
+          </template>
         </div>
 
         <!-- Footer region (THEME-004 + THEME-006) — scrolls with the content.

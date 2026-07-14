@@ -100,6 +100,19 @@ export const en = {
   // example content.
   'footer.demoCustom': 'Customizable Footer Content',
 
+  // End-of-article license card (COMP-003). The `{license}` placeholder in
+  // the statement is interpolated by ArticleLicense.vue with a deed link.
+  'license.author': 'Author',
+  'license.published': 'Published',
+  'license.updated': 'Updated',
+  'license.permalink': 'Permalink',
+  'license.statement': 'This article is licensed under {license}.',
+
+  // End-of-article comments & counts (COMP-004). The comment form's own UI is
+  // localized by Waline's shipped tables (design-language.md §4 exception).
+  'comments.title': 'Comments',
+  'comments.views': 'Views',
+
   // Callout default titles (MD-002)
   'callout.info': 'Info',
   'callout.note': 'Note',

@@ -88,6 +88,17 @@ export const zhHans: ThemeLocaleStrings = {
   // Custom pre-footer demo label (THEME-006, temporary)
   'footer.demoCustom': '可自定义的页脚内容',
 
+  // End-of-article license card (COMP-003)
+  'license.author': '作者',
+  'license.published': '发布于',
+  'license.updated': '更新于',
+  'license.permalink': '固定链接',
+  'license.statement': '本文采用 {license} 许可协议。',
+
+  // End-of-article comments & counts (COMP-004)
+  'comments.title': '评论',
+  'comments.views': '浏览',
+
   // Callout default titles
   'callout.info': '信息',
   'callout.note': '备注',

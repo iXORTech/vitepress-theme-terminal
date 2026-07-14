@@ -58,7 +58,9 @@ const shellPrompt = computed(() => {
 
   return {
     user: config.value.author.username,
-    host: normalizeShellIdentifier(prompt.host ?? siteTitle.value),
+    host: normalizeShellIdentifier(
+      prompt.host ?? (config.value.siteName || siteTitle.value),
+    ),
     path: prompt.path ?? formatPageLocation(page.value.relativePath),
     command,
     args,

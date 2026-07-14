@@ -2,7 +2,39 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (COMP-002 fixes:
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-13 (CONF-003 added the
+configurable `themeConfig.siteName` shell-host override with automatic normalized
+title fallback; COMP-003 follow-ups:
+license card gained a **last-updated** row (`license.updated` — explicit
+frontmatter `updated`/`lastUpdated`, else VitePress git `page.lastUpdated`,
+`lastUpdated: true` now set in config.mts) beside the release date;
+`formatDate` accepts any date shape (bare `YYYY-MM-DD`, full ISO datetime with
+offset, YAML `Date`, numeric timestamp) and formats in UTC (deterministic/
+SSR-safe, no off-by-one); and a decorative **CC watermark**
+(`.ct-license__watermark`) — now a mask-scaled `<span>` (top/bottom insets →
+height = the card's native height, CC SVG `mask` + mode-tinted
+`background-color`, rotated CCW, right-cropped by the card's `overflow:hidden`),
+gated on `isCreativeCommons`, content lifted above via `z-index`, and never
+affecting the card's own size. Third follow-up: `_license.scss` /
+`_comments.scss` are now scoped under `.ct-content` so their card-title rules
+out-specify the generic `.ct-content h2` typography — the article-heading top
+margin was opening a large gap above each card's title. Earlier same day: COMP-003/004
+article footer components — every article (a content page that is not the home
+or 404 page, opt out via `article`/`license`/`comments: false` frontmatter)
+ends with two prompt cards: `ArticleLicense.vue` (COMP-003, prompt `license` —
+title · localized UTC publish date from frontmatter `date` · permalink ·
+author, + license statement/CC icons, all from CONF-002) and
+`ArticleComments.vue` (COMP-004, prompt `comments`) with `ArticleMeta.vue`
+view/comment counters in the title section. `useWaline()` lazy-loads
+`@waline/client` client-side to mount the widget into `.ct-comments__waline`
+and fill the counters (`pageviewCount`/`commentCount`), re-mount per nav,
+re-localize on language switch (Waline tables mapped from theme tags,
+`zh-Hans`→`zh-CN`), dark tracks `data-ct-mode`. `themeConfig.comments.waline.serverURL`
+resolves via `resolveComments()`/`isCommentsConfigured()` (blank → unconfigured
+= nothing rendered). New `license.*`/`comments.*` locale keys; styles in
+`_license.scss` + `_comments.scss` (Waline vendor CSS via `@waline/client/style`
++ accent reconcile + meta strip); `@waline/client` devDep; demo
+`markdown-examples.md` gained a `date`. Verified headless. Earlier: COMP-002 fixes:
 deck arrows moved OUTSIDE the images — `.ct-swiper` is now a flex row of
 prev button · `.ct-swiper__deck.swiper` · next button (vendor navigation CSS
 dropped) — and `useViewportScroll` resets the panel only on a real
@@ -97,7 +129,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   inline <style> per formula, which breaks Vue template compilation), and the
   COMP-002 image libraries: `@fancyapps/ui` pinned `^5.0.36` (the last
   GPLv3/commercial dual-licensed line — v6 moved to commercial-only) +
-  `swiper ^14`. Scripts
+  `swiper ^14`, and the COMP-004 comment client `@waline/client ^3.15.2`
+  (lazy-loaded client-side). Scripts
   `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
@@ -134,7 +167,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   in-viewport
   footer + THEME-002 = file-explorer sidebar + THEME-011 = nvim-style explorer
   rework, THEME-012 auto-discovered source explorer and I18N-006 localized
-  labels done 2026-07-10; THEME-003 = shared floating utility window (+
+  labels done 2026-07-10; CONF-003 = configurable normalized site name for card
+  prompt hosts done 2026-07-13; THEME-003 = shared floating utility window (+
   temporary demo, retired by SEARCH-002), THEME-016 = optional title icons,
   THEME-017 = TUI chrome rework (framed panes, border titles, text `[✕]`),
   and THEME-018 = `/` search-shaped input+results demo done 2026-07-12;
@@ -190,7 +224,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   license system spec (§4: `author.name`/`author.username` + normalization rule,
   `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons), cards &
   shell-prompt decoration (explicit `showPrompt`; prompt user = normalized author
-  username; host defaults to normalized active site title; path defaults to the
+  username; configured `themeConfig.siteName` host is normalized for prompts and
+  falls back to the active site title; path defaults to the
   current page location; host/path/command/args remain overridable; prompt marks
   featured content; constrained prompts progressively hide host, reduce the path
   to its last section, and apply an end ellipsis; code blocks are card-style
@@ -229,15 +264,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   SEARCH-002),
   mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
   hides explorer/utility panels), in-viewport footer (attribution row lighter on
-  desktop), card component with explicit `showPrompt`, normalized site-title host,
-  and code-block variant with file/lang/COPY title bar (§6); legend of placeholder
+  desktop), card component with explicit `showPrompt`, configurable `siteName` host
+  with normalized-title fallback, and code-block variant with file/lang/COPY title
+  bar (§6); legend of placeholder
   glyphs and a region → spec → build-task map.
 
 ## .vitepress/
 
 - `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
   `srcDir: "src"`, title, description; `themeConfig` const with commented option
-  examples; `head: themeHead(themeConfig)` (fonts + main color + mode restore);
+  examples including the shell-prompt `siteName` override; `head:
+  themeHead(themeConfig)` (fonts + main color + mode restore);
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
   "en"` as the default UI language (minimal canonical tag, I18N-005; no
@@ -249,7 +286,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   a GitHub action icon), and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
   a commented `search.algolia` example documents the SEARCH-001 keys (demo
-  ships unconfigured → the palette shows its notice); `markdown.math: true`
+  ships unconfigured → the palette shows its notice); a commented
+  `comments.waline.serverURL` example documents COMP-004 (demo ships
+  unconfigured → no comment card/counts); `lastUpdated: true` (git-derived
+  per-page timestamp feeding the license card's "Updated" row, COMP-003);
+  `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002/004:
@@ -304,7 +345,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `title`/`description` as `LocalizableText` falling back to the site config values;
   `localeStrings?: LocaleOverrides` — per-language map `{ tag: partial table }` that
   can also add whole languages; feature toggles land here), `themeConfigDefaults`,
-  `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`).
+  `resolveThemeConfig()` (per-option fallback, survives explicit `undefined`);
+  `siteName` is a trimmed shell-host override with an empty default for Card's
+  automatic title normalization.
   CONF-002: `author` (`name` LocalizableText + shell-safe `username`, derived via
   exported `normalizeUsername()` when unset, fallback `user`); the shared
   `normalizeShellIdentifier()` helper also normalizes the site-title host used by
@@ -325,7 +368,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`provider?: 'algolia'`, `algolia?: {appId, apiKey, indexName}`) resolved via
   `resolveSearch()` (partial creds → `algolia: null` = unconfigured) with the
   exported `isSearchConfigured()` helper; default `{ provider:'algolia',
-  algolia:null }`.
+  algolia:null }`. COMP-004: `comments: TerminalCommentsConfig`
+  (`provider?: 'waline'`, `waline?: { serverURL }`) resolved via
+  `resolveComments()` (blank `serverURL` → `waline: null` = unconfigured) with
+  the exported `isCommentsConfigured()` helper; default `{ provider:'waline',
+  waline:null }`.
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*`
@@ -334,6 +381,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
   `code.copy`/`code.copied` (STYLE-004),
+  `license.*` — author/published/updated/permalink/statement (COMP-003),
+  `comments.title`/`comments.views` (COMP-004),
   `swiper.prev`/`swiper.next` (COMP-002 deck arrows),
   `window.close` (THEME-003), `search.*` — open/title/inputTitle/resultsTitle/
   placeholder/hint + idle/loading/empty/error/unconfigured status + poweredBy
@@ -392,6 +441,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`swiper.prev`/`swiper.next`) on init + language switch; prunes/destroys
   instances whose element left the DOM after navigation, destroys all on
   unmount. Client-only, no-op during SSR.
+- `theme/composables/useWaline.ts` — COMP-004 comments: called once from
+  Layout. When comments are configured and an article's `.ct-comments__waline`
+  is present, lazy-loads `@waline/client` (client-only) and `init()`s the
+  widget there (its own count displays off; `dark: 'html[data-ct-mode="dark"]'`
+  tracks the mode), then fills the `ArticleMeta` counters via `pageviewCount`/
+  `commentCount`. Re-mounts on `onContentUpdated` (destroys the prior instance
+  + aborts pending count requests) and `update()`s the widget language on a
+  switch; maps theme tags → Waline locale (`zh-Hans` → `zh-CN`, else `en`).
+  No-op during SSR and when unconfigured.
 - `theme/composables/useFontSettings.ts` — THEME-007 content font preferences
   (singleton): `family` (`default`/sans/serif/mono) + `size` (small/medium/large),
   mirrored onto `<html data-ct-font-*>` (attr only for a non-default value),
@@ -500,7 +558,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `useCalloutTitles()` + `useCodeCopy()` (STYLE-004) + `useNerdFont()` +
   `useSearchShortcut()` (binds `/` to open the find palette, SEARCH-002) +
   `useLocalizedContent()` (I18N-007 `::: lang` block switching) +
-  `useLightbox()` / `useSwipers()` (COMP-002 image containers) once.
+  `useLightbox()` / `useSwipers()` (COMP-002 image containers) +
+  `useWaline()` (COMP-004 comments) once. Under an `isArticle` guard (not
+  home / not 404 / not `article:false`) the non-home content branch renders
+  `<ArticleMeta>` (above `<Content>`, when comments configured), then
+  `<ArticleLicense>` (COMP-003, unless `license:false`) and `<ArticleComments>`
+  (COMP-004, when configured, unless `comments:false`) after it.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010): the
   explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -536,12 +599,33 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/components/Card.vue` — reusable TUI floating card (COMP-001) with an
   explicit `showPrompt` flag and a typed `prompt` object (`command`, optional
   `host`/`path`/`args`). The prompt user comes from
-  `useThemeConfig().author.username`; host defaults to the normalized active site
-  title and path to the current page location, with every value overridable.
+  `useThemeConfig().author.username`; host uses the configured `siteName` (normalized
+  for shell safety) or the normalized active site title, and path defaults to the
+  current page location; every value remains overridable.
   Prompt markup separates host, path, command, and args so each can use an
   Oxocarbon role token; command and args preserve their explicit leading
   separators in the flex prompt layout. A resize-aware staged fitter hides the
   host, reduces the path to its last section, and then enables path ellipsis.
+- `theme/components/ArticleLicense.vue` — end-of-article license card
+  (COMP-003): a `Card` with `showPrompt` (command `license`) showing the
+  article title (linked to its permalink), a labeled meta list (author ·
+  release date from frontmatter `date` · last-updated date [frontmatter
+  `updated`/`lastUpdated`, else VitePress git `page.lastUpdated`] · permalink,
+  upgraded to the absolute URL on mount), and the license statement (`{license}`
+  → deed link) + CC brand icons. Author & license from CONF-002 via
+  `useThemeConfig()`; labels localized; a shared `formatDate(raw)` normalizes
+  any date shape (bare `YYYY-MM-DD`, full ISO datetime with offset, YAML `Date`,
+  numeric git timestamp) to a single instant formatted in UTC (deterministic/
+  SSR-safe, no off-by-one). Renders a `.ct-license__watermark` `<span>` (CC SVG
+  mask) when `isCreativeCommons` (deed URL / CC icons).
+- `theme/components/ArticleComments.vue` — end-of-article comment card
+  (COMP-004): a `Card` with `showPrompt` (command `comments`) holding the
+  localized `comments.title` heading and the `.ct-comments__waline` mount point
+  that `useWaline()` fills.
+- `theme/components/ArticleMeta.vue` — article view/comment counters (COMP-004):
+  a small mono strip (eye + comment FA icons) with `.ct-article-meta__views` /
+  `.ct-article-meta__comments` count spans (localized aria-labels) that Waline
+  populates; rendered above the content on articles when comments are configured.
 - `theme/components/FloatingWindow.vue` — the single shared floating utility
   window (THEME-003/016/017), rendered once from Layout: `role="dialog"` +
   aria-modal container over a dimmed backdrop, stacking the active utility's
@@ -600,9 +684,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  settings/content/card/footer/prefooter-demo/code/callouts/lightbox/swiper
-  (COMP-002 vendor CSS + overrides; `search` after
-  `window`, SEARCH-002), then base document styles
+  settings/content/card/license/comments/footer/prefooter-demo/code/callouts/
+  lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after `window`,
+  SEARCH-002; `license`/`comments` after `card`, COMP-003/004), then base
+  document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
@@ -652,6 +737,29 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   shell-prompt header with Oxocarbon segment roles, body spacing, narrow-screen
   overflow protection, explicit command/argument whitespace preservation, staged
   path ellipsis, and print-safe shadow removal.
+- `theme/styles/_license.scss` — COMP-003 license-card body (rules scoped under
+  `.ct-content` to out-specify `.ct-content h2/p/dl` so the article-heading
+  margin doesn't gap above the title): `.ct-license__title`
+  heading (linked, accent hover), `.ct-license__meta` labeled dl (fixed-width
+  mono `dt` dim labels beside values, `__url` link), and the `__statement`
+  (top-rule separated) with the inline accent `__icons` brand cluster. The card
+  root is `position: relative` so the `.ct-license__watermark` — a `<span>` with
+  `top:0;bottom:0` (height = card height) + `aspect-ratio:1` (square), the CC
+  logo as an inline-SVG `mask` tinted by a faint `color-mix(--ct-text 7%)`
+  `background-color`, rotated CCW and pushed past the right edge (`z-index:0`) —
+  is clipped by the card's `overflow:hidden`; title/meta/statement get
+  `z-index:1` above it; the watermark crops harder ≤640px. The card frame/prompt
+  come from `_card.scss`.
+- `theme/styles/_comments.scss` — COMP-004 comments (`.ct-comments` rules scoped
+  under `.ct-content` so the card title out-specifies `.ct-content h2`, like the
+  license card): `@use`s the Waline vendor
+  CSS (`@waline/client/style` export) and reconciles it with the theme —
+  `.ct-comments__waline` sets `--waline-theme-color`/`--waline-active-color`
+  to the main color and the widget font to the body face; `.ct-comments__title`
+  heading;
+  the `.ct-article-meta` count strip (mono, dim, accent icons, tabular-nums).
+  Waline keeps its own light/dark var sets (wired via the `dark` selector);
+  comments + counts hidden in print (the license card still prints).
 - `theme/styles/_footer.scss` — THEME-004/006 in-viewport footer region: the
   `.ct-footer-region` wrapper (flex-shrink:0, bottom-pinned) owns the full
   separator (`border-top: 1px solid var(--ct-border)`, before the whole footer
@@ -795,8 +903,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `::: swiper-slide-no-shadow` three-card deck), all 8 callout
   types + custom-title example (MD-002), the defaulted, fully overridden, and
   prompt-free COMP-001 card demo (including current-page path defaults and a long
-  overridden path for prompt-overflow behavior), and localized explorer title
-  metadata.
+  overridden path for prompt-overflow behavior), the configurable
+  `themeConfig.siteName` host override and automatic fallback, and localized
+  explorer title metadata. Carries a `date` frontmatter so the auto-appended COMP-003 license
+  card (rendered on every article by Layout) shows its release row; the
+  last-updated row falls back to VitePress's git `lastUpdated`.
 - `public/images/demo-terminal-{1,2,3}.svg` — static demo art for the COMP-002
   image demos: three 800×600 terminal-mock SVGs in the theme palette (session /
   split panes / paper mode), served from the VitePress public dir as

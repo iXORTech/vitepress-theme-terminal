@@ -2,6 +2,7 @@
 title:
   en: "Markdown Examples"
   zh-Hans: "Markdown 示例"
+date: 2026-07-12T12:38:02+08:00
 ---
 
 <script setup lang="ts">
@@ -265,8 +266,9 @@ touch) to reveal the next one.
 The reusable card is a floating window with an optional shell-prompt
 decoration. Set `showPrompt` to `true` to render it. The `prompt` object accepts
 optional `host` and `path`, required `command`, and optional `args`; omitted
-values default to the normalized site title and current page path. All values
-remain overridable.
+values default to the configured `themeConfig.siteName` or, when unset, the
+automatically normalized site title, plus the current page path. All values remain
+overridable.
 
 **Input**
 

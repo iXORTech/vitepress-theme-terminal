@@ -1,0 +1,73 @@
+// ============================================================================
+// _comments.scss — Waline comments & article counts (COMP-004)
+// ============================================================================
+// Pulls in the Waline vendor stylesheet (the SCSS entry is where the theme
+// loads vendor CSS — AGENTS.md §6.3) and layers the theme on top. Waline keeps
+// its own light/dark variable sets (wired to `data-ct-mode` via the `dark`
+// selector in useWaline), so here we only reconcile its accent color and font
+// with the theme; the widget then reads as part of the TUI shell in every
+// mode. Also styles the comment card heading and the article view/comment
+// count strip (ArticleMeta).
+
+// Vendor stylesheet (the package's `style` export → dist/waline.css; resolved
+// from node_modules by the Vite sass importer).
+@use "@waline/client/style";
+
+// --------------------------------------------------------------------------
+// Comment card (ArticleComments)
+// --------------------------------------------------------------------------
+// Scoped under `.ct-content` so the heading rule out-specifies the generic
+// `.ct-content h2` typography (otherwise its top margin opens a gap above the
+// card title) — same reasoning as the license card in _license.scss.
+.ct-content .ct-comments {
+  &__title {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+    line-height: 1.4;
+    color: var(--ct-heading);
+  }
+
+  // Reconcile Waline with the theme: accent color + the shell's mono face for
+  // the widget chrome. Backgrounds/borders keep Waline's own mode sets.
+  &__waline {
+    --waline-theme-color: var(--ct-main);
+    --waline-active-color: var(--ct-main-bright);
+
+    font-family: var(--ct-font-body);
+  }
+}
+
+// --------------------------------------------------------------------------
+// Article view/comment counts (ArticleMeta) — the title-section strip
+// --------------------------------------------------------------------------
+.ct-article-meta {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  color: var(--ct-text-dim);
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  &__item i {
+    color: var(--ct-main);
+  }
+
+  &__count {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Comments and counts are interactive/live — paper mode prints the article,
+// not the discussion. The license card (COMP-003) still prints.
+@media print {
+  .ct-comments,
+  .ct-article-meta {
+    display: none;
+  }
+}

@@ -192,9 +192,10 @@ to visually separate the two rows. Apply only on desktop.*
 The reusable card (design-language.md §4, cards) is a TUI-style floating window. The
 prompt line is optional and enabled per use with `showPrompt`; `admin` here is the
 normalized author username from the author & license configuration (CONF-002), and
-`vitepress-theme-terminal` is the shell-normalized site title used as the host.
-When no path is supplied, the card uses the current page's home-relative path;
-host, path, command, and optional args may all be overridden.
+`vitepress-theme-terminal` is the configured `themeConfig.siteName` used as the
+shell host (or the automatically normalized site title when it is unset). When no
+path is supplied, the card uses the current page's home-relative path; host, path,
+command, and optional args may all be overridden.
 
 ```
 ╭─ card ───────────────────────────────────────────────────────────────────╮
@@ -236,6 +237,8 @@ given), language name, and a COPY button — not a shell-prompt decoration (STYL
 | Footer (in-viewport) + custom section | design-language.md §4 (footer) | THEME-004, THEME-006 |
 | Card / floating window with prompt | design-language.md §4 (cards) | COMP-001 |
 | Code block card (file · lang · COPY) | design-language.md §4 (cards) | STYLE-004 |
+| Article license card (title · release/updated dates · author · license · CC watermark) | design-language.md §4 (article footer) | COMP-003 |
+| Article comments (Waline) + view/comment counts | design-language.md §4 (article footer) | COMP-004 |
 | Viewport text & code colors | color-system.md | STYLE-001 … STYLE-003 |
 | Fonts & glyphs used in chrome | typography-and-icons.md | FONT-001, FONT-002 |
 | Mobile behaviors overall | design-language.md §8 | MOBILE-001 |

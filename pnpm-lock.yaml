@@ -11,6 +11,9 @@ importers:
       '@fancyapps/ui':
         specifier: ^5.0.36
         version: 5.0.36
+      '@waline/client':
+        specifier: ^3.15.2
+        version: 3.15.2
       markdown-it-abbr:
         specifier: ^2.0.0
         version: 2.0.0
@@ -460,6 +463,14 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  '@waline/api@1.1.2':
+    resolution: {integrity: sha512-r1H+XL+/Ww4qXv8vjq09HJQtMvYqMofgfueuokgsDW1kJ9/6CYY7g6LkksYlDJmWm0aqkLR/9ZTI/bbozL4FBA==}
+    engines: {node: '>=22'}
+
+  '@waline/client@3.15.2':
+    resolution: {integrity: sha512-QBAVbruefDR+IKyQdM/Ao9fd07Xxpx1WEJ7xI8lBVNDjMQBr1PpdwrTpLC8RrYbgUR9ymNBvtLDJi0xK3pbORQ==}
+    engines: {node: '>=22'}
+
   '@xmldom/xmldom@0.9.10':
     resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
     engines: {node: '>=14.6'}
@@ -467,6 +478,9 @@ packages:
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
+
+  autosize@6.0.1:
+    resolution: {integrity: sha512-f86EjiUKE6Xvczc4ioP1JBlWG7FKrE13qe/DxBCpe8GCipCq2nFw73aO8QEBKHfSbYGDN5eB9jXWKen7tspDqQ==}
 
   birpc@2.9.0:
     resolution: {integrity: sha512-KrayHS5pBi69Xi9JmvoqrIgYGDkD6mcSe/i6YKi3w5kekCLzrX4+nawcXqrj2tIp50Kw/mT/s3p+GVK0A0sKxw==}
@@ -722,6 +736,16 @@ packages:
   markdown-it-sup@2.0.0:
     resolution: {integrity: sha512-5VgmdKlkBd8sgXuoDoxMpiU+BiEt3I49GItBzzw7Mxq9CxvnhE/k09HFli09zgfFDRixDQDfDxi0mgBCXtaTvA==}
 
+  marked-highlight@2.2.4:
+    resolution: {integrity: sha512-PZxisNMJDduSjc0q6uvjsnqqHCXc9s0eyzxDO9sB1eNGJnd/H1/Fu+z6g/liC1dfJdFW4SftMwMlLvsBhUPrqQ==}
+    peerDependencies:
+      marked: '>=4 <19'
+
+  marked@18.0.6:
+    resolution: {integrity: sha512-MrV5puXBfuiy6wl6DLaq3BtIJQAJToAd5zt/ZKhRfGRAuFPALE7/4Y7jnxRQoEgK/pBgurGqLyAuRgZ2xOjr6w==}
+    engines: {node: '>= 20'}
+    hasBin: true
+
   mathjax-full@3.2.2:
     resolution: {integrity: sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==}
     deprecated: Version 4 replaces this package with the scoped package @mathjax/src
@@ -813,6 +837,9 @@ packages:
   readdirp@5.0.0:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
     engines: {node: '>= 20.19.0'}
+
+  recaptcha-v3@1.11.3:
+    resolution: {integrity: sha512-sEE6J0RzUkS+sKEBpgCD/AqCU0ffrAVOADGjvAx9vcttN+VLK42SWMkj/J/I6vHu3Kew+xcfbBqDVb65N0QGDw==}
 
   regex-recursion@6.0.2:
     resolution: {integrity: sha512-0YCaSCq2VRIebiaUviZNs0cBz1kg5kVS2UKUfNIx8YVs1cN3AV7NTctO5FOKBA+UT2BPJIWZauYHPqJODG50cg==}
@@ -1313,9 +1340,25 @@ snapshots:
     dependencies:
       vue: 3.5.39
 
+  '@waline/api@1.1.2': {}
+
+  '@waline/client@3.15.2':
+    dependencies:
+      '@vueuse/core': 14.3.0(vue@3.5.39)
+      '@waline/api': 1.1.2
+      autosize: 6.0.1
+      marked: 18.0.6
+      marked-highlight: 2.2.4(marked@18.0.6)
+      recaptcha-v3: 1.11.3
+      vue: 3.5.39
+    transitivePeerDependencies:
+      - typescript
+
   '@xmldom/xmldom@0.9.10': {}
 
   ansi-colors@4.1.3: {}
+
+  autosize@6.0.1: {}
 
   birpc@2.9.0: {}
 
@@ -1554,6 +1597,12 @@ snapshots:
 
   markdown-it-sup@2.0.0: {}
 
+  marked-highlight@2.2.4(marked@18.0.6):
+    dependencies:
+      marked: 18.0.6
+
+  marked@18.0.6: {}
+
   mathjax-full@3.2.2:
     dependencies:
       esm: 3.2.25
@@ -1642,6 +1691,8 @@ snapshots:
   property-information@7.2.0: {}
 
   readdirp@5.0.0: {}
+
+  recaptcha-v3@1.11.3: {}
 
   regex-recursion@6.0.2:
     dependencies:

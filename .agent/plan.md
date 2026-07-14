@@ -81,6 +81,17 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     surfaces are later tasks — each reads the resolved config via
     `useThemeConfig()` when it lands.*
 
+- [x] **CONF-003** — Configurable normalized site name
+  - **Category:** Configuration · **Deps:** CONF-001, COMP-001
+  - **Acceptance criteria:** `themeConfig.siteName` can override the shell prompt
+    host used by `Card.vue`; an unset or blank value falls back to the automatically
+    normalized active site title; the resolved config, demo configuration, and card
+    prompt behavior remain type-safe and documented.
+    *Landed 2026-07-13: `siteName` is resolved as a trimmed shell-host override;
+    `Card.vue` normalizes it for the prompt and falls back to the active site title
+    when unset. The config example and card/design docs describe the option;
+    build and rendered browser checks cover both paths.*
+
 ### Styling
 
 - [x] **STYLE-001** — Design tokens: Carbon palette + main color
@@ -681,19 +692,61 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     GPLv3/commercial dual-licensed line (v6 is commercial-only); Swiper is
     MIT. Verified headless 16/16 + SPA-navigation regression.*
 
-- [ ] **COMP-003** — License card
+- [x] **COMP-003** — License card
   - **Category:** Components · **Deps:** THEME-001, COMP-001, CONF-002
   - **Acceptance criteria:** at the end of every article (posts and series), a card
     **with** shell-prompt decoration shows the configured license (default
     CC BY-NC-SA 4.0) and the article info — title, URL, publish date, author — with
     author and license sourced from CONF-002; strings localized.
+    *Landed 2026-07-13: `ArticleLicense.vue` renders a `Card` (`showPrompt`,
+    command `license`) at the end of every article — a page that is not the home
+    or 404 page and not opted out via `article: false`/`license: false`
+    frontmatter. It shows the article title (linked to its permalink), a labeled
+    meta list (author · localized publish date from frontmatter `date`, UTC-formatted
+    to avoid an off-by-one · permalink, upgraded to the absolute URL on the
+    client), and the license statement + CC brand icons — author & license from
+    CONF-002 via `useThemeConfig()`, the statement's `{license}` linking to the
+    deed (footer pattern). New `license.*` locale keys (en + zh-Hans); styles in
+    `styles/_license.scss`. Wired in `Layout.vue` under the `isArticle` guard;
+    `markdown-examples.md` gained a `date` to exercise the row. Verified headless.
+    2026-07-13 follow-up: added a **last-updated** row (`license.updated`) beside
+    the release date — an explicit frontmatter `updated`/`lastUpdated` wins, else
+    VitePress's git `page.lastUpdated` (`lastUpdated: true` enabled in the site
+    config) — and a decorative **CC watermark** shown only for Creative Commons
+    licenses (`isCreativeCommons` = deed URL / CC icons); content lifted above it
+    with `z-index`. Second follow-up: `formatDate` now accepts any frontmatter
+    date shape (bare `YYYY-MM-DD`, full ISO datetime with offset, YAML `Date`,
+    numeric timestamp) and formats in UTC (deterministic/SSR-safe, no off-by-one);
+    the watermark became a mask-scaled `<span>` (top/bottom insets → height =
+    card's native height, CC SVG `mask` + mode-tinted `background-color`, rotated
+    CCW, right-cropped) so it fills the card without ever affecting its size.
+    Verified headless (ISO datetime → "August 8, 2021"; watermark height = card
+    height, square, rotated, doesn't change card height) + dark/light/mobile
+    screenshots.*
 
-- [ ] **COMP-004** — Waline comments & counts
+- [x] **COMP-004** — Waline comments & counts
   - **Category:** Components · **Deps:** THEME-001, COMP-001, CONF-001
   - **Acceptance criteria:** a Waline-powered comment section renders at the end of
     every article (posts and series) inside a card **with** shell-prompt decoration;
     the Waline server is configured via `themeConfig`; a viewer count and a comment
     count appear in the article title section; strings localized.
+    *Landed 2026-07-13: `themeConfig.comments.waline.serverURL` (config.ts —
+    `TerminalCommentsConfig`/`TerminalWalineConfig`, resolved via
+    `resolveComments()`: blank URL → `null` = unconfigured, `isCommentsConfigured()`
+    helper). `ArticleComments.vue` renders a `Card` (`showPrompt`, command
+    `comments`) holding the localized heading + a `.ct-comments__waline` mount
+    point; `ArticleMeta.vue` renders the view + comment counters in the article's
+    title section (above the content). `useWaline()` (called once from Layout)
+    lazy-loads `@waline/client` client-side, mounts the widget (its own count
+    displays off), fills the meta counters via `pageviewCount`/`commentCount`,
+    re-mounts per navigation, and re-localizes the widget UI on a language switch
+    (Waline locale tables mapped from theme tags — `zh-Hans` → `zh-CN`, else `en`;
+    the vendor-chrome exception to §9). Dark theme tracks `data-ct-mode` via
+    Waline's `dark` selector. Both card + counts render only on articles when
+    configured (opt out with `comments: false`/`article: false`). New `comments.*`
+    locale keys; styles in `styles/_comments.scss` (Waline CSS + accent reconcile +
+    meta strip); `@waline/client` added as a devDependency. Verified headless
+    (widget mounts `.wl-comment`/`.wl-panel`, counters + localization).*
 
 ### Content & pages
 

@@ -29,6 +29,9 @@ const themeConfig: TerminalThemeConfig = {
     en: "A TUI-inspired VitePress Theme for Blog and Personal Website",
     "zh-Hans": "一个受 TUI 界面风格启发的 VitePress 博客与个人网站主题",
   },
+  // Shell-prompt host override; blank/unset falls back to the automatically
+  // normalized active site title.
+  siteName: "vitepress-theme-terminal",
 
   // Per-language theme-string overrides; a complete table under a new tag
   // adds a whole language to the switcher (I18N-003).
@@ -90,6 +93,15 @@ const themeConfig: TerminalThemeConfig = {
       // indexName: "YOUR_INDEX",
     // },
   // },
+
+  // Article comments (COMP-004) — a Waline-powered comment card renders at the
+  // end of every article, and view/comment counts appear near the title. Set
+  // your deployed Waline server URL to enable it; without it, no comment card
+  // or counts render. A page can opt out with `comments: false` (or
+  // `article: false` / `license: false`) in its frontmatter.
+  comments: {
+    waline: { serverURL: "https://waline.example.com" },
+  },
 };
 
 // Shiki themes for the three color modes (STYLE-003). VitePress registers
@@ -109,6 +121,10 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
 
   title: "VitePress Theme Terminal",
   description: "A TUI-inspired VitePress Theme for Blog and Personal Website",
+
+  // Git-derived last-updated timestamp per page — the license card's "Updated"
+  // row (COMP-003) uses it when a page has no explicit `updated` frontmatter.
+  lastUpdated: true,
 
   // Fonts (FONT-001), main-color property (STYLE-001), mode restore (STYLE-002)
   head: themeHead(themeConfig),

@@ -18,6 +18,8 @@
 @use "settings"; // settings panel + content font preferences (THEME-007)
 @use "content"; // base markdown content styling (STYLE-005)
 @use "card";    // reusable TUI floating cards (COMP-001)
+@use "license"; // end-of-article license card (COMP-003)
+@use "comments"; // Waline comments + article counts (COMP-004)
 @use "footer";  // in-viewport footer (THEME-004)
 @use "prefooter-demo"; // custom pre-footer demo content (THEME-006, temporary)
 @use "code";    // code blocks & Shiki mode switching (STYLE-003)

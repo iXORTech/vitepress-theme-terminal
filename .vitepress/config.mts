@@ -52,10 +52,10 @@ const themeConfig: TerminalThemeConfig = {
   // search / color-mode controls, for important social links or external tools.
   toolbar: {
     nav: [
-      { text: { en: "guide", "zh-Hans": "指南" }, link: "/guide/" },
-      { text: { en: "posts", "zh-Hans": "文章" }, link: "/posts" },
-      { text: { en: "tags", "zh-Hans": "标签" }, link: "/tags" },
-      { text: { en: "archives", "zh-Hans": "归档" }, link: "/archives" },
+      { text: { en: "Guide", "zh-Hans": "指南" }, link: "/guide/", icon: "fa-solid fa-book" },
+      { text: { en: "Posts", "zh-Hans": "文章" }, link: "/posts", icon: "fa-solid fa-feather" },
+      { text: { en: "Tags", "zh-Hans": "标签" }, link: "/tags", icon: "fa-solid fa-tags" },
+      { text: { en: "Archives", "zh-Hans": "归档" }, link: "/archives", icon: "fa-solid fa-box-archive" },
     ],
     actions: [
       {

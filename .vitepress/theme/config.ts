@@ -165,6 +165,13 @@ export interface TerminalNavItem {
    * new tab.
    */
   link: string
+
+  /**
+   * Optional Font Awesome class list for a tab icon, e.g. `fa-solid fa-feather`.
+   * When set, the icon renders before the label. The icon is purely decorative
+   * — it does not affect the active-state highlight.
+   */
+  icon?: string
 }
 
 /**

@@ -109,7 +109,10 @@ const href = (link: string): string =>
         :href="href(item.link)"
         :target="isExternalLink(item.link) ? '_blank' : undefined"
         :rel="isExternalLink(item.link) ? 'noreferrer' : undefined"
-      >{{ localize(item.text) }}</a>
+      >
+        <i v-if="item.icon" :class="item.icon" aria-hidden="true"></i>
+        {{ localize(item.text) }}
+      </a>
     </nav>
 
     <!-- Global actions (right): the configurable extra action icons

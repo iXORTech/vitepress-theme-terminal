@@ -634,6 +634,16 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `.ct-statusbar__clock`, keeps the gear. New strings
     `status.home/.notFound/.clock` (en + zh-Hans). Verified headless 20/20.*
 
+- [ ] **THEME-020** — Tool bar nav expansion customization: allow submenus instead of just a flat list of links
+  - **Category:** Theme · **Deps:** THEME-005
+  - **Acceptance criteria:** the tool bar's navigation can be configured with a
+    tree instead of a flat array, so a top-level tab, if it is only a link, it stays
+    with current behavior, but if it has children links, it becomes unclickable (no longer requires
+    a link but an array child text, link, and icon, and shows a dropdown with its children when it's
+    being hovered above; the submenu is a floating panel with a TUI-window look (rounded/floating
+    finish) and a small drop shadow; the submenu closes when the user no longer hovers over the
+    top-level tab or the submenu.
+
 ### Components
 
 - [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration

@@ -835,6 +835,13 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `styles/_posts.scss`. Build generated 7 tag / 3 category / page-2 routes;
     headless-verified pagination, filtering, and zh-Hans re-localization.*
 
+- [ ] **POST-003** — Post cover support
+  - **Category:** Content · **Deps:** POST-001
+  - **Acceptance criteria:** posts and series articles can declare an optional cover image
+  - in their frontmatter; the cover image, in post list cards and in the article page, is rendered
+    on the right side of the card on desktop and above the content on mobile; it should be properly
+    styled for a uniform look for the cards. The cover image is optional, and the card layout gracefully degrades when no cover is present; the cover image is responsive and maintains its aspect ratio; the cover image is lazy-loaded and optimized for performance.
+
 - [ ] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in

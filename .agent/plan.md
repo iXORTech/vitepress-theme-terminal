@@ -817,6 +817,22 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     pages (no article cards — by design). Explorer skips dynamic-route templates
     (`[` in path). Build green; headless-verified.*
 
+
+- [ ] **ARCH-002** — Show in explorer toggle: add field in frontmatter and `explorer.json` configs that controls whether a page (or folder) is shown in the explorer
+  - **Category:** Architecture · **Deps:** ARCH-001, THEME-002
+  - **Acceptance criteria:** a page or folder can be hidden from the explorer by
+    setting `showInExplorer: false` in its frontmatter or in its `explorer.json`
+    config; the default is `true`; the toggle is documented in the content architecture
+    and in the explorer spec; verified on the rendered site.
+
+- [ ] **ARCH-003** — I18N: localized frontmatter fields
+  - **Category:** Architecture · **Deps:** ARCH-001, I18N-001
+  - **Acceptance criteria:** frontmatter fields that are displayed to the user (title,
+    description, series title/description, etc.) can be localized by providing a
+    mapping of locale codes to strings; the default is the string itself; the toggle
+    is documented in the content architecture and in the i18n spec; verified on the
+    rendered site.
+
 ### Content & pages
 
 - [x] **POST-001** — Tags & categories

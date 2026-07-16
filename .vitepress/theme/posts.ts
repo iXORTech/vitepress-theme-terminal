@@ -13,6 +13,13 @@
 // (docs/design/content-architecture.md) keeps series articles separate; POST-002
 // owns whether series posts join these listings, so this module aggregates
 // `src/posts/**` only.
+//
+// Displayed frontmatter fields (`title`, `description`) may be per-language
+// maps (ARCH-003, design-language.md §9); entries keep them as LocalizableText
+// and the listing components resolve them against the active UI language.
+
+import { asLocalizableText, resolveLocalizedText } from './locales'
+import type { LocalizableText } from './locales'
 
 /** Raw entry shape produced by VitePress `createContentLoader`. */
 export interface RawContentEntry {
@@ -25,14 +32,14 @@ export interface RawContentEntry {
 export interface PostEntry {
   /** Site-absolute URL, e.g. `/posts/hello`. */
   url: string
-  /** Display title (frontmatter `title`, else the URL slug). */
-  title: string
+  /** Display title (frontmatter `title`, else the URL slug), localizable (ARCH-003). */
+  title: LocalizableText
   /** Frontmatter `date` as an ISO string (empty when absent/invalid). */
   date: string
   /** Sort key used by both date sorting and archive grouping. */
   timestamp: number
-  /** Short description/excerpt for post cards. */
-  excerpt: string
+  /** Short description/excerpt for post cards, localizable (ARCH-003). */
+  excerpt: LocalizableText
   /** Declared tags (normalized to a string[]). */
   tags: string[]
   /** Declared categories (normalized to a string[]). */
@@ -77,6 +84,28 @@ export function slugify(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+/**
+ * Localized display label for a taxonomy term (I18N-008). `labels` is the
+ * `themeConfig.taxonomy.tags`/`.categories` map keyed by authored term name;
+ * a key matches its term case-insensitively through the shared slug (so
+ * `Guides` and `guides` share one entry). Display-only — slugs, URLs, and
+ * grouping identity always use the authored term; no entry = verbatim term.
+ */
+export function termLabel(
+  term: string,
+  labels: Record<string, LocalizableText> | undefined,
+  language: string,
+): string {
+  if (!labels) return term
+  const slug = slugify(term)
+  const key = Object.keys(labels).find(
+    (candidate) => candidate === term || slugify(candidate) === slug,
+  )
+  return (
+    (key !== undefined && resolveLocalizedText(labels[key], language)) || term
+  )
+}
+
 /** A taxonomy term paired with the posts that carry it. */
 export interface TermGroup {
   /** Original display name (first spelling encountered for the slug). */
@@ -94,15 +123,13 @@ export function normalizePosts(raw: RawContentEntry[]): PostEntry[] {
       const fm = entry.frontmatter ?? {}
       const timestamp = toTimestamp(fm.date)
       const slug = entry.url.replace(/\/$/, '').split('/').pop() ?? entry.url
+      const title = asLocalizableText(fm.title)
       return {
         url: entry.url,
-        title: typeof fm.title === 'string' && fm.title.trim() ? fm.title : slug,
+        title: (typeof title === 'string' && !title.trim() ? undefined : title) ?? slug,
         date: Number.isNaN(timestamp) ? '' : new Date(timestamp).toISOString(),
         timestamp: Number.isNaN(timestamp) ? 0 : timestamp,
-        excerpt:
-          (typeof fm.description === 'string' && fm.description) ||
-          entry.excerpt ||
-          '',
+        excerpt: asLocalizableText(fm.description) || entry.excerpt || '',
         tags: toStringList(fm.tags),
         categories: toStringList(fm.categories),
       }

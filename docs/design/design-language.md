@@ -107,10 +107,21 @@ sorted deterministically and is available in SSR output as well as client
 navigation. A page label uses frontmatter `explorerTitle`, then a localized
 frontmatter `title`, and finally the normal VitePress title/path fallback. A
 folder may add source-local `explorer.json` beside its Markdown children:
-`title` is a `LocalizableText` override. This metadata intentionally lives with the content,
+`title` is a `LocalizableText` override, and `showInExplorer: false` hides the
+folder (see below). This metadata intentionally lives with the content,
 not in the VitePress site config, so an index-less folder can still have a
 localized label. The existing explicit explorer-array form remains supported,
 so auto-discovery is opt-in and does not change existing sites.
+
+*Visibility toggle (ARCH-002):* an auto-discovered page or folder can opt out
+of the tree; the default is always **shown**. A page sets frontmatter
+`showInExplorer: false` to remove itself — hiding a folder's `index.md` this
+way drops only the folder's link, and the folder survives (link-less) as long
+as it still has visible children. A folder's `explorer.json` may set
+`showInExplorer: false` to prune the folder **and its whole subtree**. Hidden
+pages still build and remain reachable by URL — this controls navigation
+chrome, not routing. Explicit hand-written `themeConfig.explorer` trees are
+unaffected: what is listed there is what renders.
 
 **Floating windows (THEME-003/017)** — all floating utilities (find palette,
 settings panel, pickers) share **one** window instance, rendered in the
@@ -546,6 +557,63 @@ config's `title`/`description`; the browser tab title and meta description follo
 active language client-side, while the server-rendered head keeps the site-config
 defaults. All future config text (nav labels, footer text, series metadata, …) must
 use `LocalizableText`.
+
+**Localized frontmatter fields (ARCH-003).** The same `LocalizableText` pattern
+applies to authored page metadata: every *displayed* frontmatter field — a page's
+`title`, a post's `description`, series `title`/`description` in `series.yml`
+(POST-002), and future displayed fields — accepts either a plain string (used for
+all languages, the default) or a per-language map:
+
+```yaml
+---
+title:
+  en: Hello, Terminal
+  zh-Hans: 你好，终端
+description:
+  en: A first look at the theme.
+  zh-Hans: 主题初识。
+---
+```
+
+Resolution is the standard fallback (exact tag → primary subtag → `en` → first
+entry) against the active UI language, re-resolved in place on a language switch.
+Untyped metadata is validated through the shared `asLocalizableText()` helper
+(`theme/locales/`) — a map with any non-string value is ignored, so malformed
+frontmatter degrades to the normal VitePress fallback instead of breaking.
+Consumers: the explorer label (I18N-006), post-list and archive titles/excerpts,
+the license card's article title, and the browser tab title (a localized map makes
+VitePress's own `page.title` fall back to the body h1; the theme resolves the map
+first, client-side). The SSR head is resolved to the **build language** by the
+theme's `transformPageData` hook (`theme/pageData.ts`, wired in `config.mts`) —
+required, because VitePress escapes `pageData.description` straight into the
+`<meta name="description">` and an unresolved map would break the build; the
+client then follows the active language best-effort, like the site title
+(I18N-004). Non-displayed frontmatter (dates, tags/categories term names —
+authored content kept verbatim per POST-001, toggles) stays plain — taxonomy
+terms localize through the dedicated config below, never in frontmatter.
+
+**Localizable taxonomy labels (I18N-008).** Tag and category *display* labels
+localize through a dedicated config — not per-post frontmatter, because a term is
+shared across posts and its identity must stay stable. `themeConfig.taxonomy`
+maps authored term names to `LocalizableText` labels:
+
+```ts
+taxonomy: {
+  tags: { theme: { en: "theme", "zh-Hans": "主题" } },
+  categories: { Guides: { en: "Guides", "zh-Hans": "指南" } },
+}
+```
+
+Keys are the term names as written in post frontmatter, matched
+case-insensitively through their slug (`Guides` and `guides` share one entry);
+resolution is the standard fallback against the active UI language, re-resolved
+in place on a switch. **Display-only:** slugs, `/tags/<slug>` / `/categories/<slug>`
+URLs, and grouping identity always derive from the authored name, so listing
+routes never change with the language (consistent with the no-`/<lang>/`-URL rule).
+A term without an entry renders verbatim — the default. Consumers: the post
+byline/card taxonomy links (`PostTaxonomy`), the tag & category indexes, and the
+per-term listing headings (`TermPosts`), all through the `useTaxonomy()`
+composable over the shared `termLabel()` helper (`theme/posts.ts`).
 
 **Locale tag rule (I18N-005).** Built-in locale tags are the **minimal canonical
 BCP 47 tag**: the language subtag plus a script subtag only where the script

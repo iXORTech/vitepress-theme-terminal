@@ -307,6 +307,18 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     zh-Hans bodies; documented in design-language.md §9 and
     guide/getting-started.md. Verified headless.*
 
+- [ ] **I18N-008** — Localizable taxonomy term labels (tags & categories)
+  - **Category:** i18n · **Deps:** POST-001, I18N-004
+  - **Acceptance criteria:** tag (and category) *display* labels can be localized
+    through a dedicated config — `themeConfig.taxonomy = { tags?, categories? }`,
+    each a map of authored term name → `LocalizableText` — while slugs, URLs, and
+    grouping identity stay derived from the authored frontmatter strings (terms
+    without an entry render verbatim, the default); every surface that displays a
+    term resolves the label against the active UI language and re-localizes in
+    place (post byline/cards, tag & category indexes, per-term listing headings);
+    documented in the i18n spec and the content architecture; verified on the
+    rendered site.
+
 ### Theme components
 
 - [x] **THEME-001** — Layout shell: tool bar · viewport · status bar
@@ -638,8 +650,8 @@ parallel; tick `[x]` only when every acceptance criterion is met.
   - **Category:** Theme · **Deps:** THEME-005
   - **Acceptance criteria:** the tool bar's navigation can be configured with a
     tree instead of a flat array, so a top-level tab, if it is only a link, it stays
-    with current behavior, but if it has children links, it becomes unclickable (no longer requires
-    a link but an array child text, link, and icon, and shows a dropdown with its children when it's
+    with current behavior, but if it has children links, it requires a link but also an array of
+    child text, link, and icon, and shows a dropdown with its children when it's
     being hovered above; the submenu is a floating panel with a TUI-window look (rounded/floating
     finish) and a small drop shadow; the submenu closes when the user no longer hovers over the
     top-level tab or the submenu.
@@ -818,20 +830,48 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (`[` in path). Build green; headless-verified.*
 
 
-- [ ] **ARCH-002** — Show in explorer toggle: add field in frontmatter and `explorer.json` configs that controls whether a page (or folder) is shown in the explorer
+- [x] **ARCH-002** — Show in explorer toggle: add field in frontmatter and `explorer.json` configs that controls whether a page (or folder) is shown in the explorer
   - **Category:** Architecture · **Deps:** ARCH-001, THEME-002
   - **Acceptance criteria:** a page or folder can be hidden from the explorer by
     setting `showInExplorer: false` in its frontmatter or in its `explorer.json`
     config; the default is `true`; the toggle is documented in the content architecture
     and in the explorer spec; verified on the rendered site.
+    *Landed 2026-07-16: `useExplorer`'s auto-discovery filters pages with
+    frontmatter `showInExplorer: false` (hiding a folder's `index.md` drops just
+    the folder link; visible children keep the folder alive, link-less) and
+    prunes whole subtrees whose `explorer.json` sets `showInExplorer: false`
+    (root index honors the `/` config too); branches left with no page and no
+    visible children disappear. Hidden pages still build and stay reachable by
+    URL; explicit `themeConfig.explorer` trees are unaffected. Demos:
+    `src/guide/advanced/hidden-page.md` (frontmatter) + `src/drafts/`
+    (`explorer.json`). Documented in design-language.md §4 (visibility toggle),
+    content-architecture.md §3, and guide/getting-started.md. Verified headless
+    (7/7): hidden rows/links absent with siblings intact, both pages reachable.*
 
-- [ ] **ARCH-003** — I18N: localized frontmatter fields
+- [x] **ARCH-003** — I18N: localized frontmatter fields
   - **Category:** Architecture · **Deps:** ARCH-001, I18N-001
   - **Acceptance criteria:** frontmatter fields that are displayed to the user (title,
     description, series title/description, etc.) can be localized by providing a
     mapping of locale codes to strings; the default is the string itself; the toggle
     is documented in the content architecture and in the i18n spec; verified on the
     rendered site.
+    *Landed 2026-07-16: the untyped-metadata validator `asLocalizableText()`
+    moved from `useExplorer` into `theme/locales/index.ts` as the shared
+    contract. `PostEntry.title`/`.excerpt` are now `LocalizableText`
+    (`theme/posts.ts` keeps frontmatter maps); `PostList`/`ArchivesList`
+    resolve them against the active language, `ArticleLicense` and
+    `useSiteText`'s tab title resolve a localized frontmatter `title` (a map
+    makes VitePress's `page.title` fall back to the body h1). New node-side
+    `theme/pageData.ts` `createPageDataTransformer(lang)` wired as
+    `transformPageData` in config.mts — required because VitePress escapes
+    `pageData.description` into the SSR `<meta>` and a raw map crashes the
+    build; SSR resolves to the build language, the client re-resolves in
+    place. Series `series.yml` title/description follow the same pattern when
+    POST-002 lands its parser. Demo: `posts/hello-terminal.md` localized
+    title + description. Documented in design-language.md §9 (localized
+    frontmatter fields), content-architecture.md §3, and
+    guide/getting-started.md. Verified headless (13/13): en/zh-Hans post
+    cards, archives after reload, license-card title, tab title, SSR meta.*
 
 ### Content & pages
 

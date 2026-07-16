@@ -234,6 +234,22 @@ export interface TerminalExplorerItem {
 /** Explorer source: an explicit tree or every Markdown page under `src/`. */
 export type TerminalExplorerConfig = TerminalExplorerItem[] | 'auto'
 
+/**
+ * Localized display labels for taxonomy terms (I18N-008). Keys are term names
+ * as authored in post frontmatter (matched case-insensitively through their
+ * slug, so `Guides` and `guides` share one entry); values are the displayed
+ * labels, localizable (I18N-004). Display-only: slugs, URLs, and grouping
+ * identity always come from the authored name, so listings keep their routes
+ * across languages. A term without an entry renders verbatim.
+ */
+export interface TerminalTaxonomyConfig {
+  /** Tag display labels, keyed by authored tag name. */
+  tags?: Record<string, LocalizableText>
+
+  /** Category display labels, keyed by authored category name. */
+  categories?: Record<string, LocalizableText>
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -297,6 +313,12 @@ export interface TerminalThemeConfig {
    */
   explorer?: TerminalExplorerConfig
 
+  /**
+   * Localized taxonomy term labels (I18N-008); see
+   * {@link TerminalTaxonomyConfig}. Unset terms display verbatim.
+   */
+  taxonomy?: TerminalTaxonomyConfig
+
   // Feature toggles are added here as their features land (e.g. POST-002
   // series inclusion).
 }
@@ -333,7 +355,7 @@ export interface ResolvedCommentsConfig {
 export type ResolvedTerminalThemeConfig = Required<
   Omit<
     TerminalThemeConfig,
-    'author' | 'license' | 'footer' | 'search' | 'comments' | 'toolbar'
+    'author' | 'license' | 'footer' | 'search' | 'comments' | 'toolbar' | 'taxonomy'
   >
 > & {
   author: ResolvedAuthorConfig
@@ -342,6 +364,7 @@ export type ResolvedTerminalThemeConfig = Required<
   search: ResolvedSearchConfig
   comments: ResolvedCommentsConfig
   toolbar: Required<TerminalToolbarConfig>
+  taxonomy: Required<TerminalTaxonomyConfig>
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -372,6 +395,9 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   toolbar: { nav: [], actions: [] },
   // No explorer until the user configures a tree (THEME-002).
   explorer: [],
+  // No localized taxonomy labels until configured — terms display verbatim
+  // (I18N-008).
+  taxonomy: { tags: {}, categories: {} },
   // Search stays unconfigured until Algolia credentials are supplied
   // (SEARCH-001) — the find palette then shows its "not configured" notice.
   search: { provider: 'algolia', algolia: null },
@@ -507,6 +533,12 @@ export function resolveThemeConfig(
     }
   }
   if (user?.explorer) resolved.explorer = user.explorer
+  if (user?.taxonomy) {
+    resolved.taxonomy = {
+      tags: user.taxonomy.tags ?? {},
+      categories: user.taxonomy.categories ?? {},
+    }
+  }
   if (user?.search) resolved.search = resolveSearch(user.search)
   if (user?.comments) resolved.comments = resolveComments(user.comments)
   return resolved

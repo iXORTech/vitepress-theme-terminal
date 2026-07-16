@@ -112,6 +112,26 @@ export function matchLanguageTag(tag: string, overrides?: LocaleOverrides): stri
 }
 
 /**
+ * Validate an untyped value (frontmatter, `explorer.json`, YAML …) as a
+ * {@link LocalizableText}: a plain string passes through, an object must map
+ * language tags to strings. Anything else is `undefined`, so callers can fall
+ * back. THE way authored metadata becomes localizable (I18N-006 / ARCH-003).
+ */
+export function asLocalizableText(value: unknown): LocalizableText | undefined {
+  if (typeof value === 'string') return value
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined
+  }
+
+  const localized: Record<string, string> = {}
+  for (const [tag, text] of Object.entries(value)) {
+    if (typeof text !== 'string') return undefined
+    localized[tag] = text
+  }
+  return Object.keys(localized).length > 0 ? localized : undefined
+}
+
+/**
  * Resolve a {@link LocalizableText} for a language tag: plain strings pass
  * through; maps resolve exact tag (case-insensitive) → primary subtag →
  * `en` → first entry. `undefined` stays `undefined` so callers can fall back

@@ -3,15 +3,18 @@
 // CategoriesIndex.vue — all categories with counts (POST-001)
 // ============================================================================
 // The category index: every category that any post declares, each a link to its
-// `/categories/<slug>` listing with a post count. Rendered by
-// `src/categories.md`.
+// `/categories/<slug>` listing with a post count. Display names resolve
+// through `themeConfig.taxonomy.categories` (I18N-008); slugs/URLs stay
+// derived from the authored names. Rendered by `src/categories.md`.
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
 import { data as posts } from '../posts.data.mts'
 import { groupByCategory } from '../posts'
+import { useTaxonomy } from '../composables/useTaxonomy'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
 const { t } = useThemeLocale()
+const { categoryLabel } = useTaxonomy()
 
 const categories = computed(() => groupByCategory(posts))
 </script>
@@ -27,7 +30,7 @@ const categories = computed(() => groupByCategory(posts))
     <ul v-else class="ct-terms__list">
       <li v-for="group in categories" :key="group.slug" class="ct-terms__item">
         <a class="ct-terms__link" :href="withBase(`/categories/${group.slug}`)">
-          <span class="ct-terms__name">{{ group.name }}</span>
+          <span class="ct-terms__name">{{ categoryLabel(group.name) }}</span>
           <span class="ct-terms__count">{{ group.posts.length }}</span>
         </a>
       </li>

@@ -1,11 +1,15 @@
 ---
-title: Hello, Terminal
+title:
+  en: Hello, Terminal
+  zh-Hans: 你好，终端
 date: 2025-03-12
 categories: Guides
 tags:
   - vitepress
   - theme
-description: A first look at the TUI-inspired VitePress Theme Terminal and how a post is structured.
+description:
+  en: A first look at the TUI-inspired VitePress Theme Terminal and how a post is structured.
+  zh-Hans: 初识 TUI 风格的 VitePress Theme Terminal，以及一篇文章的结构。
 ---
 
 # Hello, Terminal

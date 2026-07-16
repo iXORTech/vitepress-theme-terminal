@@ -13,7 +13,7 @@ import type { ComputedRef } from 'vue'
 import { useData } from 'vitepress'
 import { resolveThemeConfig } from '../config'
 import type { TerminalThemeConfig } from '../config'
-import { resolveLocalizedText } from '../locales'
+import { asLocalizableText, resolveLocalizedText } from '../locales'
 import { useThemeLocale } from './useThemeLocale'
 
 /** Localized site title/description for the active UI language. */
@@ -21,7 +21,7 @@ export function useSiteText(): {
   title: ComputedRef<string>
   description: ComputedRef<string>
 } {
-  const { site, page, theme } = useData<TerminalThemeConfig>()
+  const { site, page, frontmatter, theme } = useData<TerminalThemeConfig>()
   const { language } = useThemeLocale()
 
   const config = computed(() => resolveThemeConfig(theme.value))
@@ -37,12 +37,23 @@ export function useSiteText(): {
       site.value.description,
   )
 
+  // The page part of the tab title: a localized frontmatter `title` map wins
+  // (ARCH-003 — a map makes VitePress's `page.title` fall back to the body
+  // h1), else VitePress's resolved page title.
+  const pageTitle = computed(
+    () =>
+      resolveLocalizedText(
+        asLocalizableText(frontmatter.value.title),
+        language.value,
+      ) || page.value.title,
+  )
+
   // Head sync — registered post-mount so it runs after VitePress's own head
   // updater in the flush queue and wins the write on page changes.
   onMounted(() => {
     watchEffect(() => {
-      document.title = page.value.title
-        ? `${page.value.title} | ${title.value}`
+      document.title = pageTitle.value
+        ? `${pageTitle.value} | ${title.value}`
         : title.value
       document
         .querySelector('meta[name="description"]')

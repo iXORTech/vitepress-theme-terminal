@@ -2,7 +2,33 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-14 (**ARCH-001 + POST-001
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-16 (**I18N-008 landed**,
+same day as ARCH-002/003: localizable taxonomy term labels via the dedicated
+`themeConfig.taxonomy = { tags?, categories? }` maps (authored term name →
+LocalizableText; matched case-insensitively through the slug). Display-only —
+slugs/URLs/grouping stay authored; unconfigured terms verbatim. Framework-free
+`termLabel()` in `theme/posts.ts` + new `useTaxonomy()` composable
+(`tagLabel`/`categoryLabel`) consumed by `PostTaxonomy`, `TagsIndex`,
+`CategoriesIndex`, and the `TermPosts` heading; demo config localizes
+`theme`/`color` tags + `Guides`/`Design` categories. Docs: design-language.md
+§9 localizable taxonomy labels, content-architecture.md §7 note,
+guide/getting-started.md. Verified headless 15/15.) Same day (**ARCH-002 + ARCH-003
+landed**: explorer visibility toggle + localized frontmatter fields. ARCH-002:
+auto-discovery filters pages with frontmatter `showInExplorer: false` (a hidden
+folder `index.md` drops just the folder link) and prunes subtrees whose
+`explorer.json` sets `showInExplorer: false`; page/branch stays reachable by URL;
+demos `src/guide/advanced/hidden-page.md` + `src/drafts/`. ARCH-003:
+`asLocalizableText()` moved from `useExplorer` into `theme/locales/index.ts` as
+the shared untyped-metadata validator; `PostEntry.title`/`.excerpt` are
+`LocalizableText` resolved by `PostList`/`ArchivesList`; `ArticleLicense` +
+`useSiteText` tab title resolve a localized frontmatter `title` map; new
+node-side `theme/pageData.ts` `createPageDataTransformer(lang)` wired as
+`transformPageData` in config.mts — VitePress escapes `pageData.description`
+into the SSR `<meta>`, so a raw map must resolve to the build language or the
+build crashes; demo `posts/hello-terminal.md` localized title/description.
+Docs: design-language.md §4 visibility toggle + §9 localized frontmatter
+fields, content-architecture.md §3 notes, guide/getting-started.md. Build
+green; verified headless 20/20.) Earlier 2026-07-14 (**ARCH-001 + POST-001
 landed**: page-type architecture + tags/categories. `theme/utils/pageType.ts`
 `resolvePageType()` maps every page (from its `src/` path + frontmatter escape
 hatches) to one of six types, each a `theme/pages/*Page.vue`
@@ -209,6 +235,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   Algolia, replacing the THEME-003 demo) done 2026-07-12.
   COMP-002 image containers (Fancybox lightbox gallery + `:::: swiper` cards
   decks) done 2026-07-13.
+  ARCH-002 (explorer `showInExplorer` visibility toggle) and ARCH-003
+  (localized frontmatter fields + `transformPageData` SSR resolution) done
+  2026-07-16.
   Roadmap:
   ARCH-001 (content architecture — `src/` layout + page-type components, foundation
   for the content/pages work, see `docs/design/content-architecture.md`),
@@ -269,7 +298,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   default block SSR-visible (I18N-007); I18N-001/003
   implementation notes (tables, resolution order, `useThemeLocale()`); the
   auto-discovery contract (THEME-012/I18N-006) for `explorer: "auto"`, folder
-  indexes, deterministic ordering, and localized frontmatter/config labels.
+  indexes, deterministic ordering, and localized frontmatter/config labels;
+  §4 visibility toggle (ARCH-002: frontmatter `showInExplorer: false` = page
+  hidden, folder `index.md` loses just its link; `explorer.json`
+  `showInExplorer: false` = subtree pruned; URLs unaffected; explicit trees
+  untouched); §9 localized frontmatter fields (ARCH-003: displayed frontmatter
+  — `title`, `description`, series metadata — accepts per-language maps
+  validated by `asLocalizableText()`, SSR head resolved to the build language
+  via `transformPageData`, client re-resolves in place); §9 localizable
+  taxonomy labels (I18N-008: `themeConfig.taxonomy` term-name → LocalizableText
+  maps, display-only — slugs/URLs/grouping stay authored, unconfigured terms
+  verbatim).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
   modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
@@ -313,7 +352,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   theme `Layout` (generalizing the current home placeholder + `isArticle` branching).
   Structure binding; demo file names illustrative. Behavior split across
   ARCH-001 (structure + dispatch), POST-001 (tags/categories/listings), POST-002
-  (posts/series).
+  (posts/series). §3 also records the ARCH-002 `showInExplorer` escape hatch
+  and the ARCH-003 localized-frontmatter pattern (both pointing to
+  design-language.md for full semantics); the §7 POST-001 note points to the
+  I18N-008 `themeConfig.taxonomy` display labels (names stay verbatim in
+  slugs/URLs/grouping).
 
 ## .vitepress/
 
@@ -330,14 +373,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
   generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
   nav tabs — the last three surface the POST-001 listing pages — +
-  a GitHub action icon), and `explorer: "auto"` to discover every Markdown page under `src/`;
+  a GitHub action icon), a `taxonomy` block (I18N-008: zh-Hans labels for the
+  `theme`/`color` tags + `Guides`/`Design` categories),
+  and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
   a commented `search.algolia` example documents the SEARCH-001 keys (demo
   ships unconfigured → the palette shows its notice); a commented
   `comments.waline.serverURL` example documents COMP-004 (demo ships
   unconfigured → no comment card/counts); `lastUpdated: true` (git-derived
   per-page timestamp feeding the license card's "Updated" row, COMP-003);
-  `markdown.math: true`
+  `transformPageData: createPageDataTransformer(lang)` (ARCH-003 — resolves
+  localized frontmatter maps for the SSR head); `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002/004:
@@ -348,6 +394,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   dark default (STYLE-002) AND the font preferences `ct-font-family`/`ct-font-size`
   onto `data-ct-font-*` (THEME-007) — attributes set only for a non-default choice,
   so no flash/reflow.
+- `theme/pageData.ts` — node-side ARCH-003 `createPageDataTransformer(lang)`,
+  wired as `transformPageData` in `config.mts`: resolves a localized
+  frontmatter `description` map to the build language's string (VitePress
+  escapes `pageData.description` straight into the SSR `<meta>` — a raw map
+  crashes the build) and backfills `pageData.title` from a `title` map when a
+  page has no body h1. The raw maps stay in `pageData.frontmatter` for
+  client-side re-resolution.
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin` and
@@ -411,7 +464,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `explorer: TerminalExplorerItem[] | "auto"` — explicit tree or automatic
   discovery of `src/**/*.md`; explicit nodes retain `{ text, link?, items? }`,
   while source-local `explorer.json` files can provide localized folder labels;
-  default `[]` = no explorer rendered. SEARCH-001: `search: TerminalSearchConfig`
+  default `[]` = no explorer rendered. I18N-008: `taxonomy:
+  TerminalTaxonomyConfig` — `{ tags?, categories? }` maps of authored term
+  name → LocalizableText display label (display-only; slugs/URLs stay
+  authored), resolved to `{ tags: {}, categories: {} }` defaults.
+  SEARCH-001: `search: TerminalSearchConfig`
   (`provider?: 'algolia'`, `algolia?: {appId, apiKey, indexName}`) resolved via
   `resolveSearch()` (partial creds → `algolia: null` = unconfigured) with the
   exported `isSearchConfigured()` helper; default `{ provider:'algolia',
@@ -454,7 +511,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `en`, `zh-CN` → `zh-Hans`), `LocalizableText` (`string | { tag: string }`) +
   `resolveLocalizedText()`
   (exact → primary → `en` → first entry; the pattern for all config text, I18N-004);
-  `LocaleOverrides`/`ThemeLanguage` types.
+  `LocaleOverrides`/`ThemeLanguage` types; `asLocalizableText()` (ARCH-003) —
+  the shared validator turning untyped authored metadata (frontmatter,
+  `explorer.json`, YAML) into a `LocalizableText` or `undefined` (maps with any
+  non-string value are rejected so malformed input degrades to fallbacks).
 - `theme/composables/useThemeLocale.ts` — client composable & language state
   (singleton): `strings`/`t(key)`, `language` (canonical tag; preference ?? site
   `lang`), `languages`, `setLanguage()` (updates `<html lang>`, persists to
@@ -530,7 +590,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   in transient state and are cleared after navigation. ARCH-001: discovery now
   skips dynamic-route source templates (relativePath containing `[`, e.g.
   `tags/[name].md`, `page/[num].md`) — only their generated listing routes are
-  real, and those are not file-tree entries.
+  real, and those are not file-tree entries. ARCH-002: discovery also drops
+  pages with frontmatter `showInExplorer: false` (a hidden folder `index.md`
+  loses just its link; visible children keep the folder alive) and prunes any
+  subtree whose `explorer.json` sets `showInExplorer: false` (branches left
+  with no page and no visible children vanish; root `/` config honored).
+  `asLocalizableText` now imported from `../locales` (ARCH-003).
 - `theme/composables/useFloatingWindow.ts` — shared floating-window singleton
   (THEME-003/016/017): `active` shallowRef holding the current utility payload
   `{ id, label(), panes: [{ title(), icon?, component }] }` — `label()` names
@@ -557,6 +622,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `SearchResult` (`objectID`/`title` = deepest hierarchy level ← content, /
   `breadcrumb` = parent levels · ` › ` / `snippet` = `_snippetResult.content` ←
   content / `url`); rows without a `url` are dropped. No npm dependency.
+- `theme/composables/useTaxonomy.ts` — I18N-008 taxonomy display labels:
+  `useTaxonomy()` → `tagLabel(term)`/`categoryLabel(term)` resolving
+  `themeConfig.taxonomy` through `termLabel()` (posts.ts) against the active
+  language; consumed by PostTaxonomy, TagsIndex, CategoriesIndex, TermPosts.
 - `theme/composables/useClock.ts` — THEME-019 live wall clock: a reactive
   `HH:MM:SS` (24-hour, zero-padded) string for the status bar's right end.
   SSR-safe — starts empty (server + first client render agree), fills and ticks
@@ -578,6 +647,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (I18N-004): themeConfig LocalizableText ?? site config values; post-mount
   watchEffect syncs `document.title` (`page | title` pattern) and
   `meta[name=description]` with the active language (SSR head keeps defaults).
+  ARCH-003: the tab title's page part resolves a localized frontmatter `title`
+  map first, else VitePress's `page.title`.
 - `theme/composables/useThemeConfig.ts` — client composable: `useThemeConfig()` wraps
   `useData()` + `resolveThemeConfig()`; components read all user options through it,
   honoring per-locale `themeConfig`.
@@ -597,7 +668,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   output, unzoned `YYYY-MM-DD` = UTC), `toStringList`, `slugify` (the `/tags`,
   `/categories` URL slug), `groupByTag`/`groupByCategory` (term → posts, most-used
   first), `POSTS_PER_PAGE=10`, `pageCount`. Imported by the data loader, the
-  dynamic `.paths.mjs` route loaders, and the listing components.
+  dynamic `.paths.mjs` route loaders, and the listing components. ARCH-003:
+  `PostEntry.title`/`.excerpt` are `LocalizableText` — frontmatter maps pass
+  through `asLocalizableText` and the display components resolve them; term
+  names stay verbatim strings. I18N-008: `termLabel(term, labels, language)` —
+  the display-label resolver over `themeConfig.taxonomy` maps (key matched by
+  exact name or slug equality; fallback = the authored term).
 - `theme/posts.data.mts` — POST-001 VitePress data loader: `createContentLoader(
   'posts/**/*.md', { excerpt })` → `normalizePosts`; exports typed `data:
   PostEntry[]` inlined at build. Series articles excluded (POST-002 owns their
@@ -709,7 +785,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   numeric git timestamp) to a single instant, assumes UTC when an ISO string
   has no zone, and formats in UTC until mount before switching to the reader's
   browser timezone. Renders a `.ct-license__watermark` `<span>` (CC SVG mask)
-  when `isCreativeCommons` (deed URL / CC icons).
+  when `isCreativeCommons` (deed URL / CC icons). ARCH-003: the article title
+  resolves a localized frontmatter `title` map first (falls back to
+  `page.title`, then the site title).
 - `theme/components/ArticleComments.vue` — end-of-article comment card
   (COMP-004): a `Card` with `showPrompt` (command `comments`) holding the
   localized `comments.title` heading and the `.ct-comments__waline` mount point
@@ -721,11 +799,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/components/PostTaxonomy.vue` — POST-001 categories/tags as links
   (shared by PostPage byline + PostList cards): categories → `/categories/<slug>`,
   tags → `/tags/<slug>` (`slugify`, `withBase`); localized `post.categories`/
-  `post.tags` labels; term names verbatim (`#tag` marker on tags).
+  `post.tags` labels; term display names via `useTaxonomy()` (I18N-008,
+  verbatim fallback; `#tag` marker on tags); slugs stay authored.
 - `theme/components/PostList.vue` — POST-001 reusable list of post cards
   (PostsIndex / TermPosts): per post a `.ct-postcard` (title link · date via
-  `formatListDate` · excerpt · `<PostTaxonomy>`); localized `post.empty` when
-  the list is empty.
+  `formatListDate` · excerpt · `<PostTaxonomy>`); title/excerpt resolved via
+  `resolveLocalizedText` against the active language (ARCH-003); localized
+  `post.empty` when the list is empty.
 - `theme/components/PostsIndex.vue` — POST-001 post-index landing + pagination:
   reads `posts.data.mts`, slices the current page (`useData().params.num`,
   else 1), renders `<PostList>` + a `.ct-pagination` nav (prev · numbered ·
@@ -733,15 +813,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   and `page/[num].md`.
 - `theme/components/ArchivesList.vue` — POST-001 by-year timeline: groups the
   date-sorted posts by descending UTC year (`yearOf`) into `.ct-archives__year`
-  sections of date + title rows; no cards/excerpts. Rendered by `archives.md`.
+  sections of date + title rows (titles resolved via `resolveLocalizedText`,
+  ARCH-003); no cards/excerpts. Rendered by `archives.md`.
 - `theme/components/CategoriesIndex.vue` / `TagsIndex.vue` — POST-001 taxonomy
   indexes: `groupByCategory`/`groupByTag(posts)` → a list (categories) / cloud
-  (tags) of `/…/<slug>` links with post counts. Rendered by `categories.md` /
-  `tags.md`.
+  (tags) of `/…/<slug>` links with post counts; displayed names via
+  `useTaxonomy()` (I18N-008). Rendered by `categories.md` / `tags.md`.
 - `theme/components/TermPosts.vue` — POST-001 per-tag/-category listing (the
   `field` prop selects the taxonomy): reads route params `{ name: slug, term:
   display }` from the `[name].paths.mjs` loaders, filters posts by slug match,
-  shows the localized `post.taggedWith`/`post.inCategory` heading, a back link
+  shows the localized `post.taggedWith`/`post.inCategory` heading (term via
+  `useTaxonomy()`, I18N-008), a back link
   to the index, and `<PostList>`. Rendered by `{tags,categories}/[name].md`.
 - `theme/components/FloatingWindow.vue` — the single shared floating utility
   window (THEME-003/016/017), rendered once from Layout: `role="dialog"` +
@@ -1017,10 +1099,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `guide/advanced/deep-dive.md`, and
   `guide/advanced/advanced-2/{deep-dive.md,explorer.json}` — explorer demo
   content with localized title frontmatter; the getting-started page documents
-  `"auto"`, source-local JSON folder metadata, explicit-tree compatibility, and
-  the I18N-007 `::: lang` localized-content blocks. `advanced/deep-dive.md`
-  wraps its body in `::: lang en` / `::: lang zh-Hans` blocks as the I18N-007
-  demo (body switches with the UI language).
+  `"auto"`, source-local JSON folder metadata, the ARCH-002 `showInExplorer`
+  toggle (frontmatter + JSON), explicit-tree compatibility, the I18N-007
+  `::: lang` localized-content blocks, ARCH-003 localized frontmatter
+  maps, and the I18N-008 `taxonomy` config for localized tag/category labels. `advanced/deep-dive.md` wraps its body in `::: lang en` /
+  `::: lang zh-Hans` blocks as the I18N-007 demo (body switches with the UI
+  language).
+- `guide/advanced/hidden-page.md` — ARCH-002 demo: frontmatter
+  `showInExplorer: false` hides the page from the auto-discovered explorer
+  while it stays reachable at `/guide/advanced/hidden-page`.
+- `drafts/{draft-post.md,explorer.json}` — ARCH-002 demo: the folder's
+  `explorer.json` `{"showInExplorer": false}` prunes the whole `drafts/`
+  subtree from the explorer; the draft still builds at `/drafts/draft-post`.
 - `markdown-examples.md` — input/output demo of the theme markdown pipeline:
   Shiki highlighting incl. a `[main.scss]` file-name code-block card (STYLE-004),
   every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
@@ -1042,7 +1132,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   localized explorer title metadata.
 - `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —
   ARCH-001/POST-001 demo posts (post page type): each declares `title`/`date`/
-  `categories`/`tags`/`description` frontmatter. Dates span 2024–2025 (exercise
+  `categories`/`tags`/`description` frontmatter; `hello-terminal` carries
+  per-language `title`/`description` maps as the ARCH-003 demo. Dates span 2024–2025 (exercise
   the archives year grouping); categories Guides/Design/Ops and overlapping tags
   (vitepress/theme/tui/terminal/color/markdown/deploy) give the tag/category
   listings multiple posts; 5 posts × 3/page = 2 index pages.

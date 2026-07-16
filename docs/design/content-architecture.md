@@ -87,6 +87,20 @@ Frontmatter escape hatches (already partly in place via the `isArticle` guard):
 `comments: false` drop the respective cards, and an explicit page-type override key
 may force a type when path-based detection is not enough.
 
+**Explorer visibility (ARCH-002).** A page may set `showInExplorer: false` in its
+frontmatter to be omitted from the auto-discovered explorer tree (default `true` —
+everything under `src/` is listed). A folder opts out — subtree included — via
+`showInExplorer: false` in its source-local `explorer.json`. The page still builds
+and stays reachable by URL; only the navigation tree is affected. Full semantics in
+[`design-language.md`](design-language.md) §4 (file explorer, visibility toggle).
+
+**Localized frontmatter (ARCH-003).** Every frontmatter field that is *displayed*
+to the reader — `title`, `description`, the `series.yml` title/description
+(POST-002) — accepts a per-language map (`{ en: …, zh-Hans: … }`) as well as a
+plain string, resolved against the client-side UI language by the standard
+fallback. The plain string remains the default form. Pattern and consumers in
+[`design-language.md`](design-language.md) §9 (localized frontmatter fields).
+
 The difference between a post index and an archive list is that the former is a more
 visually rich landing page, showing recent posts with tags, categories, series, cover,
 and similar elements shown. WHile, the archive list is a simple chronological timeline-style
@@ -153,4 +167,7 @@ COMP-002 swiper demo.
 > post index paginates at `POSTS_PER_PAGE = 10`: **page 1 is `/posts`**, and
 > `/page/<n>` covers pages 2…N. Series articles are intentionally excluded from
 > these listings — whether they join is a POST-002 toggle. Labels are localized
-> (`post.*`); the tag/category *names* are authored content and stay verbatim.
+> (`post.*`); the tag/category *names* are authored content and stay verbatim in
+> slugs, URLs, and grouping — their *displayed* labels can localize through the
+> dedicated `themeConfig.taxonomy` map (I18N-008,
+> [`design-language.md`](design-language.md) §9, localizable taxonomy labels).

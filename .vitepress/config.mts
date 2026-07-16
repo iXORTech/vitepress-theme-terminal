@@ -2,6 +2,7 @@ import { defineConfigWithTheme } from "vitepress";
 import type { TerminalThemeConfig } from "./theme/config";
 import { themeHead } from "./theme/head";
 import { createMarkdownConfig } from "./theme/markdown";
+import { createPageDataTransformer } from "./theme/pageData";
 import {
   oxocarbonDark,
   oxocarbonLight,
@@ -64,6 +65,22 @@ const themeConfig: TerminalThemeConfig = {
         label: "GitHub",
       },
     ],
+  },
+
+  // Localized taxonomy display labels (I18N-008) — keys are the tag/category
+  // names as authored in post frontmatter (matched through their slug);
+  // values are LocalizableText display labels. Display-only: slugs, URLs, and
+  // grouping stay derived from the authored names, so routes never change
+  // with the language. Terms without an entry render verbatim.
+  taxonomy: {
+    tags: {
+      theme: { en: "theme", "zh-Hans": "主题" },
+      color: { en: "color", "zh-Hans": "色彩" },
+    },
+    categories: {
+      Guides: { en: "Guides", "zh-Hans": "指南" },
+      Design: { en: "Design", "zh-Hans": "设计" },
+    },
   },
 
   // Auto-discover every Markdown file below src/. Folder index pages become
@@ -141,6 +158,11 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
   // switcher offers the built-in tables (en, zh-Hans) plus any language added
   // via `themeConfig.localeStrings`.
   lang,
+
+  // Localized frontmatter maps (ARCH-003) — resolves a per-language
+  // `description`/`title` to the build language for the SSR head; the client
+  // re-resolves from the raw frontmatter on language switches.
+  transformPageData: createPageDataTransformer(lang),
 
   markdown: {
     theme: shikiThemes,

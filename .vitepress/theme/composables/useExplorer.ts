@@ -1,5 +1,6 @@
 // =============================================================================
-// useExplorer.ts — file-explorer state and source discovery (THEME-002/012/013/014)
+// useExplorer.ts — file-explorer state and source discovery
+// (THEME-002/012/013/014, ARCH-002 visibility toggle)
 // =============================================================================
 // Module-singleton state shared by the tool-bar toggle and the explorer panel.
 // Two independent states, because the explorer is two things (design-
@@ -12,6 +13,7 @@
 import { computed, onMounted, readonly, ref } from 'vue'
 import type { ComputedRef, DeepReadonly, Ref } from 'vue'
 import type { PageData } from 'vitepress'
+import { asLocalizableText } from '../locales'
 import type { LocalizableText } from '../locales'
 import type { TerminalExplorerItem } from '../config'
 import { useColorMode } from './useColorMode'
@@ -50,26 +52,14 @@ interface ExplorerPage {
 
 interface ExplorerJsonConfig {
   title?: LocalizableText
+  /** `false` hides the folder — and everything below it — from the explorer (ARCH-002). */
+  showInExplorer?: boolean
 }
 
 interface ExplorerBranch {
   name: string
   page?: ExplorerPage
   children: Map<string, ExplorerBranch>
-}
-
-function asLocalizableText(value: unknown): LocalizableText | undefined {
-  if (typeof value === 'string') return value
-  if (!value || typeof value !== 'object' || Array.isArray(value)) {
-    return undefined
-  }
-
-  const localized: Record<string, string> = {}
-  for (const [tag, text] of Object.entries(value)) {
-    if (typeof text !== 'string') return undefined
-    localized[tag] = text
-  }
-  return Object.keys(localized).length > 0 ? localized : undefined
 }
 
 function pageUrl(relativePath: string): string {
@@ -155,16 +145,23 @@ function branchFor(
 function toExplorerItem(
   branch: ExplorerBranch,
   directorySegments: string[],
-): TerminalExplorerItem {
+): TerminalExplorerItem | null {
+  const url =
+    branch.page?.url ??
+    `/${[...directorySegments, branch.name].join('/')}/`
+  const config = explorerConfigs.get(url)
+  // A folder's `explorer.json` can opt the whole subtree out (ARCH-002).
+  if (config?.showInExplorer === false) return null
+
   const childItems = [...branch.children.values()]
     .sort(compareBranches)
     .map((child) =>
       toExplorerItem(child, [...directorySegments, branch.name]),
     )
-  const url =
-    branch.page?.url ??
-    `/${[...directorySegments, branch.name].join('/')}/`
-  const config = explorerConfigs.get(url)
+    .filter((item): item is TerminalExplorerItem => item !== null)
+  // A branch whose page and children were all hidden has nothing to show.
+  if (!branch.page && childItems.length === 0) return null
+
   const text =
     config?.title ??
     (branch.page ? pageLabel(branch.page) : branch.name)
@@ -186,7 +183,11 @@ function discoverExplorer(): TerminalExplorerItem[] {
         // Skip dynamic-route source templates (e.g. `tags/[name].md`,
         // `page/[num].md`) — only their generated pages are real routes, and
         // those are listing routes, not file-tree entries (POST-001).
-        !page.relativePath.includes('['),
+        !page.relativePath.includes('[') &&
+        // A page can opt itself out of the tree (ARCH-002). Hiding a folder's
+        // `index.md` drops just the folder's link — visible children keep the
+        // folder itself alive, now link-less.
+        page.frontmatter?.showInExplorer !== false,
     )
     .sort((left, right) => left.relativePath.localeCompare(right.relativePath))
 
@@ -197,8 +198,8 @@ function discoverExplorer(): TerminalExplorerItem[] {
   }
 
   const items: TerminalExplorerItem[] = []
-  if (root.page) {
-    const rootConfig = explorerConfigs.get('/')
+  const rootConfig = explorerConfigs.get('/')
+  if (root.page && rootConfig?.showInExplorer !== false) {
     items.push({
       text: rootConfig?.title ?? pageLabel(root.page),
       link: root.page.url,
@@ -207,7 +208,8 @@ function discoverExplorer(): TerminalExplorerItem[] {
   items.push(
     ...[...root.children.values()]
       .sort(compareBranches)
-      .map((branch) => toExplorerItem(branch, [])),
+      .map((branch) => toExplorerItem(branch, []))
+      .filter((item): item is TerminalExplorerItem => item !== null),
   )
   return items
 }

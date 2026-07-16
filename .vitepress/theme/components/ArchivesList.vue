@@ -8,6 +8,7 @@
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { data as posts } from '../posts.data.mts'
+import { resolveLocalizedText } from '../locales'
 import { formatListDate, yearOf } from '../utils/date'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
@@ -40,8 +41,9 @@ const years = computed(() => {
           <time v-if="post.date" class="ct-archives__date">{{
             formatListDate(post.date, language)
           }}</time>
+          <!-- Title frontmatter may be a per-language map (ARCH-003) -->
           <a class="ct-archives__link" :href="withBase(post.url)">{{
-            post.title
+            resolveLocalizedText(post.title, language)
           }}</a>
         </li>
       </ul>

@@ -12,7 +12,7 @@ import { useData, useRoute } from 'vitepress'
 import Card from './Card.vue'
 import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
-import { resolveLocalizedText } from '../locales'
+import { asLocalizableText, resolveLocalizedText } from '../locales'
 import { formatPageLocation } from '../utils/pagePath'
 
 const { page, frontmatter, site } = useData()
@@ -38,8 +38,18 @@ const isCreativeCommons = computed(() => {
   )
 })
 
-// Article title: the page's resolved title, falling back to the site title.
-const title = computed(() => page.value.title || site.value.title)
+// Article title: a localized frontmatter `title` map first (ARCH-003 — a map
+// makes VitePress's own `page.title` fall back to the body h1), then the
+// page's resolved title, then the site title.
+const title = computed(
+  () =>
+    resolveLocalizedText(
+      asLocalizableText(frontmatter.value.title),
+      language.value,
+    ) ||
+    page.value.title ||
+    site.value.title,
+)
 
 // Normalize frontmatter values to an instant. ISO values without an explicit
 // zone are UTC by contract instead of inheriting the build/runtime timezone.

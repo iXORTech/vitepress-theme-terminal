@@ -307,7 +307,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     zh-Hans bodies; documented in design-language.md §9 and
     guide/getting-started.md. Verified headless.*
 
-- [ ] **I18N-008** — Localizable taxonomy term labels (tags & categories)
+- [x] **I18N-008** — Localizable taxonomy term labels (tags & categories)
   - **Category:** i18n · **Deps:** POST-001, I18N-004
   - **Acceptance criteria:** tag (and category) *display* labels can be localized
     through a dedicated config — `themeConfig.taxonomy = { tags?, categories? }`,
@@ -318,6 +318,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     place (post byline/cards, tag & category indexes, per-term listing headings);
     documented in the i18n spec and the content architecture; verified on the
     rendered site.
+    *Landed 2026-07-16 (same day as ARCH-002/003): `themeConfig.taxonomy =
+    { tags?, categories? }` (config.ts — `TerminalTaxonomyConfig`, resolved to
+    `{ tags: {}, categories: {} }` defaults), each an authored-term-name →
+    `LocalizableText` map. Display-only: the framework-free `termLabel(term,
+    labels, language)` in `theme/posts.ts` matches a term to its entry by exact
+    name or shared slug (case-insensitive) and resolves against the active
+    language, falling back to the verbatim term when unconfigured; slugs, URLs,
+    and grouping identity always use the authored strings. The `useTaxonomy()`
+    composable (`tagLabel`/`categoryLabel`, reactive on `language`) is consumed
+    by `PostTaxonomy` (post byline + cards), `TagsIndex`, `CategoriesIndex`, and
+    the `TermPosts` per-term heading, so every surface re-localizes in place on a
+    language switch. Demo config localizes the `theme`/`color` tags and
+    `Guides`/`Design` categories. Documented in design-language.md §9
+    (localizable taxonomy labels) and content-architecture.md §7, plus
+    guide/getting-started.md. Build green; rendered dist shows configured terms
+    with their labels (`#color`, `Design`), unconfigured terms verbatim
+    (`#vitepress`, `Ops`), and slugs unchanged (`/tags/color`,
+    `/categories/design`).*
 
 ### Theme components
 

@@ -2,7 +2,17 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-16 (**I18N-008 landed**,
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-16 (**THEME-020 landed**:
+tool-bar nav submenus — `TerminalNavItem.items?: TerminalNavChild[]`
+(`{ text, link, icon? }`, parent tab keeps its required `link`); `ToolBar.vue`
+wraps tabs in `.ct-toolbar__navitem` and drops a `.ct-toolbar__submenu` TUI
+floating panel (border/radius/surface/small shadow, z-30) of child rows on
+`:hover`/`:focus-within` — closes when the pointer leaves both tab and panel;
+parent active on own OR child link; caret marker; flat tabs unchanged; mobile
+tabline stays hidden. Demo: `guide` tab → Getting Started + Advanced. Docs:
+design-language.md §4 nav-submenu note (+ `icon` field catch-up), ui-sketch.md
+§1 sketch. Verified headless 21/21 + dark/light screenshots.) Same day
+(**I18N-008 landed**,
 same day as ARCH-002/003: localizable taxonomy term labels via the dedicated
 `themeConfig.taxonomy = { tags?, categories? }` maps (authored term name →
 LocalizableText; matched case-insensitively through the slug). Display-only —
@@ -237,7 +247,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   decks) done 2026-07-13.
   ARCH-002 (explorer `showInExplorer` visibility toggle) and ARCH-003
   (localized frontmatter fields + `transformPageData` SSR resolution) done
-  2026-07-16, plus I18N-008 (localizable taxonomy labels) same day.
+  2026-07-16, plus I18N-008 (localizable taxonomy labels) and THEME-020
+  (tool-bar nav hover submenus — `TerminalNavItem.items` child links in a
+  floating TUI dropdown) same day.
   ARCH-004 (planned 2026-07-16, not started): explorer sibling ordering via an
   `order` attribute in frontmatter / `explorer.json` — any finite number incl.
   negatives (pin above the `0` defaults) and fractions; non-finite → `0`; ties
@@ -257,7 +269,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   rules; clarifies `docs/` is repo documentation, not site content.
 - `design/design-language.md` — binding: identity, NeoVim/LazyVim-inspired TUI design
   language, hard no-branding rule, iconic components table (tool bar, status bar,
-  explorer, floating windows), fixed shell frame — page never scrolls, content
+  explorer, floating windows), tool-bar spec (§4, THEME-001/005/010/020:
+  `toolbar.nav` tabs `{ text, link, icon?, items? }` + `toolbar.actions` icon
+  slots; the THEME-020 nav-submenu note — child links `{ text, link, icon? }`
+  in a hover/focus-within TUI floating dropdown that closes when the pointer
+  leaves tab + panel, parent active on own or child link, desktop-only),
+  fixed shell frame — page never scrolls, content
   scrolls inside the viewport panel and clips at its edges (§5, THEME-008),
   file-explorer spec + THEME-002/011 implemented note (§4: `themeConfig.explorer`
   tree `{ text, link?, items? }`, folder `link` = its index page
@@ -332,7 +349,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   gated behind `html[data-ct-nerdfont]` (useNerdFont) after the external
   stylesheet has loaded (FONT-003) — safe fallback: no icon / plain `❯` chevron.
 - `design/ui-sketch.md` — ASCII wireframes (structure binding, details illustrative):
-  desktop shell (tool bar / explorer + viewport / status bar), floating find
+  desktop shell (tool bar / explorer + viewport / status bar; §1 also sketches
+  the THEME-020 nav-submenu dropdown — caret `▾` tab + floating child-row
+  panel), floating find
   palette as stacked framed panes — border titles + text `[x]` close
   (§2, reworked THEME-017; the generic window shell is landed, find content =
   SEARCH-002),
@@ -377,7 +396,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
   generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
   nav tabs — the last three surface the POST-001 listing pages — +
-  a GitHub action icon), a `taxonomy` block (I18N-008: zh-Hans labels for the
+  a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
+  Getting Started + Advanced child links with icons), a `taxonomy` block (I18N-008: zh-Hans labels for the
   `theme`/`color` tags + `Guides`/`Design` categories),
   and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
@@ -460,8 +480,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   url/icons — bring your own); single source for footer/prompt/license-card
   consumers (THEME-004, COMP-001, COMP-003). THEME-004: `footer`
   (`rss` feed URL, default `''`; `social: TerminalSocialLink[]` — FA `icon` +
-  `link` + optional LocalizableText `label`). THEME-005: `toolbar?:
-  TerminalToolbarConfig` — `{ nav?: TerminalNavItem[] ({ text, link }),
+  `link` + optional LocalizableText `label`). THEME-005/020: `toolbar?:
+  TerminalToolbarConfig` — `{ nav?: TerminalNavItem[] ({ text, link, icon?,
+  items? } — `items?: TerminalNavChild[]` `{ text, link, icon? }` child links
+  for the hover dropdown submenu, THEME-020),
   actions?: TerminalToolbarAction[] ({ icon FA classes, link, label? }) }`,
   resolved to `Required<>` with `[]`/`[]` defaults (built-in home tab +
   search/mode controls always render). THEME-002/011/012:
@@ -735,18 +757,24 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/pages/NotFoundPage.vue` — ARCH-001 404 type: minimal localized
   not-found (`notFound.title`/`.home`) inside the shell; client-rendered
   (VitePress's `404.html` app div is empty and hydrates through the dispatch).
-- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010): the
-  explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
+- `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010/020):
+  the explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
   (gated Nerd Font glyph + localized site title, links home via `withBase`), a
   `<nav>` of editor tabs — the built-in `~/home` tab followed by the configurable
-  `themeConfig.toolbar.nav` tabs (localized labels, active when the link maps to
-  the current page via the shared `linkRelativePath`, external = `_blank`,
-  THEME-005) — and the right-side action icons: the configurable
-  `themeConfig.toolbar.actions` FA icon anchors (THEME-005), then the built-in
-  find-palette search trigger (FA magnifying-glass → `useSearch().openSearch`,
-  SEARCH-002) and the color-mode cycle button (FA half-circle, `mode.switch`);
-  the settings gear moved to the status bar (THEME-019).
+  `themeConfig.toolbar.nav` tabs (localized labels + optional FA icon, active when
+  the link maps to the current page via the shared `linkRelativePath`, external =
+  `_blank`, THEME-005), each wrapped in a `.ct-toolbar__navitem`; a tab with
+  `items` children (THEME-020) gains a decorative caret and a
+  `.ct-toolbar__submenu` dropdown of `.ct-toolbar__subitem` child links
+  (icon + localized label, same external handling), revealed by CSS
+  `:hover`/`:focus-within` on the wrapper; `isNavActive` highlights the parent
+  when its own link or any child's matches — and the right-side action icons: the
+  configurable `themeConfig.toolbar.actions` FA icon anchors (THEME-005), then
+  the built-in find-palette search trigger (FA magnifying-glass →
+  `useSearch().openSearch`, SEARCH-002) and the color-mode cycle button (FA
+  half-circle, `mode.switch`); the settings gear moved to the status bar
+  (THEME-019).
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -1019,7 +1047,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
   + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
   `[data-ct-nerdfont]`; editor-tab links with accent hover/active (home + the
-  configurable THEME-005 nav tabs); right-aligned `__actions` group with accent
+  configurable THEME-005 nav tabs); THEME-020 nav submenus —
+  `.ct-toolbar__navitem` relative wrapper anchoring an absolute
+  `.ct-toolbar__submenu` dropdown (TUI floating panel: `--ct-border` frame,
+  `--ct-radius`, surface bg, `0 4px 12px` shadow, z-30, 0.4rem gap with an
+  invisible `::before` hover bridge, 0.15s opacity/translate reveal) shown via
+  `:hover`/`:focus-within`, with tab-styled `.ct-toolbar__subitem` rows and a
+  dimmed `.ct-toolbar__caret` marker; right-aligned `__actions` group with accent
   icon controls — `.ct-toolbar__action` now covers both `<button>` (search/mode)
   and the configurable `<a>` action slots (THEME-005: `inline-flex`,
   `text-decoration:none`); tabs

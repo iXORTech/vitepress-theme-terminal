@@ -51,11 +51,36 @@ const themeConfig: TerminalThemeConfig = {
   // tab (labels are LocalizableText, highlighted when the page matches);
   // `actions` are extra icon slots (Font Awesome) shown before the built-in
   // search / color-mode controls, for important social links or external tools.
+  // A nav tab may also carry `items` (THEME-020): child `{ text, link, icon? }`
+  // links shown in a hover dropdown submenu — the tab itself stays a link.
   toolbar: {
     nav: [
-      { text: { en: "Guide", "zh-Hans": "指南" }, link: "/guide/", icon: "fa-solid fa-book" },
-      { text: { en: "Posts", "zh-Hans": "文章" }, link: "/posts", icon: "fa-solid fa-feather" },
-      { text: { en: "Tags", "zh-Hans": "标签" }, link: "/tags", icon: "fa-solid fa-tags" },
+      {
+        text: { en: "Guide", "zh-Hans": "指南" },
+        link: "/guide/",
+        icon: "fa-solid fa-book",
+        items: [
+          {
+            text: { en: "Getting Started", "zh-Hans": "快速开始" },
+            link: "/guide/getting-started",
+            icon: "fa-solid fa-rocket",
+          },
+          {
+            text: { en: "Advanced", "zh-Hans": "进阶" },
+            link: "/guide/advanced/",
+            icon: "fa-solid fa-flask",
+          },
+        ],
+      },
+      {
+        text: { en: "Posts", "zh-Hans": "文章" },
+        link: "/posts",
+        icon: "fa-solid fa-feather",
+        items: [
+          { text: { en: "Categories", "zh-Hans": "分类" }, link: "/categories", icon: "fa-solid fa-folder" },
+          { text: { en: "Tags", "zh-Hans": "标签" }, link: "/tags", icon: "fa-solid fa-tags" },
+        ],
+      },
       { text: { en: "Archives", "zh-Hans": "归档" }, link: "/archives", icon: "fa-solid fa-box-archive" },
     ],
     actions: [

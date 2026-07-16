@@ -50,7 +50,20 @@
 Tool bar: navigation as editor-style tabs plus global actions. The `~/home` tab
 and the `[/]`/`[o]` search + color-mode controls are built in; extra tabs
 (`posts tags about`) and extra action icons come from `themeConfig.toolbar.nav`
-/ `.actions` (THEME-005, no component edits). Explorer: tree navigation of the
+/ `.actions` (THEME-005, no component edits). A nav tab configured with child
+`items` gains a caret (`▾`) and, on hover, drops a floating TUI-panel submenu
+below itself (THEME-020) — rounded/bordered surface with a small shadow, one
+row per child link; it closes when the pointer leaves both the tab and the
+panel:
+
+```
+│ :: site-name    ~/home   guide ▾   posts   tags          [/]  [o]  [EN]  │
+╰──────────────────────────╥───────────────────────────────────────────────╯
+                           ╭─────────────────────╮
+                           │  getting started    │
+                           │  advanced           │
+                           ╰─────────────────────╯
+``` Explorer: tree navigation of the
 site content, collapsible. Status bar: the live state chip
 (`READ`/`HOME`/`404`), current location trailed by a blinking underscore cursor (`_`),
 reading progress, the language switcher, the color-mode indicator, the settings

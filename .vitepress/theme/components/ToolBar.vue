@@ -14,8 +14,15 @@
 // followed by `themeConfig.toolbar.nav` tabs, and `themeConfig.toolbar.actions`
 // adds extra icon slots before the built-in search / mode controls — both from
 // configuration, no component edits.
+//
+// THEME-020 lets a nav tab carry child links (`items`): the tab remains a link
+// itself, and hovering it (or focusing within, for keyboard users) reveals a
+// floating TUI-panel dropdown of its children — open/close is pure
+// CSS :hover/:focus-within on the wrapper, so leaving both the tab and the
+// panel closes it (styles in _toolbar.scss).
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
+import type { TerminalNavItem } from '../config'
 import type { LocalizableText } from '../locales'
 import { resolveLocalizedText } from '../locales'
 import { isExternalLink, linkRelativePath } from '../utils/pagePath'
@@ -56,6 +63,16 @@ const navItems = computed(() => config.value.toolbar.nav)
 // clean-URL-proof, shared with the explorer via pagePath.ts).
 const isTabActive = (link: string): boolean =>
   linkRelativePath(link) === page.value.relativePath
+
+// A tab with children opens a hover submenu (THEME-020)…
+const hasSubmenu = (item: TerminalNavItem): boolean =>
+  (item.items?.length ?? 0) > 0
+
+// …and highlights when its own link OR any child's maps to the current page,
+// so the parent tab reflects where the reader is inside its section.
+const isNavActive = (item: TerminalNavItem): boolean =>
+  isTabActive(item.link) ||
+  (item.items ?? []).some((child) => isTabActive(child.link))
 
 // Extra action icons (THEME-005), rendered before the built-in controls.
 const actions = computed(() => config.value.toolbar.actions)
@@ -101,18 +118,46 @@ const href = (link: string): string =>
         :class="{ 'ct-toolbar__tab--active': isHome }"
         :href="withBase('/')"
       >~/{{ t('nav.home') }}</a>
-      <a
+      <div
         v-for="(item, index) in navItems"
         :key="index"
-        class="ct-toolbar__tab"
-        :class="{ 'ct-toolbar__tab--active': isTabActive(item.link) }"
-        :href="href(item.link)"
-        :target="isExternalLink(item.link) ? '_blank' : undefined"
-        :rel="isExternalLink(item.link) ? 'noreferrer' : undefined"
+        class="ct-toolbar__navitem"
       >
-        <i v-if="item.icon" :class="item.icon" aria-hidden="true"></i>
-        {{ localize(item.text) }}
-      </a>
+        <a
+          class="ct-toolbar__tab"
+          :class="{ 'ct-toolbar__tab--active': isNavActive(item) }"
+          :href="href(item.link)"
+          :target="isExternalLink(item.link) ? '_blank' : undefined"
+          :rel="isExternalLink(item.link) ? 'noreferrer' : undefined"
+        >
+          <i v-if="item.icon" :class="item.icon" aria-hidden="true"></i>
+          {{ localize(item.text) }}
+          <!-- Submenu marker (THEME-020) — decorative; the tab text is the name -->
+          <i
+            v-if="hasSubmenu(item)"
+            class="fa-solid fa-caret-down ct-toolbar__caret"
+            aria-hidden="true"
+          ></i>
+        </a>
+
+        <!-- Dropdown submenu (THEME-020): a floating TUI panel of the tab's
+             child links, revealed while the tab or the panel itself is
+             hovered/focused (CSS-driven — see _toolbar.scss) -->
+        <div v-if="hasSubmenu(item)" class="ct-toolbar__submenu">
+          <a
+            v-for="(child, childIndex) in item.items"
+            :key="childIndex"
+            class="ct-toolbar__subitem"
+            :class="{ 'ct-toolbar__subitem--active': isTabActive(child.link) }"
+            :href="href(child.link)"
+            :target="isExternalLink(child.link) ? '_blank' : undefined"
+            :rel="isExternalLink(child.link) ? 'noreferrer' : undefined"
+          >
+            <i v-if="child.icon" :class="child.icon" aria-hidden="true"></i>
+            {{ localize(child.text) }}
+          </a>
+        </div>
+      </div>
     </nav>
 
     <!-- Global actions (right): the configurable extra action icons

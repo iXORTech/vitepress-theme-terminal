@@ -37,7 +37,7 @@ UI text, default content, or shipped assets.
 Flavor details are welcome where they reinforce the metaphor without hurting usability —
 e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
 
-**Tool bar (THEME-001/005/010)** — the editor-style top bar: on the left the
+**Tool bar (THEME-001/005/010/020)** — the editor-style top bar: on the left the
 explorer toggle (`[=]`, THEME-002) and the brand (site glyph + localized title,
 links home), the navigation tabs beside it, and the global action icons pushed to
 the right edge. The theme keeps a small always-present core — the built-in
@@ -46,11 +46,26 @@ the right edge. The theme keeps a small always-present core — the built-in
 configurable from `themeConfig.toolbar` **without editing components** (THEME-005):
 
 - `toolbar.nav` — additional navigation tabs rendered after the home tab. Each is
-  `{ text, link }` where `text` is a `LocalizableText` (§9) and `link` is a
-  site-absolute path or external URL; a tab highlights when its link maps to the
+  `{ text, link, icon?, items? }` where `text` is a `LocalizableText` (§9), `link`
+  is a site-absolute path or external URL, and `icon` is an optional Font Awesome
+  class list rendered before the label; a tab highlights when its link maps to the
   current page (matched against `relativePath`, so `base` / clean URLs never
   matter — the same matcher the explorer uses), and external links open in a new
   tab.
+- **Nav submenus (THEME-020)** — a nav tab may carry `items`, an array of child
+  links `{ text, link, icon? }` (same shapes as the tab's own fields). The tab
+  itself still **requires** its `link` and keeps the flat-tab behavior — clicking
+  it navigates — but while it (or its dropdown) is hovered, a **submenu** floats
+  below it: a small panel in the TUI-window look (rounded corners, `--ct-border`
+  frame on the surface color, small drop shadow) listing the children as rows of
+  optional icon + localized label, each navigating like a tab (external links open
+  a new tab). The submenu closes as soon as the pointer leaves both the tab and
+  the panel; keyboard focus inside the tab or its children reveals it too
+  (`:focus-within`), so the child links stay tab-reachable. A parent tab
+  highlights as active when its own link **or any child's** maps to the current
+  page; a tab whose `items` is unset/empty renders exactly as before. Mobile
+  hides the whole tabline (§8 — the explorer drawer takes over), so the hover
+  submenu is desktop-only by construction.
 - `toolbar.actions` — the extensible icon-slot mechanism: extra action icons
   (important social links, external tools, …) rendered *before* the built-in
   search / color-mode controls, so those two stay anchored at the right edge as a

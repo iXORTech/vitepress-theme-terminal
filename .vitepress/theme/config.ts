@@ -150,6 +150,25 @@ export interface TerminalCommentsConfig {
 }
 
 /**
+ * One child link inside a nav tab's dropdown submenu (THEME-020). Children are
+ * pure links — they cannot nest further — shown as icon + label rows in the
+ * floating panel that opens while the parent tab is hovered.
+ */
+export interface TerminalNavChild {
+  /** Row label, localizable (I18N-004). */
+  text: LocalizableText
+
+  /**
+   * Destination — a site-absolute path (`/guide/advanced/`) or an external
+   * URL; external links open in a new tab, like top-level tabs.
+   */
+  link: string
+
+  /** Optional Font Awesome class list rendered before the label (decorative). */
+  icon?: string
+}
+
+/**
  * One navigation tab in the tool bar's tabline (THEME-005). Plain data, so
  * adding, reordering, or relabeling a tab never requires component edits. Tabs
  * render after the built-in `~/home` tab and highlight when the current page
@@ -162,7 +181,8 @@ export interface TerminalNavItem {
   /**
    * Destination — a site-absolute path (`/guide/`) or an external URL. The tab
    * is marked active when it maps to the current page; external links open in a
-   * new tab.
+   * new tab. Required even when {@link items} is set — a submenu tab is still a
+   * link itself (THEME-020).
    */
   link: string
 
@@ -172,6 +192,14 @@ export interface TerminalNavItem {
    * — it does not affect the active-state highlight.
    */
   icon?: string
+
+  /**
+   * Optional child links (THEME-020). When non-empty, hovering the tab (or
+   * keyboard focus within it) opens a floating dropdown submenu listing them,
+   * and the tab also highlights when a child's link maps to the current page.
+   * Unset or empty, the tab behaves exactly like a flat link.
+   */
+  items?: TerminalNavChild[]
 }
 
 /**

@@ -646,7 +646,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `.ct-statusbar__clock`, keeps the gear. New strings
     `status.home/.notFound/.clock` (en + zh-Hans). Verified headless 20/20.*
 
-- [ ] **THEME-020** — Tool bar nav expansion customization: allow submenus instead of just a flat list of links
+- [x] **THEME-020** — Tool bar nav expansion customization: allow submenus instead of just a flat list of links
   - **Category:** Theme · **Deps:** THEME-005
   - **Acceptance criteria:** the tool bar's navigation can be configured with a
     tree instead of a flat array, so a top-level tab, if it is only a link, it stays
@@ -655,6 +655,25 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     being hovered above; the submenu is a floating panel with a TUI-window look (rounded/floating
     finish) and a small drop shadow; the submenu closes when the user no longer hovers over the
     top-level tab or the submenu.
+    *Landed 2026-07-16: `TerminalNavItem` gained optional `items?:
+    TerminalNavChild[]` (`{ text, link, icon? }` — pure links, no deeper
+    nesting; the parent tab still requires its own `link`). `ToolBar.vue` wraps
+    each nav tab in a `.ct-toolbar__navitem` anchor; a tab with children gets a
+    decorative FA caret and a `.ct-toolbar__submenu` dropdown — a floating TUI
+    panel (`--ct-border` frame, `--ct-radius`, surface bg, small drop shadow,
+    z-30) of icon + localized-label child rows. Open/close is pure CSS
+    `:hover`/`:focus-within` on the wrapper (an invisible `::before` bridge
+    spans the floating gap so the pointer can travel into the panel), so
+    leaving both the tab and the panel closes it and keyboard focus reveals it.
+    The parent tab highlights when its own link OR any child's maps to the
+    current page; flat tabs render exactly as before; mobile hides the whole
+    tabline (explorer drawer takes over), making the hover submenu desktop-only.
+    Demo: the `guide` tab carries Getting Started + Advanced children.
+    Documented in design-language.md §4 (tool bar + nav-submenu note, which
+    also catches up the `icon` field) and ui-sketch.md §1 (dropdown sketch).
+    Verified headless 21/21 (structure, hidden-by-default, hover open/panel
+    hover/close, TUI look, child navigation + parent/child active accents,
+    focus-within, zh-Hans re-localization, mobile) + dark/light screenshots.*
 
 ### Components
 

@@ -79,6 +79,86 @@ html[data-ct-nerdfont] .ct-toolbar__glyph::before {
   }
 }
 
+// Nav entry wrapper (THEME-020) — anchors a tab's dropdown submenu below it;
+// the submenu opens while the pointer or keyboard focus is anywhere inside
+// (tab OR panel), so leaving both closes it.
+.ct-toolbar__navitem {
+  position: relative;
+  display: inline-flex;
+}
+
+// Submenu marker on a tab that owns children — small, dimmed, decorative
+.ct-toolbar__caret {
+  margin-left: 0.3rem;
+  font-size: 0.7em;
+  opacity: 0.65;
+}
+
+// Dropdown submenu (THEME-020): a floating panel in the TUI-window look —
+// rounded/bordered surface with a small drop shadow, matching the shell panels
+// (design-language.md §4/§5). Revealed purely via :hover/:focus-within.
+.ct-toolbar__submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 30; // over the shell panels; the floating window (z-40/50) stays above
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: max(100%, 9rem);
+  margin-top: 0.4rem; // small floating gap below the tab
+  padding: 0.35rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 18%); // small drop shadow (THEME-020)
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+
+  // Invisible hover bridge across the floating gap, so the pointer can travel
+  // from the tab into the panel without crossing a closing dead zone
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.5rem;
+    right: 0;
+    left: 0;
+    height: 0.5rem;
+  }
+}
+
+.ct-toolbar__navitem:hover .ct-toolbar__submenu,
+.ct-toolbar__navitem:focus-within .ct-toolbar__submenu {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+// One child link row: optional icon + label, same hover/active accents as tabs
+.ct-toolbar__subitem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--ct-radius-small);
+  color: var(--ct-text-neutral);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+
+  &--active {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link);
+  }
+}
+
 // Global action icons, pushed to the right edge — configurable extra slots
 // (THEME-005) precede the built-in search + mode controls (THEME-003/010).
 .ct-toolbar__actions {

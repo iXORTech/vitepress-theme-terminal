@@ -873,6 +873,26 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     guide/getting-started.md. Verified headless (13/13): en/zh-Hans post
     cards, archives after reload, license-card title, tab title, SSR meta.*
 
+- [ ] **ARCH-004** — Explorer ordering: configurable sibling order for auto-discovered entries
+  - **Category:** Architecture · **Deps:** ARCH-001, THEME-012, ARCH-002
+  - **Acceptance criteria:** the position of an auto-discovered page or folder
+    among its explorer siblings can be controlled with an `order` attribute
+    (number, default `0`, smaller = higher — the same semantics POST-002 defines
+    for series), set in a page's frontmatter or, for a folder, in its
+    `explorer.json` or its `index.md` frontmatter (the JSON wins, mirroring the
+    ARCH-002/I18N-006 metadata precedence); **negative values are allowed** —
+    any finite number (negative or fractional included) is valid, so an entry
+    can be pinned above the unconfigured (`0`) siblings without renumbering
+    them, while non-numeric or non-finite values (`NaN`, `±Infinity`) are
+    ignored and fall back to the default `0`; entries with equal `order` keep the
+    current deterministic fallback (folders before files, then case-insensitive
+    natural name comparison), so unconfigured trees render exactly as today;
+    ordering is display-only (URLs, discovery, and route behavior unchanged) and
+    applies consistently during SSR and client navigation; explicit
+    `themeConfig.explorer` arrays remain hand-ordered and unaffected; documented
+    in the explorer spec (design-language.md §4 auto-discovery), the content
+    architecture, and the user guide; verified on the rendered site.
+
 ### Content & pages
 
 - [x] **POST-001** — Tags & categories

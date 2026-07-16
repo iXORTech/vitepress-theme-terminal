@@ -237,7 +237,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   decks) done 2026-07-13.
   ARCH-002 (explorer `showInExplorer` visibility toggle) and ARCH-003
   (localized frontmatter fields + `transformPageData` SSR resolution) done
-  2026-07-16.
+  2026-07-16, plus I18N-008 (localizable taxonomy labels) same day.
+  ARCH-004 (planned 2026-07-16, not started): explorer sibling ordering via an
+  `order` attribute in frontmatter / `explorer.json` — any finite number incl.
+  negatives (pin above the `0` defaults) and fractions; non-finite → `0`; ties
+  keeping today's folders-first name sort.
   Roadmap:
   ARCH-001 (content architecture — `src/` layout + page-type components, foundation
   for the content/pages work, see `docs/design/content-architecture.md`),

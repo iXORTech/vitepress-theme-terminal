@@ -12,12 +12,20 @@
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { data as posts } from '../posts.data.mts'
-import { POSTS_PER_PAGE, pageCount } from '../posts'
+import { POSTS_PER_PAGE, filterListablePosts, pageCount } from '../posts'
+import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 import PostList from './PostList.vue'
 
 const { params } = useData()
 const { t } = useThemeLocale()
+const config = useThemeConfig()
+
+// Series articles join only when opted in (POST-002). The page/[num] route
+// loader applies the same filter, so page count and routes agree.
+const listable = computed(() =>
+  filterListablePosts(posts, config.value.series, 'posts'),
+)
 
 // Current page: `/page/[num]` supplies `num`; `/posts` has no params (page 1).
 const current = computed(() => {
@@ -26,11 +34,11 @@ const current = computed(() => {
   return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1
 })
 
-const totalPages = computed(() => pageCount(posts.length))
+const totalPages = computed(() => pageCount(listable.value.length))
 
 const pagePosts = computed(() => {
   const start = (current.value - 1) * POSTS_PER_PAGE
-  return posts.slice(start, start + POSTS_PER_PAGE)
+  return listable.value.slice(start, start + POSTS_PER_PAGE)
 })
 
 // Page 1 is the `/posts` index; every later page is `/page/<n>`.

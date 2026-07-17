@@ -7,13 +7,16 @@ import DemoLayout from './DemoLayout.vue'
 // Theme styles: single SCSS entry; all styling lives in `styles/` partials.
 import './styles/main.scss'
 
-// Listing components (POST-001) used inside the generated listing pages
-// (`posts.md`, `archives.md`, `categories.md`, `tags.md`, and the
-// `categories/[name]` / `tags/[name]` / `page/[num]` routes). Registered
-// globally so those markdown files can place them without a per-file import.
+// Listing components (POST-001/POST-002) used inside the generated listing
+// pages (`posts.md`, `archives.md`, `categories.md`, `tags.md`, `series.md`,
+// series landing pages, and the `categories/[name]` / `tags/[name]` /
+// `page/[num]` routes). Registered globally so those markdown files can place
+// them without a per-file import.
 import ArchivesList from './components/ArchivesList.vue'
 import CategoriesIndex from './components/CategoriesIndex.vue'
 import PostsIndex from './components/PostsIndex.vue'
+import SeriesArticles from './components/SeriesArticles.vue'
+import SeriesIndex from './components/SeriesIndex.vue'
 import TagsIndex from './components/TagsIndex.vue'
 import TermPosts from './components/TermPosts.vue'
 
@@ -35,5 +38,8 @@ export default {
     app.component('CategoriesIndex', CategoriesIndex)
     app.component('TagsIndex', TagsIndex)
     app.component('TermPosts', TermPosts)
+    // Series listing components (POST-002).
+    app.component('SeriesIndex', SeriesIndex)
+    app.component('SeriesArticles', SeriesArticles)
   }
 } satisfies Theme

@@ -142,6 +142,74 @@ sort by an `order` attribute (default `0`, smaller = higher), falling back to
 alphabetical. The exact schema and the archive-inclusion toggles are defined by
 `POST-002`.
 
+> **Implemented (POST-002, 2026-07-16).** The `series.yml` schema (all fields
+> optional, validated by `asLocalizableText()` so malformed values degrade to
+> defaults):
+>
+> ```yaml
+> icon: nf-fa-terminal          # Font Awesome or Nerd Font `nf-*` class
+> title:                        # LocalizableText; default: the folder name
+>   en: Terminal Internals
+>   zh-Hans: 终端内幕
+> description:                  # LocalizableText; default: none
+>   en: A short series on how the theme's shell is built.
+>   zh-Hans: 关于主题外壳如何构建的简短系列。
+> order: 0                      # series-index position; smaller = higher
+> ```
+>
+> The file is parsed at build time by `.vitepress/theme/series.data.mts`
+> (js-yaml). `order` accepts any finite number (negative and fractional
+> included; non-finite → the default `0`); ties sort alphabetically by the
+> folder name. **Articles** inside a series sort by their own frontmatter
+> `order` with the same semantics, ties alphabetical by URL. A series folder
+> without a `series.yml` still works with folder-name defaults. Surfaces:
+> `<SeriesIndex/>` renders the series index on `series.md` (icon · localized
+> title/description · article count); `<SeriesArticles/>` on a series landing
+> page lists that series' articles in reading order; the series-article banner
+> (`SeriesArticlePage`) shows the icon, localized title, and description above
+> every part. `nf-*` icons render through the theme's gated Nerd Font face
+> (hidden, not tofu, when the font is unavailable).
+>
+> **Listing-inclusion toggles.** `themeConfig.series =
+> { inPosts?, inArchives?, inCategories?, inTags? }` (all default `false`)
+> decide whether series articles ALSO join the general post listings — the post
+> index/pagination, the archives timeline, and the category/tag indexes and
+> per-term pages. An admitted series article carries its localized series name
+> before the title (`Series Name › Article Title`, prefix dimmed) in the
+> archives rows and the per-term listing cards, where the card's series chip is
+> then omitted; the series landing list keeps the bare titles plus the chip.
+> Series landing pages (`series/<name>/index.md`) are
+> navigational and never aggregated. The build-time dynamic-route loaders
+> (`src/{tags,categories}/[name].paths.mjs`, `src/page/[num].paths.mjs`) import
+> the site's `themeConfig` and apply the same filter, so generated routes always
+> match what the components display.
+
+## 5a. Cover images
+
+> **Implemented (POST-003, 2026-07-16; seamless rework 2026-07-17).** A post or
+> series article may declare an optional frontmatter `cover` (an image URL —
+> root-absolute paths honor the site base, external URLs pass through). The
+> cover integrates into its container rather than sitting beside it:
+>
+> - **Post-list cards** — a full-height image panel bleeding to the card's
+>   right frame edges, cropped with `object-fit: cover` and faded into the
+>   card surface by a left-edge gradient mask; on mobile it becomes a
+>   full-width top strip fading downward into the card body.
+> - **Article header** — the header becomes a framed hero banner showing the
+>   **full, uncropped** cover at its natural aspect (full width, height auto,
+>   so the banner is as tall as the image needs). The image renders at **full
+>   opacity**; only its lower edge — the strip behind the overlaid byline
+>   (date, categories, tags) — is masked, fading into the header surface so
+>   the byline stays readable while the rest of the image stays vivid (the
+>   fade starts higher on mobile, where the byline covers more of the frame).
+>   Without a cover the header keeps its plain separator-rule look.
+>
+> Covers stay real `<img>` elements (alt = localized title), lazy-loaded
+> (`loading="lazy"`, `decoding="async"`), and the layout degrades gracefully
+> when no cover is present. Card covers are wrapped in the post link (a tap
+> navigates); the article-header cover carries `data-no-lightbox`, so neither
+> joins the COMP-002 lightbox gallery.
+
 ## 6. Static assets
 
 Files under `src/public/` are copied to the site root unchanged (VitePress
@@ -156,6 +224,7 @@ COMP-002 swiper demo.
 | Directory convention + page-type components + dispatch | `ARCH-001` |
 | Tags, categories, archives, and their listing/route pages | `POST-001` |
 | Posts, series, series config, archive-inclusion toggles | `POST-002` |
+| Post/series-article cover images | `POST-003` |
 | Home / Projects / About / Friends normal pages | `PAGE-001`…`PAGE-004` |
 
 > **Implemented (POST-001, 2026-07-14).** Posts under `src/posts/` declare

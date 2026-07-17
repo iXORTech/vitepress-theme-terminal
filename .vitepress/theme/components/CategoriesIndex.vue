@@ -9,14 +9,19 @@
 import { computed } from 'vue'
 import { withBase } from 'vitepress'
 import { data as posts } from '../posts.data.mts'
-import { groupByCategory } from '../posts'
+import { filterListablePosts, groupByCategory } from '../posts'
 import { useTaxonomy } from '../composables/useTaxonomy'
+import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
 const { t } = useThemeLocale()
 const { categoryLabel } = useTaxonomy()
+const config = useThemeConfig()
 
-const categories = computed(() => groupByCategory(posts))
+// Series articles count only when opted in (POST-002).
+const categories = computed(() =>
+  groupByCategory(filterListablePosts(posts, config.value.series, 'categories')),
+)
 </script>
 
 <template>

@@ -3,6 +3,7 @@ title:
   en: Hello, Terminal
   zh-Hans: 你好，终端
 date: 2025-03-12
+cover: /images/demo-terminal-1.svg
 categories: Guides
 tags:
   - vitepress

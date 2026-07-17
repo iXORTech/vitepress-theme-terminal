@@ -116,8 +116,11 @@ export const zhHans: ThemeLocaleStrings = {
   'post.prevPage': '上一页',
   'post.nextPage': '下一页',
 
-  // Series article breadcrumb (ARCH-001)
+  // Series (ARCH-001 breadcrumb; POST-002 index & article count)
   'series.label': '系列',
+  'series.indexTitle': '系列',
+  'series.articleCount': '{count} 篇文章',
+  'series.empty': '暂无系列',
 
   // 404 page type (ARCH-001)
   'notFound.title': '页面未找到',

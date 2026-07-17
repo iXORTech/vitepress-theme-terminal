@@ -1,6 +1,8 @@
-# Series configuration (content-architecture.md §5). The schema — localized
-# icon/title/description and the archive-inclusion toggles — is finalized and
-# parsed by POST-002; for now this file establishes the structure.
+# Series configuration (POST-002, content-architecture.md §5). All fields are
+# optional: `icon` is a Font Awesome or Nerd Font `nf-*` class; `title` and
+# `description` are LocalizableText (a plain string or a per-language map);
+# `order` positions the series on the series index (default 0, smaller =
+# higher, ties alphabetical by folder name).
 title:
   en: Terminal Internals
   zh-Hans: 终端内幕

@@ -2,6 +2,11 @@
 title: 'Part 1 — The Shell Frame'
 date: 2025-02-02
 order: 1
+cover: /images/demo-terminal-3.svg
+categories: Design
+tags:
+  - tui
+  - terminal
 ---
 
 # Part 1 — The Shell Frame

@@ -7,18 +7,31 @@
 // (content-architecture.md §3). Rendered by `src/archives.md`.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
-import { data as posts } from '../posts.data.mts'
+import { data as allPosts } from '../posts.data.mts'
+import { data as seriesMeta } from '../series.data.mts'
+import { filterListablePosts, seriesDisplayTitle } from '../posts'
 import { resolveLocalizedText } from '../locales'
 import { formatListDate, yearOf } from '../utils/date'
+import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 
 const { language } = useThemeLocale()
 const { t } = useThemeLocale()
+const config = useThemeConfig()
+
+// Series rows carry their localized series name before the title (POST-002).
+const seriesTitle = (slug: string): string =>
+  seriesDisplayTitle(seriesMeta, slug, language.value)
+
+// Series articles join only when opted in (POST-002).
+const posts = computed(() =>
+  filterListablePosts(allPosts, config.value.series, 'archives'),
+)
 
 // Group the already-date-sorted posts by descending year.
 const years = computed(() => {
-  const groups = new Map<number, typeof posts>()
-  for (const post of posts) {
+  const groups = new Map<number, typeof allPosts>()
+  for (const post of posts.value) {
     const year = yearOf(post.date)
     const bucket = groups.get(year)
     if (bucket) bucket.push(post)
@@ -41,10 +54,13 @@ const years = computed(() => {
           <time v-if="post.date" class="ct-archives__date">{{
             formatListDate(post.date, language)
           }}</time>
-          <!-- Title frontmatter may be a per-language map (ARCH-003) -->
-          <a class="ct-archives__link" :href="withBase(post.url)">{{
-            resolveLocalizedText(post.title, language)
-          }}</a>
+          <!-- Title frontmatter may be a per-language map (ARCH-003); series
+               rows are prefixed with the localized series name (POST-002) -->
+          <a class="ct-archives__link" :href="withBase(post.url)"
+            ><span v-if="post.series" class="ct-archives__series"
+              >{{ seriesTitle(post.series) }} › </span
+            >{{ resolveLocalizedText(post.title, language) }}</a
+          >
         </li>
       </ul>
     </section>

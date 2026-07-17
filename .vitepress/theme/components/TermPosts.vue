@@ -12,8 +12,9 @@
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import { data as posts } from '../posts.data.mts'
-import { slugify } from '../posts'
+import { filterListablePosts, slugify } from '../posts'
 import { useTaxonomy } from '../composables/useTaxonomy'
+import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
 import PostList from './PostList.vue'
 
@@ -22,6 +23,7 @@ const props = defineProps<{ field: 'tags' | 'categories' }>()
 const { params } = useData()
 const { t } = useThemeLocale()
 const { tagLabel, categoryLabel } = useTaxonomy()
+const config = useThemeConfig()
 
 const routeParams = computed(
   () => (params.value as { name?: string; term?: string } | null) ?? {},
@@ -29,8 +31,12 @@ const routeParams = computed(
 const slug = computed(() => routeParams.value.name ?? '')
 const term = computed(() => routeParams.value.term ?? slug.value)
 
+// Series articles match only when opted in (POST-002) — the [name].paths.mjs
+// loaders apply the same filter, so the generated term routes agree.
 const matches = computed(() =>
-  posts.filter((post) => post[props.field].some((v) => slugify(v) === slug.value)),
+  filterListablePosts(posts, config.value.series, props.field).filter((post) =>
+    post[props.field].some((v) => slugify(v) === slug.value),
+  ),
 )
 
 // "Posts tagged #x" vs "Posts in category x" — localized, with the term's
@@ -57,6 +63,8 @@ const indexLabel = computed(() =>
       <a :href="indexHref">{{ indexLabel }}</a>
     </p>
 
-    <PostList :posts="matches" />
+    <!-- Series articles admitted by the toggles carry their series name in
+         the card title (POST-002 follow-up) -->
+    <PostList :posts="matches" series-in-title />
   </div>
 </template>

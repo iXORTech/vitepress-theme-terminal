@@ -2,10 +2,7 @@
 title: Series
 ---
 
-# Series
-
-<!-- POST-002 fills this listing with the series index — each series' icon,
-     localized title, and description from its `series.yml`. For now it links to
-     the demo series so the route exists. -->
-
-- [Terminal Internals](/series/terminal-internals/)
+<!-- The series index (POST-002): every series' icon, localized title,
+     description, and article count from its `series.yml`, sorted by `order`
+     (default 0, smaller = higher; ties alphabetical). -->
+<SeriesIndex />

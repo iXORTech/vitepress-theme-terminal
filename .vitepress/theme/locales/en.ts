@@ -131,8 +131,12 @@ export const en = {
   'post.prevPage': 'Previous',
   'post.nextPage': 'Next',
 
-  // Series article breadcrumb (ARCH-001; full series chrome lands in POST-002)
+  // Series (ARCH-001 breadcrumb label; POST-002 index & article count —
+  // `{count}` is interpolated with the number of articles by SeriesIndex.vue)
   'series.label': 'Series',
+  'series.indexTitle': 'Series',
+  'series.articleCount': '{count} articles',
+  'series.empty': 'No series yet',
 
   // 404 page type (ARCH-001)
   'notFound.title': 'Page not found',

@@ -278,6 +278,31 @@ export interface TerminalTaxonomyConfig {
   categories?: Record<string, LocalizableText>
 }
 
+/**
+ * Series listing-inclusion toggles (POST-002). Series articles always render
+ * on their own pages and in their series' landing/index listings; these
+ * toggles decide whether they ALSO join the general post listings. All
+ * default `false` — series stay out of the general listings unless opted in.
+ *
+ * The same toggles must be respected by the build-time dynamic-route loaders
+ * (`src/tags/[name].paths.mjs`, `src/categories/[name].paths.mjs`,
+ * `src/page/[num].paths.mjs`), which import the site's `themeConfig` so the
+ * generated routes match what the components display.
+ */
+export interface TerminalSeriesConfig {
+  /** Include series articles in the post index and its pagination. */
+  inPosts?: boolean
+
+  /** Include series articles in the archives timeline. */
+  inArchives?: boolean
+
+  /** Include series articles in the category index and per-category pages. */
+  inCategories?: boolean
+
+  /** Include series articles in the tag index and per-tag pages. */
+  inTags?: boolean
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -347,8 +372,12 @@ export interface TerminalThemeConfig {
    */
   taxonomy?: TerminalTaxonomyConfig
 
-  // Feature toggles are added here as their features land (e.g. POST-002
-  // series inclusion).
+  /**
+   * Series listing-inclusion toggles (POST-002); see
+   * {@link TerminalSeriesConfig}. Unset, series articles stay out of the
+   * general post listings.
+   */
+  series?: TerminalSeriesConfig
 }
 
 // -----------------------------------------------------------------------------
@@ -383,7 +412,14 @@ export interface ResolvedCommentsConfig {
 export type ResolvedTerminalThemeConfig = Required<
   Omit<
     TerminalThemeConfig,
-    'author' | 'license' | 'footer' | 'search' | 'comments' | 'toolbar' | 'taxonomy'
+    | 'author'
+    | 'license'
+    | 'footer'
+    | 'search'
+    | 'comments'
+    | 'toolbar'
+    | 'taxonomy'
+    | 'series'
   >
 > & {
   author: ResolvedAuthorConfig
@@ -393,6 +429,7 @@ export type ResolvedTerminalThemeConfig = Required<
   comments: ResolvedCommentsConfig
   toolbar: Required<TerminalToolbarConfig>
   taxonomy: Required<TerminalTaxonomyConfig>
+  series: Required<TerminalSeriesConfig>
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -426,6 +463,14 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // No localized taxonomy labels until configured — terms display verbatim
   // (I18N-008).
   taxonomy: { tags: {}, categories: {} },
+  // Series articles stay out of the general post listings until opted in
+  // (POST-002).
+  series: {
+    inPosts: false,
+    inArchives: false,
+    inCategories: false,
+    inTags: false,
+  },
   // Search stays unconfigured until Algolia credentials are supplied
   // (SEARCH-001) — the find palette then shows its "not configured" notice.
   search: { provider: 'algolia', algolia: null },
@@ -565,6 +610,14 @@ export function resolveThemeConfig(
     resolved.taxonomy = {
       tags: user.taxonomy.tags ?? {},
       categories: user.taxonomy.categories ?? {},
+    }
+  }
+  if (user?.series) {
+    resolved.series = {
+      inPosts: user.series.inPosts ?? false,
+      inArchives: user.series.inArchives ?? false,
+      inCategories: user.series.inCategories ?? false,
+      inTags: user.series.inTags ?? false,
     }
   }
   if (user?.search) resolved.search = resolveSearch(user.search)

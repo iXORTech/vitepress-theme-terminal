@@ -16,7 +16,10 @@ const lang = "en";
 
 // Theme options — the user configuration surface. Every option is optional;
 // defaults live in `.vitepress/theme/config.ts` (schema: TerminalThemeConfig).
-const themeConfig: TerminalThemeConfig = {
+// Exported so the build-time dynamic-route loaders (`src/tags/[name].paths.mjs`,
+// `src/categories/[name].paths.mjs`, `src/page/[num].paths.mjs`) can apply the
+// same series listing toggles the components use (POST-002).
+export const themeConfig: TerminalThemeConfig = {
   // mainColor: "#80E0A7", // the one accent color; all variants derive from it
 
   // User-facing config text is LocalizableText: a plain string for all
@@ -79,6 +82,7 @@ const themeConfig: TerminalThemeConfig = {
         items: [
           { text: { en: "Categories", "zh-Hans": "分类" }, link: "/categories", icon: "fa-solid fa-folder" },
           { text: { en: "Tags", "zh-Hans": "标签" }, link: "/tags", icon: "fa-solid fa-tags" },
+          { text: { en: "Series", "zh-Hans": "系列" }, link: "/series", icon: "fa-solid fa-layer-group" },
         ],
       },
       { text: { en: "Archives", "zh-Hans": "归档" }, link: "/archives", icon: "fa-solid fa-box-archive" },
@@ -106,6 +110,19 @@ const themeConfig: TerminalThemeConfig = {
       Guides: { en: "Guides", "zh-Hans": "指南" },
       Design: { en: "Design", "zh-Hans": "设计" },
     },
+  },
+
+  // Series listing inclusion (POST-002) — series articles always render on
+  // their own pages, the series index, and their series' landing list; these
+  // toggles additionally admit them to the general post listings (all default
+  // false). Admitted series articles carry their series name before the title
+  // in the archives and per-term listings. This demo opts them into the
+  // archives, categories, and tags, while `/posts` keeps regular posts only.
+  series: {
+    inArchives: true,
+    inCategories: true,
+    inTags: true,
+    // inPosts: true,
   },
 
   // Auto-discover every Markdown file below src/. Folder index pages become

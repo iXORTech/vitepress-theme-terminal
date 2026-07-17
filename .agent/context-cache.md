@@ -2,7 +2,63 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-16 (**THEME-020 landed**:
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-17 (**POST-003 header
+cover full opacity except behind byline**: removed the blanket `opacity:0.3`
+on the article-header cover — the full uncropped image now renders at FULL
+opacity, and only its bottom strip behind the byline is dimmed by the mask
+fading it into `--ct-surface` (desktop `#000 65%→transparent 92%`; mobile is
+a higher-starting mask `#000 45%→transparent 82%`, replacing the old mobile
+opacity override). Cards untouched. Screenshot-reviewed + headless.) Earlier
+same day (**POST-003 cover
+header shown in full**: the article-header cover is no longer cropped — the
+image is normal-flow `width:100%;height:auto` (dropped `object-fit:cover`/
+absolute), rendering whole at its natural aspect and driving the banner
+height (8rem floor); the byline is now `position:absolute` bottom overlaying
+the image's faded bottom edge. Post-CARD covers unchanged (still cropped
+full-height right panels). Screenshot-reviewed dark/light/mobile + 13/13
+headless.) Earlier
+same day (**POST-003 seamless
+cover rework**: covers integrate into their containers instead of sitting
+beside the text — post-card covers are full-height right panels bled to the
+frame edges (negative margins, `overflow:hidden` crop) fading into the card
+via a left-edge mask (mobile: full-width top strip fading downward); the
+article header with a cover becomes a framed hero banner — image absolute,
+opacity 0.3, masked out toward the bottom where the byline pins (mobile
+opacity 0.18); no cover = unchanged layouts; templates untouched (lazy img,
+alt, link wrap / `data-no-lightbox`). Screenshot-reviewed + 13/13 headless.)
+Earlier same day (**POST-002/003
+follow-ups**: covers enlarged — post-card cover 11rem → 15rem, article-header
+cover 18rem → 22rem basis (shrinkable) — and series articles admitted to a
+general listing now carry their localized series name before the title:
+archives rows get a dim `.ct-archives__series` prefix (`Series ›`), per-term
+cards get it via `PostList`'s new `seriesInTitle` prop (set by `TermPosts`;
+the meta-row chip is suppressed there — the series landing keeps bare titles
++ chip). Shared `seriesDisplayTitle()` resolver in `posts.ts`. Demo: part-1
+gained `Design`/`tui`/`terminal` frontmatter and the config now opts series
+into categories + tags too (posts index still excludes them). Docs:
+content-architecture.md §5 note, guide toggles section. Verified headless
+incl. zh-Hans prefix re-localization and mobile overflow.) Earlier 2026-07-16
+(**POST-002 + POST-003
+landed**: posts & series + cover images. POST-002: `series.yml` finalized
+(optional `icon` FA/`nf-*` class, LocalizableText `title`/`description`,
+finite `order`), parsed by new `theme/series.data.mts` (js-yaml devDep) →
+sorted `SeriesEntry[]`; `posts.data.mts` now globs `series/**/*.md` too
+(entries carry `series` slug/`order`/`cover`; landing index pages dropped);
+`themeConfig.series = { inPosts, inArchives, inCategories, inTags }` (default
+all false) gates series articles per listing surface via the shared
+`filterListablePosts()` — applied in the 5 listing components AND the three
+`.paths.mjs` route loaders (importing the now-exported site `themeConfig`).
+New `<SeriesIndex/>` (series.md) + `<SeriesArticles/>` (landing, order-sorted)
+components; `SeriesArticlePage` banner upgraded to yml icon/title/description;
+`PostList` cards gained a series chip; gated `.ct-series-icon` (nf-* hidden
+without the font). New `series.indexTitle/.articleCount/.empty` strings.
+POST-003: frontmatter `cover` → right-side thumbnail in post cards (11rem,
+16/10, link-wrapped = no lightbox) and the article header (18rem, 16/9,
+`data-no-lightbox`); ≤640px column-reverse = cover on top full-width; lazy +
+async decode; graceful without. Demo: covers on hello-terminal/tui-design/
+part-1, series into archives only, Series nav child. Docs:
+content-architecture.md §5/§5a/§7, guide/getting-started.md. Verified
+headless 40/40 + order-flip rebuild.) Earlier same day (**THEME-020 landed**:
 tool-bar nav submenus — `TerminalNavItem.items?: TerminalNavChild[]`
 (`{ text, link, icon? }`, parent tab keeps its required `link`); `ToolBar.vue`
 wraps tabs in `.ct-toolbar__navitem` and drops a `.ct-toolbar__submenu` TUI
@@ -194,8 +250,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   inline <style> per formula, which breaks Vue template compilation), and the
   COMP-002 image libraries: `@fancyapps/ui` pinned `^5.0.36` (the last
   GPLv3/commercial dual-licensed line — v6 moved to commercial-only) +
-  `swiper ^14`, and the COMP-004 comment client `@waline/client ^3.15.2`
-  (lazy-loaded client-side). Scripts
+  `swiper ^14`, the COMP-004 comment client `@waline/client ^3.15.2`
+  (lazy-loaded client-side), and `js-yaml` + `@types/js-yaml` (POST-002 —
+  node-side `series.yml` parsing in `series.data.mts`). Scripts
   `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
@@ -254,12 +311,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `order` attribute in frontmatter / `explorer.json` — any finite number incl.
   negatives (pin above the `0` defaults) and fractions; non-finite → `0`; ties
   keeping today's folders-first name sort.
+  POST-002 (posts & series: series.yml schema + loader, order sorting,
+  `themeConfig.series` listing toggles) and POST-003 (frontmatter cover
+  images in cards + article header) done 2026-07-16.
   Roadmap:
-  ARCH-001 (content architecture — `src/` layout + page-type components, foundation
-  for the content/pages work, see `docs/design/content-architecture.md`),
-  content (tags/categories POST-001, posts/series POST-002 — both now depend on
-  ARCH-001), pages (home, projects, about, friends — spec TBD — all depend on
-  ARCH-001), demos, mobile pass. I18N-001 includes
+  pages (home PAGE-001, projects PAGE-002, about PAGE-003, friends PAGE-004 —
+  spec TBD), DEMO-001 markdown demo pages, DOC-002/004 documentation,
+  MOBILE-001 pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -379,12 +437,22 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   and the ARCH-003 localized-frontmatter pattern (both pointing to
   design-language.md for full semantics); the §7 POST-001 note points to the
   I18N-008 `themeConfig.taxonomy` display labels (names stay verbatim in
-  slugs/URLs/grouping).
+  slugs/URLs/grouping). §5 carries the POST-002 implemented note — the final
+  `series.yml` schema (optional icon/title/description LocalizableText +
+  finite `order`; articles sort by their own frontmatter `order`, ties
+  alphabetical) and the `themeConfig.series` listing-inclusion toggles
+  (all-false defaults; route loaders apply the same filter; admitted articles
+  carry a dim series-name prefix before their title in archives/per-term
+  listings, chip suppressed there); §5a the POST-003
+  cover-image note (frontmatter `cover`, desktop-right/mobile-top, lazy,
+  fixed aspect, lightbox-excluded).
 
 ## .vitepress/
 
 - `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
-  `srcDir: "src"`, title, description; `themeConfig` const with commented option
+  `srcDir: "src"`, title, description; **exported** `themeConfig` const (the
+  `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
+  with commented option
   examples including the shell-prompt `siteName` override; `head:
   themeHead(themeConfig)` (fonts + main color + mode restore);
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
@@ -397,8 +465,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
   nav tabs — the last three surface the POST-001 listing pages — +
   a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
-  Getting Started + Advanced child links with icons), a `taxonomy` block (I18N-008: zh-Hans labels for the
+  Getting Started + Advanced child links with icons; the `posts` tab's items
+  include Categories/Tags/Series), a `taxonomy` block (I18N-008: zh-Hans labels for the
   `theme`/`color` tags + `Guides`/`Design` categories),
+  a `series` block (POST-002: `inArchives`/`inCategories`/`inTags: true` —
+  the demo series joins those listings with the series-name title prefix
+  while `/posts` stays regular-only; `inPosts` commented),
   and `explorer: "auto"` to discover every Markdown page under `src/`;
   index-less folder metadata is read from adjacent `explorer.json` files;
   a commented `search.algolia` example documents the SEARCH-001 keys (demo
@@ -494,6 +566,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   TerminalTaxonomyConfig` — `{ tags?, categories? }` maps of authored term
   name → LocalizableText display label (display-only; slugs/URLs stay
   authored), resolved to `{ tags: {}, categories: {} }` defaults.
+  POST-002: `series: TerminalSeriesConfig` — `{ inPosts?, inArchives?,
+  inCategories?, inTags? }` listing-inclusion toggles for series articles,
+  resolved to `Required<>` with all-`false` defaults (series stay out of the
+  general listings unless opted in).
   SEARCH-001: `search: TerminalSearchConfig`
   (`provider?: 'algolia'`, `algolia?: {appId, apiKey, indexName}`) resolved via
   `resolveSearch()` (partial creds → `algolia: null` = unconfigured) with the
@@ -523,7 +599,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `post.*` — postsTitle/archivesTitle/categoriesTitle/tagsTitle + categories/tags
   (byline labels) + empty/undated/taggedWith/inCategory (`{term}`)/allTags/
   allCategories/pagination/prevPage/nextPage (POST-001), `series.label`
-  (ARCH-001 series breadcrumb), `notFound.title`/`.home` (ARCH-001 404) —
+  (ARCH-001 series breadcrumb) + `series.indexTitle`/`series.articleCount`
+  (`{count}`)/`series.empty` (POST-002 series index), `notFound.title`/`.home`
+  (ARCH-001 404) —
   grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
@@ -684,26 +762,43 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `ct-mode`; SSR-safe.
 - `theme/index.ts` — theme entry: default-exports `DemoLayout` (the demo site's
   wrapper filling the `pre-footer` slot, THEME-006); `enhanceApp` globally
-  registers the POST-001 listing components (`PostsIndex`, `ArchivesList`,
-  `CategoriesIndex`, `TagsIndex`, `TermPosts`) so the listing `.md` pages can
+  registers the POST-001/002 listing components (`PostsIndex`, `ArchivesList`,
+  `CategoriesIndex`, `TagsIndex`, `TermPosts`, `SeriesIndex`,
+  `SeriesArticles`) so the listing `.md` pages can
   place them without per-file imports; named-exports the reusable `Card`
   component and the theme's own `Layout`; imports `styles/main.scss`. Swap the
   default `Layout` back to the real one to ship without the demo section.
-- `theme/posts.ts` — POST-001 framework-free post helpers: `PostEntry`/`RawContentEntry`/
-  `TermGroup` types; `normalizePosts(raw)` (maps + date-sorts the content-loader
-  output, unzoned `YYYY-MM-DD` = UTC), `toStringList`, `slugify` (the `/tags`,
-  `/categories` URL slug), `groupByTag`/`groupByCategory` (term → posts, most-used
-  first), `POSTS_PER_PAGE=10`, `pageCount`. Imported by the data loader, the
-  dynamic `.paths.mjs` route loaders, and the listing components. ARCH-003:
-  `PostEntry.title`/`.excerpt` are `LocalizableText` — frontmatter maps pass
-  through `asLocalizableText` and the display components resolve them; term
-  names stay verbatim strings. I18N-008: `termLabel(term, labels, language)` —
-  the display-label resolver over `themeConfig.taxonomy` maps (key matched by
-  exact name or slug equality; fallback = the authored term).
-- `theme/posts.data.mts` — POST-001 VitePress data loader: `createContentLoader(
-  'posts/**/*.md', { excerpt })` → `normalizePosts`; exports typed `data:
-  PostEntry[]` inlined at build. Series articles excluded (POST-002 owns their
-  inclusion). Components import `{ data as posts }` from it.
+- `theme/posts.ts` — POST-001/002/003 framework-free post & series helpers:
+  `PostEntry`/`RawContentEntry`/`TermGroup` types; `normalizePosts(raw)` (maps +
+  date-sorts the content-loader output, unzoned `YYYY-MM-DD` = UTC; drops series
+  landing `index.md` pages; fills `series` slug from the URL, `cover`, and
+  `order` via `toOrder` — finite numbers only, non-finite → 0), `toStringList`,
+  `slugify` (the `/tags`, `/categories` URL slug), `groupByTag`/`groupByCategory`
+  (term → posts, most-used first), `POSTS_PER_PAGE=10`, `pageCount`. POST-002:
+  `SeriesEntry` type (slug/url/icon/title/description/order), `compareSeries`
+  (order asc, ties slug), `seriesArticles(posts, slug)` (order asc, ties URL),
+  `seriesDisplayTitle(series, slug, language)` (the localized series.yml
+  title with slug fallback, shared by PostList/ArchivesList),
+  and `filterListablePosts(posts, seriesToggles, surface)` — the per-surface
+  series gate shared by listing components and the `.paths.mjs` route loaders.
+  Imported by both data loaders, the route loaders, and the listing components.
+  ARCH-003: `PostEntry.title`/`.excerpt` are `LocalizableText` — frontmatter
+  maps pass through `asLocalizableText` and the display components resolve
+  them; term names stay verbatim strings. I18N-008: `termLabel(term, labels,
+  language)` — the display-label resolver over `themeConfig.taxonomy` maps
+  (key matched by exact name or slug equality; fallback = the authored term).
+- `theme/posts.data.mts` — POST-001/002 VitePress data loader:
+  `createContentLoader(['posts/**/*.md', 'series/**/*.md'], { excerpt })` →
+  `normalizePosts`; exports typed `data: PostEntry[]` inlined at build. Series
+  articles are included tagged with their slug (landing pages dropped) and
+  filtered per surface by the consumers — the loader stays toggle-agnostic so
+  series landings and general listings share one dataset.
+- `theme/series.data.mts` — POST-002 series-metadata loader: `defineLoader`
+  watching `src/series/*/series.yml` (globs relative to the loader file),
+  parses each with js-yaml (a bad file degrades to defaults, never breaks the
+  build) through `asLocalizableText` into `SeriesEntry[]` sorted by
+  `compareSeries`. Consumed by SeriesIndex, SeriesArticlePage, and PostList's
+  series chip.
 - `theme/utils/date.ts` — POST-001 deterministic date helpers: `formatListDate`
   (ISO → localized `long` date in **UTC** so SSR/hydration agree — unlike the
   license card's reader-timezone formatter), `toIsoDate` (frontmatter date shape
@@ -743,14 +838,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   or article chrome; PAGE-001 replaces it with the prompt-card welcome.
 - `theme/pages/NormalPage.vue` — ARCH-001 normal type: bare `<Content/>`, no
   article footer (about/projects/guide/demo pages).
-- `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline: `<ArticleMeta>`
-  (when comments configured), a `.ct-post-header` byline (formatted date +
-  `<PostTaxonomy>` category/tag links), `<Content/>`, then `<ArticleLicense>`
-  (unless `license:false`) and `<ArticleComments>` (when configured, unless
-  `comments:false`). Reused wholesale by SeriesArticlePage.
-- `theme/pages/SeriesArticlePage.vue` — ARCH-001 series type: a
-  `.ct-series-banner` breadcrumb (series folder name → `/series/<name>/`; full
-  `series.yml` icon/title chrome deferred to POST-002) above `<PostPage/>`.
+- `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline + POST-003
+  cover: `<ArticleMeta>` (when comments configured), a `.ct-post-header` region
+  — the `__meta` byline (formatted date + `<PostTaxonomy>` category/tag
+  links) with the optional `__cover` img (frontmatter `cover`; base-aware
+  URL, alt = localized title, `loading=lazy decoding=async data-no-lightbox`;
+  the `--cover` modifier turns the header into a hero banner showing the full
+  uncropped image with the byline overlaid on its faded bottom edge) —
+  `<Content/>`, then `<ArticleLicense>` (unless `license:false`) and
+  `<ArticleComments>` (when configured, unless `comments:false`). Reused
+  wholesale by SeriesArticlePage.
+- `theme/pages/SeriesArticlePage.vue` — ARCH-001 series type + POST-002 banner:
+  a `.ct-series-banner` above `<PostPage/>` — label + link to
+  `/series/<slug>/` showing the series' `series.yml` icon (gated
+  `.ct-series-icon`) and localized title (folder-name fallback), plus a dim
+  localized description line when configured (meta from `series.data.mts`).
 - `theme/pages/ListingPage.vue` — ARCH-001 listing type: bare `<Content/>`; the
   listing `.md` files place the relevant globally-registered listing component,
   and this type carries no article footer.
@@ -833,30 +935,56 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   tags → `/tags/<slug>` (`slugify`, `withBase`); localized `post.categories`/
   `post.tags` labels; term display names via `useTaxonomy()` (I18N-008,
   verbatim fallback; `#tag` marker on tags); slugs stay authored.
-- `theme/components/PostList.vue` — POST-001 reusable list of post cards
-  (PostsIndex / TermPosts): per post a `.ct-postcard` (title link · date via
-  `formatListDate` · excerpt · `<PostTaxonomy>`); title/excerpt resolved via
-  `resolveLocalizedText` against the active language (ARCH-003); localized
-  `post.empty` when the list is empty.
+- `theme/components/PostList.vue` — POST-001/002/003 reusable list of post cards
+  (PostsIndex / TermPosts / SeriesArticles): per post a `.ct-postcard` flex row
+  — the `__body` column (title link · meta row: date via `formatListDate` + a
+  series chip linking `/series/<slug>/` with the localized series.yml title
+  (POST-002) · excerpt · `<PostTaxonomy>`) beside the optional `__cover`
+  (POST-003: link-wrapped lazy full-height image panel fading into the card —
+  lightbox skips it, tap navigates; `--cover` flips to a full-width top strip
+  ≤640px); the
+  `seriesInTitle` prop (TermPosts) prefixes a series article's title with the
+  dim localized series name (`Series › Title`, via `seriesDisplayTitle`) and
+  suppresses the chip; title/excerpt
+  resolved via `resolveLocalizedText` against the active language (ARCH-003);
+  localized `post.empty` when the list is empty.
 - `theme/components/PostsIndex.vue` — POST-001 post-index landing + pagination:
-  reads `posts.data.mts`, slices the current page (`useData().params.num`,
+  reads `posts.data.mts` filtered by `filterListablePosts(…, 'posts')`
+  (POST-002 series toggle — matches the `page/[num].paths.mjs` count), slices
+  the current page (`useData().params.num`,
   else 1), renders `<PostList>` + a `.ct-pagination` nav (prev · numbered ·
   next; page 1 = `/posts`, deeper = `/page/<n>`). Rendered by both `posts.md`
   and `page/[num].md`.
 - `theme/components/ArchivesList.vue` — POST-001 by-year timeline: groups the
-  date-sorted posts by descending UTC year (`yearOf`) into `.ct-archives__year`
+  date-sorted posts (filtered by the `'archives'` series toggle, POST-002) by
+  descending UTC year (`yearOf`) into `.ct-archives__year`
   sections of date + title rows (titles resolved via `resolveLocalizedText`,
-  ARCH-003); no cards/excerpts. Rendered by `archives.md`.
+  ARCH-003; series rows prefixed with the dim localized series name via
+  `seriesDisplayTitle`); no cards/excerpts. Rendered by `archives.md`.
 - `theme/components/CategoriesIndex.vue` / `TagsIndex.vue` — POST-001 taxonomy
-  indexes: `groupByCategory`/`groupByTag(posts)` → a list (categories) / cloud
+  indexes: `groupByCategory`/`groupByTag` over the `'categories'`/`'tags'`
+  toggle-filtered posts (POST-002) → a list (categories) / cloud
   (tags) of `/…/<slug>` links with post counts; displayed names via
   `useTaxonomy()` (I18N-008). Rendered by `categories.md` / `tags.md`.
 - `theme/components/TermPosts.vue` — POST-001 per-tag/-category listing (the
   `field` prop selects the taxonomy): reads route params `{ name: slug, term:
-  display }` from the `[name].paths.mjs` loaders, filters posts by slug match,
+  display }` from the `[name].paths.mjs` loaders, filters the toggle-filtered
+  posts (POST-002) by slug match,
   shows the localized `post.taggedWith`/`post.inCategory` heading (term via
   `useTaxonomy()`, I18N-008), a back link
-  to the index, and `<PostList>`. Rendered by `{tags,categories}/[name].md`.
+  to the index, and `<PostList series-in-title>` (admitted series articles
+  show their series name in the card title). Rendered by
+  `{tags,categories}/[name].md`.
+- `theme/components/SeriesIndex.vue` — POST-002 series index (rendered by
+  `series.md`): merges `series.data.mts` metadata with article-only series
+  folders (folder-name defaults), sorts by `compareSeries`, and renders
+  `.ct-series-index__link` rows — gated `.ct-series-icon` + localized
+  title/description + localized `series.articleCount` — with `series.empty`
+  when none.
+- `theme/components/SeriesArticles.vue` — POST-002 series landing list: derives
+  the slug from `page.relativePath` (`series/<slug>/…`) and renders
+  `<PostList>` with `seriesArticles()` — the series' articles in reading order
+  (`order` asc, ties by URL). Placed on `series/<name>/index.md`.
 - `theme/components/FloatingWindow.vue` — the single shared floating utility
   window (THEME-003/016/017), rendered once from Layout: `role="dialog"` +
   aria-modal container over a dimmed backdrop, stacking the active utility's
@@ -958,15 +1086,32 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-lang` rules: `display: contents` (layout-neutral wrapper) with
   `.ct-lang[hidden]{display:none}` winning by specificity so hidden
   language blocks leave the flow.
-- `theme/styles/_posts.scss` — ARCH-001/POST-001 posts, taxonomy & listing
-  styles, all scoped under `.ct-content` (out-specifies the base markdown
-  list/heading rules): `.ct-taxonomy` link chips + `.ct-post-header` byline;
-  `.ct-postlist`/`.ct-postcard` cards (surface + border, radius); `.ct-pagination`
+- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003 posts, series,
+  taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
+  base markdown list/heading rules): `.ct-taxonomy` link chips;
+  `.ct-post-header` — plain separator byline, or with `--cover` a framed hero
+  banner showing the FULL uncropped cover (normal-flow `width:100%;height:auto`,
+  natural aspect drives the banner height, 8rem floor) at FULL opacity, masked
+  into `--ct-surface` only along the bottom strip behind the `__meta` byline
+  (which absolutely overlays that faded edge); mask `#000 65%→transparent 92%`,
+  ≤640px `#000 45%→82%` (POST-003);
+  `.ct-postlist`/`.ct-postcard` cards as `__body` +
+  optional full-height 15rem `__cover` panels (negative-margin bleed to the
+  right frame edges, `object-fit: cover` crop, left-edge fade mask;
+  `--cover` card `overflow:hidden` + min-height) with a `__meta`
+  date/series-chip row and the dim `__title-series` prefix (POST-002/003);
+  `.ct-pagination`
   mono buttons (`--num--active` = accent fill); `.ct-terms__list`/`__cloud`
   index chips with counts; `.ct-archives` year timeline (border-left guide,
-  fixed-width mono date); `.ct-series-banner` breadcrumb; `.ct-notfound` centered
-  404. Mono chrome, accent hover (`--ct-main-subtle`/`--ct-main-border`); ≤640px
-  stacks archive rows.
+  fixed-width mono date, dim `__series` prefix on series rows);
+  `.ct-series-banner` (label/name row + dim `__desc`);
+  `.ct-series-icon` — `nf-*` classes get `--ct-font-nerd` and are
+  display:none until `html[data-ct-nerdfont]` (FA classes unaffected);
+  `.ct-series-index__*` rows (icon · title/desc column · count); `.ct-notfound`
+  centered 404. Mono chrome, accent hover
+  (`--ct-main-subtle`/`--ct-main-border`); ≤640px
+  stacks archive rows and flips `--cover` cards to column-reverse — the cover
+  becomes a full-width top strip fading downward into the card body.
 - `theme/styles/_settings.scss` — THEME-007: maps `<html data-ct-font-family|size>`
   to `--ct-content-font`/`--ct-content-font-size` (default family = no attr =
   follow mode; medium size = base), and styles the settings-panel controls —
@@ -1140,7 +1285,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `"auto"`, source-local JSON folder metadata, the ARCH-002 `showInExplorer`
   toggle (frontmatter + JSON), explicit-tree compatibility, the I18N-007
   `::: lang` localized-content blocks, ARCH-003 localized frontmatter
-  maps, and the I18N-008 `taxonomy` config for localized tag/category labels. `advanced/deep-dive.md` wraps its body in `::: lang en` /
+  maps, the I18N-008 `taxonomy` config for localized tag/category labels, and
+  the POST-002/003 posts & series section (`series.yml`, `SeriesIndex`/
+  `SeriesArticles`, `order`, the `series` inclusion toggles + the series-name
+  title prefix in general listings, frontmatter `cover`). `advanced/deep-dive.md` wraps its body in `::: lang en` /
   `::: lang zh-Hans` blocks as the I18N-007 demo (body switches with the UI
   language).
 - `guide/advanced/hidden-page.md` — ARCH-002 demo: frontmatter
@@ -1171,27 +1319,36 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —
   ARCH-001/POST-001 demo posts (post page type): each declares `title`/`date`/
   `categories`/`tags`/`description` frontmatter; `hello-terminal` carries
-  per-language `title`/`description` maps as the ARCH-003 demo. Dates span 2024–2025 (exercise
+  per-language `title`/`description` maps as the ARCH-003 demo, and
+  `hello-terminal` + `tui-design` carry `cover` demo SVGs (POST-003). Dates
+  span 2024–2025 (exercise
   the archives year grouping); categories Guides/Design/Ops and overlapping tags
   (vitepress/theme/tui/terminal/color/markdown/deploy) give the tag/category
   listings multiple posts; 5 posts × 3/page = 2 index pages.
-- `series/terminal-internals/{index,part-1,part-2}.md` + `series.yml` — ARCH-001
-  demo series (series-article page type): `index.md` landing + two ordered parts;
-  `series.yml` (localized icon/title/description + `order`) is a structural
-  placeholder — POST-002 finalizes and parses the schema. Series articles are not
-  aggregated into the POST-001 post listings.
+- `series/terminal-internals/{index,part-1,part-2}.md` + `series.yml` —
+  ARCH-001/POST-002 demo series (series-article page type): `index.md` landing
+  places `<SeriesArticles/>` (order-sorted auto list); the two parts carry
+  `order: 1`/`2`, and part-1 a `cover` (POST-003) plus `Design` category +
+  `tui`/`terminal` tags (exercises the series-name title prefix on the
+  per-term pages); `series.yml` is the final
+  POST-002 schema (localized icon/title/description + `order`) parsed by
+  `series.data.mts`. Demo config admits the parts to archives, categories,
+  and tags (not the posts index).
 - `posts.md`/`archives.md`/`categories.md`/`tags.md` — POST-001 listing pages
   (listing page type): each places its globally-registered component
   (`<PostsIndex/>`/`<ArchivesList/>`/`<CategoriesIndex/>`/`<TagsIndex/>`); the
   component renders the localized heading, so the files carry only a plain-string
   `title` frontmatter for the browser tab.
-- `series.md` — POST-002 placeholder series index (listing type): a heading + a
-  link to the demo series so the route exists.
+- `series.md` — POST-002 series index (listing type): places `<SeriesIndex/>`
+  (localized heading + one row per series).
 - `categories/[name].{md,paths.mjs}`, `tags/[name].{md,paths.mjs}` — POST-001
   dynamic taxonomy routes: the `.md` places `<TermPosts field="categories|tags"/>`;
-  the `.paths.mjs` loader runs `createContentLoader('posts/**/*.md')` →
+  the `.paths.mjs` loader runs `createContentLoader(['posts/**/*.md',
+  'series/**/*.md'])` → `filterListablePosts` (POST-002: imports the exported
+  site `themeConfig` so series terms only generate routes when opted in) →
   `groupBy{Category,Tag}` and emits one path per term (`params { name: slug, term:
   display }`). Build generated 3 category + 7 tag pages.
 - `page/[num].{md,paths.mjs}` — POST-001 post-index pagination: `<PostsIndex/>`;
-  the loader emits `/page/2 … /page/N` (page 1 lives at `/posts`). Build generated
+  the loader emits `/page/2 … /page/N` (page 1 lives at `/posts`) over the same
+  toggle-filtered post set as PostsIndex (POST-002). Build generated
   `/page/2`.

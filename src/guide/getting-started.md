@@ -127,3 +127,59 @@ Only the displayed label switches: slugs and `/tags/…`, `/categories/…` URLs
 always come from the authored names, so links never change with the language.
 Terms without an entry render as written. This site localizes the `theme` and
 `color` tags and the `Guides` and `Design` categories as working examples.
+
+## Posts, series & covers
+
+Regular posts live under `src/posts/`; a **series** is a folder under
+`src/series/<series-name>/` whose articles share a landing page and a banner.
+Each series folder may carry a `series.yml` describing it (every field is
+optional):
+
+```yaml
+icon: nf-fa-terminal          # Font Awesome or Nerd Font `nf-*` class
+title:
+  en: Terminal Internals
+  zh-Hans: 终端内幕
+description:
+  en: A short series on how the theme's shell is built.
+order: 0                      # position on the series index; smaller = higher
+```
+
+The series index page (`series.md`) places `<SeriesIndex />` to list every
+series with its icon, localized title/description, and article count. A series
+landing page (`series/<name>/index.md`) places `<SeriesArticles />` to list its
+articles automatically, sorted by their frontmatter `order` (default `0`,
+smaller = higher, ties alphabetical). Every article in the series shows a
+banner linking back to the landing page.
+
+Series articles stay out of the general post listings unless opted in through
+site-config toggles (this site opts them into the archives, categories, and
+tags):
+
+```ts
+series: {
+  inPosts: false,      // post index + pagination
+  inArchives: true,    // archives timeline
+  inCategories: true,  // category index + per-category pages
+  inTags: true,        // tag index + per-tag pages
+}
+```
+
+An admitted series article shows its series name before the title in those
+listings — `Terminal Internals › Part 1 — The Shell Frame` — so it is
+recognizable among regular posts.
+
+A post or series article can also declare a **cover image** in frontmatter:
+
+```yaml
+---
+cover: /images/demo-terminal-1.svg
+---
+```
+
+The cover integrates seamlessly: in post-list cards it is a full-height image
+panel on the right that fades into the card (a full-width top strip on
+mobile), and on the article page the header becomes a hero banner showing the
+full image at full opacity, fading into the surface only behind the byline.
+Card covers are cropped to fit; the article-header image is shown in full.
+Covers are lazy-loaded, and posts without a cover render exactly as before.

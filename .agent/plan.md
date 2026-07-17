@@ -958,14 +958,70 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `styles/_posts.scss`. Build generated 7 tag / 3 category / page-2 routes;
     headless-verified pagination, filtering, and zh-Hans re-localization.*
 
-- [ ] **POST-003** — Post cover support
+- [x] **POST-003** — Post cover support
   - **Category:** Content · **Deps:** POST-001
   - **Acceptance criteria:** posts and series articles can declare an optional cover image
   - in their frontmatter; the cover image, in post list cards and in the article page, is rendered
     on the right side of the card on desktop and above the content on mobile; it should be properly
     styled for a uniform look for the cards. The cover image is optional, and the card layout gracefully degrades when no cover is present; the cover image is responsive and maintains its aspect ratio; the cover image is lazy-loaded and optimized for performance.
+    *Landed 2026-07-16 (with POST-002): frontmatter `cover` (image URL;
+    root-absolute honors the site base) → `PostEntry.cover`. `PostList` cards
+    became a body-beside-cover flex row (`.ct-postcard--cover`): the cover is
+    a link-wrapped 11rem 16/10 `object-fit: cover` thumbnail on the right
+    (link wrap = lightbox skipped, tap navigates); `PostPage` renders the
+    cover in the header region (`.ct-post-header--cover`, 18rem 16/9,
+    `data-no-lightbox`) beside the byline. ≤640px both flip to
+    `column-reverse` — cover above the text, full width. Lazy everywhere
+    (`loading="lazy" decoding="async"`, alt = localized title); no cover =
+    exactly the previous layout. Demos: `hello-terminal`/`tui-design`/series
+    `part-1` covers from the existing demo SVGs. Documented in
+    content-architecture.md §5a + guide/getting-started.md. Verified headless
+    (within the 40/40 POST-002/003 run): desktop right placement + ratios,
+    mobile stacking/full-width, lazy attrs, lightbox exclusion, no overflow.
+    2026-07-17 follow-up: covers enlarged — cards 11rem → 15rem (16/10),
+    article header 18rem → 22rem basis (16/9, still shrinkable so the byline
+    keeps room in the 72ch column); mobile full-width behavior unchanged.
+    Verified headless (240px card cover, ~322px header cover, ratios intact,
+    no overflow).
+    Second 2026-07-17 follow-up — **seamless integration rework**: covers no
+    longer sit beside the text. Cards: the cover is a full-height 15rem panel
+    bled over the card padding to the right frame edges (negative margins +
+    `overflow: hidden` crop, `min-height: 9.5rem`), faded into the card
+    surface by a left-edge `mask-image` gradient; ≤640px it becomes a
+    full-width top strip fading downward. Article header: with a cover the
+    header turns into a framed hero banner (`--cover`: card frame + radius,
+    `min-height`, byline pinned bottom via flex column) with the image
+    absolutely filling it at opacity 0.3, masked to fade out toward the
+    bottom where the byline sits (readable over text-heavy images; ≤640px
+    opacity drops to 0.18 since the byline fills the frame); no cover =
+    unchanged separator-rule header. Templates untouched (still lazy `<img>`
+    with alt + `data-no-lightbox`/link wrap). Screenshot-reviewed dark/light
+    + mobile; verified headless 13/13 (full-height/full-bleed boxes, masks,
+    opacity, absolute background, byline position, no-cover fallback, lazy/
+    link/alt attrs, mobile strips, no overflow).
+    Third 2026-07-17 follow-up — **article-header cover shown in full**: per
+    request, the header no longer crops the cover. The image dropped
+    `object-fit: cover`/`position:absolute` for normal-flow `width:100%;
+    height:auto`, so it renders whole at its natural aspect and drives the
+    banner height (with an 8rem floor for very short images); the byline is
+    now `position:absolute` bottom, overlaying the image's faded bottom edge
+    (mask `#000 55% → transparent 96%`, opacity 0.3, mobile 0.18). Cards are
+    unchanged (they still crop to the fixed panel). Screenshot-reviewed
+    dark/light/mobile; verified headless 13/13 (natural-aspect render 1.33 =
+    uncropped, full width, bottom-fade mask, byline overlay, ~489px banner,
+    lazy/alt/no-lightbox, card cover intact, no overflow).
+    Fourth 2026-07-17 follow-up — **header cover at full opacity except behind
+    the byline**: per request, the blanket `opacity: 0.3` on the header cover
+    image was removed — the image now renders at full opacity (vivid), and
+    only the bottom strip behind the byline is dimmed by the existing mask
+    fading the image into `--ct-surface` (desktop `#000 65% → transparent
+    92%`; the mobile opacity override became a higher-starting mask
+    `#000 45% → transparent 82%` since the byline covers more there). Cards
+    untouched. Screenshot-reviewed dark/light/mobile; verified headless
+    (image opacity == 1, fade mask retained, still uncropped natural aspect,
+    byline overlay, no overflow).*
 
-- [ ] **POST-002** — Posts & post series
+- [x] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in
     `src/series/<series-name>` (per the ARCH-001 content architecture); each series
@@ -974,6 +1030,46 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     attribute (default 0, smaller = higher) falling back to alphabetical; `themeConfig`
     toggles control whether series posts are included in the general posts'
     archive/category/tag pages.
+    *Landed 2026-07-16: `series.yml` schema finalized (all optional: `icon` FA
+    or `nf-*` class, `title`/`description` LocalizableText via
+    `asLocalizableText`, `order` finite number — non-finite → 0), parsed by the
+    new node-side `theme/series.data.mts` (js-yaml devDep) into sorted
+    `SeriesEntry[]` (order asc, ties alphabetical by slug). `posts.data.mts`
+    now also globs `series/**/*.md`: entries carry `series` (slug), `order`,
+    `cover`; landing `index.md` pages are dropped by `normalizePosts`.
+    Articles within a series sort via `seriesArticles()` (order asc, ties
+    alphabetical by URL — verified: flipping an `order` reorders the landing
+    list). New `themeConfig.series = { inPosts, inArchives, inCategories,
+    inTags }` (all default false) gates series articles per listing surface
+    through the shared `filterListablePosts()`, applied by
+    PostsIndex/ArchivesList/TagsIndex/CategoriesIndex/TermPosts AND the three
+    dynamic-route `.paths.mjs` loaders (which import the now-exported site
+    `themeConfig`), so routes and display always agree. Surfaces:
+    `<SeriesIndex/>` on `series.md` (icon · localized title/description ·
+    article count, folder-name fallback for yml-less series),
+    `<SeriesArticles/>` on the landing page, the upgraded
+    `SeriesArticlePage` banner (icon + localized title + description), and a
+    series chip on `PostList` cards. `nf-*` icons render via the gated theme
+    Nerd Font face (`.ct-series-icon`, hidden—not tofu—without the font). New
+    `series.indexTitle`/`.articleCount`/`.empty` strings (en + zh-Hans);
+    styles in `_posts.scss`. Demo: config opts series into archives only;
+    Posts nav submenu gained a Series child. Documented in
+    content-architecture.md §5 + guide/getting-started.md. Build green;
+    verified headless 40/40 (index/landing/banner/toggles/localization/
+    mobile) + the order-flip rebuild check.
+    2026-07-17 follow-up: an admitted series article now carries its localized
+    series name before the title in the general listings — archives rows
+    (`.ct-archives__series` dim prefix + `›`) and per-term listing cards
+    (`PostList`'s new `seriesInTitle` prop, set by `TermPosts`; the meta-row
+    series chip is omitted there to avoid duplication — the series landing
+    list keeps bare titles + chip). Shared resolver `seriesDisplayTitle()` in
+    `posts.ts` (localized series.yml title, slug fallback). Demo config now
+    opts series into categories + tags too (part-1 gained `Design` +
+    `tui`/`terminal` frontmatter), exercising the prefix on those pages;
+    docs updated (content-architecture.md §5 note, guide). Verified headless
+    (prefix in archives/tag/category rows incl. zh-Hans `终端内幕 ›`
+    re-localization, chip suppressed with prefix, posts index still
+    series-free, landing untouched, tag counts include the part).*
 
 - [ ] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001

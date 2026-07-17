@@ -1,6 +1,7 @@
 ---
 title: Designing a TUI on the Web
 date: 2025-01-28
+cover: /images/demo-terminal-2.svg
 categories: Design
 tags:
   - tui

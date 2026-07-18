@@ -2,7 +2,37 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-17 (**POST-003 header
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**PAGE-001/002/003
+landed, then projects/About reworked to authored views** — user asked to
+match the reference theme's `views/About.vue` pattern and not dump everything
+into `components/`).
+PAGE-001 (unchanged): `HomePage.vue` renders a single reusable `Card` **with**
+`show-prompt` from config-driven `themeConfig.home` (`TerminalHomeConfig` +
+`TerminalPageLink`, default `{}`) — greeting/tagline fall back to the localized
+site title/description, command default `whoami`, plus CTA `links`.
+PAGE-002/003 (authored views): new `.vitepress/theme/views/` dir holds thin
+language-dispatcher views `About.vue`/`Projects.vue` (pick
+`views/{about,projects}/{en,zh-Hans}.vue` by `useThemeLocale().language`,
+primary-subtag match, en fallback → re-renders in place on switch); the
+per-language sub-views are hand-authored content using `Card` + the shared
+**fractional** `.ct-cardgrid` — a 6-col track with span modifiers
+`--third`/`--half`/`--two-thirds`/`--full`, mixable per row (`1/3+2/3`,
+`1/2+1/2`, `2/3+1/3`, full); width and the prompt (`show-prompt`,
+`whoami`/`open`) are orthogonal. `src/about.md`/`src/projects.md` are
+normal pages importing the view via `<script setup> import … from
+"@/views/…"` — the new `@` alias → `.vitepress/theme`, added to `config.mts`
+`vite.resolve.alias` (bare `@` matches only `@`/`@/…`, so scoped pkgs safe).
+Removed the interim config-driven approach: `themeConfig.projects`/`.about`
+schemas (`TerminalProjectItem`/`TerminalAboutBlock`/`TerminalAboutEntry`/
+`TerminalAboutConfig`), `components/{ProjectsPage,AboutPage}.vue` + their
+`index.ts` registration, the `page.*` locale keys, and the projects/about demo
+config — but kept the demo Projects/About nav tabs. Styles: `styles/_pages.scss`
+(grid + home/project/about card classes + NF gate), `@use "pages"` in
+main.scss. Docs: content-architecture.md §7 rewrite + new §8 (authored views &
+`@` alias), design-language.md §4 cards note. Build green; verified headless —
+home prompt, featured full-width + prompt vs plain grid cards, live in-place
+`项目`/`关于` on the status-bar language toggle, single-column mobile grid, no
+overflow.) Earlier 2026-07-17 (**POST-003 header
 cover full opacity except behind byline**: removed the blanket `opacity:0.3`
 on the article-header cover — the full uncropped image now renders at FULL
 opacity, and only its bottom strip behind the byline is dimmed by the mask
@@ -314,10 +344,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   POST-002 (posts & series: series.yml schema + loader, order sorting,
   `themeConfig.series` listing toggles) and POST-003 (frontmatter cover
   images in cards + article header) done 2026-07-16.
+  PAGE-001/002/003 (home welcome card + projects/about card grids, all
+  config-driven via `themeConfig.home`/`.projects`/`.about`) done 2026-07-18.
   Roadmap:
-  pages (home PAGE-001, projects PAGE-002, about PAGE-003, friends PAGE-004 —
-  spec TBD), DEMO-001 markdown demo pages, DOC-002/004 documentation,
-  MOBILE-001 pass. I18N-001 includes
+  friends page PAGE-004 (spec TBD), DEMO-001 markdown demo pages,
+  DOC-002/004 documentation, MOBILE-001 pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -450,7 +481,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## .vitepress/
 
 - `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
-  `srcDir: "src"`, title, description; **exported** `themeConfig` const (the
+  `srcDir: "src"`; `vite.resolve.alias` maps `@` →
+  `fileURLToPath(new URL("./theme", …))` so content `.md` files import authored
+  views cleanly (`@/views/About.vue`, PAGE-002/003) — bare `@` only matches
+  `@`/`@/…`, scoped pkgs unaffected; title, description; **exported**
+  `themeConfig` const (the
   `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
   with commented option
   examples including the shell-prompt `siteName` override; `head:
@@ -466,7 +501,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   nav tabs — the last three surface the POST-001 listing pages — +
   a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
   Getting Started + Advanced child links with icons; the `posts` tab's items
-  include Categories/Tags/Series), a `taxonomy` block (I18N-008: zh-Hans labels for the
+  include Categories/Tags/Series; demo also adds `projects`/`about` nav tabs
+  surfacing the PAGE-002/003 pages), a `home` demo block (PAGE-001: localized
+  welcome with command/greeting/tagline/body/links — projects/About are
+  authored views, not config), a `taxonomy` block (I18N-008: zh-Hans labels for the
   `theme`/`color` tags + `Guides`/`Design` categories),
   a `series` block (POST-002: `inArchives`/`inCategories`/`inTags: true` —
   the demo series joins those listings with the series-name title prefix
@@ -579,6 +617,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `resolveComments()` (blank `serverURL` → `waline: null` = unconfigured) with
   the exported `isCommentsConfigured()` helper; default `{ provider:'waline',
   waline:null }`.
+  PAGE-001: `home: TerminalHomeConfig`
+  (`command`/`greeting`/`tagline`/`body`/`links: TerminalPageLink[]`
+  (`{ text, link, icon? }`), default `{}`) — the home welcome card. Projects
+  and About are authored per-page views (PAGE-002/003), NOT config, so there is
+  no `themeConfig.projects`/`.about`.
 - `theme/locales/en.ts` — canonical English string table (I18N-001): source of truth
   for the theme key set (`lang.label` self-description, `mode.*`, `lang.switch`,
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*`
@@ -602,7 +645,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (ARCH-001 series breadcrumb) + `series.indexTitle`/`series.articleCount`
   (`{count}`)/`series.empty` (POST-002 series index), `notFound.title`/`.home`
   (ARCH-001 404) —
-  grows per feature); exports `ThemeLocaleStrings`/`ThemeLocaleKey`.
+  grows per feature; PAGE-002/003 projects/About are authored per-language
+  views, so they hold no locale keys); exports
+  `ThemeLocaleStrings`/`ThemeLocaleKey`.
 - `theme/locales/zh-Hans.ts` — built-in Chinese (Simplified) table, typed
   `ThemeLocaleStrings` so drift from the key set is a type error.
 - `theme/locales/index.ts` — framework-free registry (`en`, `zh-Hans`; tag rule
@@ -765,7 +810,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   registers the POST-001/002 listing components (`PostsIndex`, `ArchivesList`,
   `CategoriesIndex`, `TagsIndex`, `TermPosts`, `SeriesIndex`,
   `SeriesArticles`) so the listing `.md` pages can
-  place them without per-file imports; named-exports the reusable `Card`
+  place them without per-file imports (the PAGE-002/003 projects/About views
+  are instead imported directly by their `.md` via `@/views/…`, not registered
+  here); named-exports the reusable `Card`
   component and the theme's own `Layout`; imports `styles/main.scss`. Swap the
   default `Layout` back to the real one to ship without the demo section.
 - `theme/posts.ts` — POST-001/002/003 framework-free post & series helpers:
@@ -833,9 +880,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`posts/archives/categories/tags/series.md`) & dynamic prefixes
   (`categories/`,`tags/`,`page/`) → `article:false` escape hatch (→ normal) →
   `series/`|`posts/` prefixes → normal. Single dispatch point for Layout.
-- `theme/pages/HomePage.vue` — ARCH-001 home type: localized welcome placeholder
-  (title/description via `useSiteText`, links to posts/demos), no `<Content/>`
-  or article chrome; PAGE-001 replaces it with the prompt-card welcome.
+- `theme/pages/HomePage.vue` — ARCH-001 home type + PAGE-001 welcome card: a
+  single reusable `Card` **with** `show-prompt` (command from
+  `themeConfig.home.command`, default `whoami`) holding the localized
+  greeting/tagline/body + call-to-action `links`; greeting/tagline fall back
+  to the localized site title/description (`useSiteText`) when unset. No
+  `<Content/>` or article chrome. Styles in `_pages.scss`.
 - `theme/pages/NormalPage.vue` — ARCH-001 normal type: bare `<Content/>`, no
   article footer (about/projects/guide/demo pages).
 - `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline + POST-003
@@ -859,6 +909,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/pages/NotFoundPage.vue` — ARCH-001 404 type: minimal localized
   not-found (`notFound.title`/`.home`) inside the shell; client-rendered
   (VitePress's `404.html` app div is empty and hydrates through the dispatch).
+- `theme/views/About.vue`, `theme/views/Projects.vue` — PAGE-003/002 page
+  views (authored-view pattern, content-architecture.md §8; imported by
+  `src/about.md`/`src/projects.md` via `@/views/…`). Thin language dispatchers:
+  render `views/{about,projects}/{en,zh-Hans}.vue` by
+  `useThemeLocale().language` (primary-subtag match, en fallback → re-renders
+  in place on a language switch).
+- `theme/views/about/{en,zh-Hans}.vue`, `theme/views/projects/{en,zh-Hans}.vue`
+  — hand-authored per-language content for the About/Projects pages, built from
+  the `Card` component + shared fractional `.ct-cardgrid` with span modifiers
+  (`--full`/`--two-thirds`/`--half`/`--third`): a `--full` lead card (shell
+  prompt `whoami`/`open`) over fractional rows — projects show `1/3 + 2/3`,
+  About shows `2/3 + 1/3` then `1/2 + 1/2` (About: labeled `<dl>` info rows;
+  Projects: name link + description + literal `tags` chips). FA icons (always
+  render); classes styled in `_pages.scss` (no SFC `<style>`). Edit these to
+  author real content — this authoring IS the config surface for these pages.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010/020):
   the explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -1117,6 +1182,23 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   follow mode; medium size = base), and styles the settings-panel controls —
   `.ct-settings` font rows (label + `.ct-settings__option` segmented control) and
   `.ct-settings__langs` language list, accent active state (`--ct-main-subtle`).
+- `theme/styles/_pages.scss` — PAGE-001/002/003 built-in content pages (scoped
+  under `.ct-content`): shared `.ct-page__title`; the **fractional**
+  `.ct-cardgrid` — a 6-column track (LCM of halves/thirds) where
+  `.ct-cardgrid__item` picks a width via a span modifier `--third` (span 2 =
+  1/3) / `--half` (span 3 = 1/2, also the default) / `--two-thirds` (span 4 =
+  2/3) / `--full` (`1 / -1` = whole row), mixable per row; cards reset their
+  stand-alone margin to fill the cell; ≤640px the grid collapses to one column
+  (all modifiers reset to `1 / -1`). Then the home card
+  (`.ct-home__greeting`/`__tagline`/`__body` + `__links` mono button chips);
+  project cards (`.ct-project__name`/`__icon`/`__desc`/`__tags` chips); About
+  cards (`.ct-about-block__title`/`__body`/`__items` labeled rows — a
+  `.ct-about-block__row` is label-beside-value inline, and the
+  `--stacked` variant forces label-over-value on two lines at any width, e.g.
+  for long URLs/emails). Ends with
+  the Nerd Font gate for `nf-*` card icons (`.ct-page i[class*='nf-']`, shown
+  only under `html[data-ct-nerdfont]`). Width and the shell prompt are
+  orthogonal (prompt = `show-prompt` on the Card).
 - `theme/styles/_card.scss` — COMP-001 floating-card chrome: subtle rounded
   border, low-opacity 4px/12px shadow, semantic surface tokens, a monospace
   shell-prompt header with Oxocarbon segment roles, body spacing, narrow-screen
@@ -1277,7 +1359,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## src/ (site content — VitePress `srcDir`)
 
 - `index.md` — home page stub with `home: true` and localized `title`
-  frontmatter used by the auto-discovered explorer.
+  frontmatter used by the auto-discovered explorer; the `home` page type
+  dispatches to `HomePage.vue` (the welcome card content is `themeConfig.home`,
+  PAGE-001).
+- `projects.md` — normal page (localized `title` frontmatter) whose
+  `<script setup>` imports `@/views/Projects.vue` and renders `<Projects/>`
+  (PAGE-002 authored view; content-architecture.md §8).
+- `about.md` — normal page (localized `title` frontmatter) whose
+  `<script setup>` imports `@/views/About.vue` and renders `<About/>`
+  (PAGE-003 authored view).
 - `guide/index.md`, `guide/getting-started.md`, `guide/advanced/index.md`,
   `guide/advanced/deep-dive.md`, and
   `guide/advanced/advanced-2/{deep-dive.md,explorer.json}` — explorer demo

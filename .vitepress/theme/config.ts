@@ -303,6 +303,44 @@ export interface TerminalSeriesConfig {
   inTags?: boolean
 }
 
+/**
+ * A labeled link used on the home page (PAGE-001) — the welcome card's
+ * call-to-action buttons. Plain data so the list never needs component edits.
+ */
+export interface TerminalPageLink {
+  /** Link label, localizable (I18N-004). */
+  text: LocalizableText
+
+  /** Destination — a site-absolute path or an external URL (new tab). */
+  link: string
+
+  /** Optional Font Awesome / Nerd Font class list rendered before the label. */
+  icon?: string
+}
+
+/**
+ * Home page welcome content (PAGE-001). The home page is a single welcome
+ * **card with** the shell-prompt decoration; these options fill it. Every field
+ * is optional — an unset `greeting`/`tagline` falls back to the (localized)
+ * site title/description, so a site gets a sensible home page with no config.
+ */
+export interface TerminalHomeConfig {
+  /** Literal shell command shown in the welcome card's prompt. Default `whoami`. */
+  command?: string
+
+  /** Lead heading, localizable. Falls back to the site title. */
+  greeting?: LocalizableText
+
+  /** Short subtitle under the heading, localizable. Falls back to the site description. */
+  tagline?: LocalizableText
+
+  /** Optional longer welcome paragraph, localizable. */
+  body?: LocalizableText
+
+  /** Call-to-action links rendered as buttons below the text. */
+  links?: TerminalPageLink[]
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -378,6 +416,12 @@ export interface TerminalThemeConfig {
    * general post listings.
    */
   series?: TerminalSeriesConfig
+
+  /**
+   * Home page welcome content (PAGE-001); see {@link TerminalHomeConfig}.
+   * Unset, the home welcome card falls back to the site title/description.
+   */
+  home?: TerminalHomeConfig
 }
 
 // -----------------------------------------------------------------------------
@@ -420,6 +464,7 @@ export type ResolvedTerminalThemeConfig = Required<
     | 'toolbar'
     | 'taxonomy'
     | 'series'
+    | 'home'
   >
 > & {
   author: ResolvedAuthorConfig
@@ -430,6 +475,9 @@ export type ResolvedTerminalThemeConfig = Required<
   toolbar: Required<TerminalToolbarConfig>
   taxonomy: Required<TerminalTaxonomyConfig>
   series: Required<TerminalSeriesConfig>
+  // Home keeps all-optional inner fields, so it resolves to the user's value
+  // (or an empty object) rather than a `Required<>` shape (PAGE-001).
+  home: TerminalHomeConfig
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -477,6 +525,10 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // Comments stay unconfigured until a Waline server URL is supplied
   // (COMP-004) — the comment card and article counts then render.
   comments: { provider: 'waline', waline: null },
+  // Home welcome card (PAGE-001) — falls back to the localized site
+  // title/description until configured. Projects/About are authored per-page
+  // views (PAGE-002/003), not config.
+  home: {},
 }
 
 /**
@@ -622,5 +674,6 @@ export function resolveThemeConfig(
   }
   if (user?.search) resolved.search = resolveSearch(user.search)
   if (user?.comments) resolved.comments = resolveComments(user.comments)
+  if (user?.home) resolved.home = user.home
   return resolved
 }

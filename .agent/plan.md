@@ -1071,24 +1071,61 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     re-localization, chip suppressed with prefix, posts index still
     series-free, landing untouched, tag counts include the part).*
 
-- [ ] **PAGE-001** — Home page
+- [x] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a home page with basic personal-website welcome content
     presented in a card component that **does** carry the shell-prompt decoration;
     content configurable; strings localized; mobile-correct.
+    *Landed 2026-07-18: `HomePage.vue` (the `home` page-type component) now
+    renders a single reusable `Card` **with** `show-prompt` holding the welcome
+    content from new `themeConfig.home` (`TerminalHomeConfig` — `command`
+    default `whoami`, `greeting`/`tagline`/`body` LocalizableText, `links`
+    call-to-action buttons). `greeting`/`tagline` fall back to the localized
+    site title/description when unset, so an unconfigured site still gets a
+    sensible home page. All text localizes in place on a language switch;
+    styles in new `styles/_pages.scss`. Verified headless: prompt
+    `admin@vitepress-theme-terminal:~$ whoami`, 3 links, mobile no-overflow.*
 
-- [ ] **PAGE-002** — Projects page
+- [x] **PAGE-002** — Projects page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a page demonstrating all projects with grid/card
     components; cards may or may not carry the shell prompt — more featured content
     carries the extra decoration; data easy to configure; localized; grid adapts on
     mobile.
+    *Landed 2026-07-18; reworked same day to authored views (matching the
+    reference theme's `views/About.vue` pattern, per user request). `src/projects.md`
+    is a normal page importing `@/views/Projects.vue` in a `<script setup>`
+    block (the `@` alias → `.vitepress/theme`, added to `config.mts`
+    `vite.resolve.alias`). `views/Projects.vue` is a thin language dispatcher
+    rendering the hand-authored per-language content `views/projects/en.vue` /
+    `views/projects/zh-Hans.vue` by `useThemeLocale().language` (primary-subtag
+    match, English fallback) — switching re-renders in place. Each authored
+    view uses the `Card` component + shared **fractional** `.ct-cardgrid` — a
+    6-col track with span modifiers `--third`/`--half`/`--two-thirds`/`--full`
+    mixable per row (`1/3+2/3`, `1/2+1/2`, `2/3+1/3`, full); width and the
+    shell prompt (`show-prompt`) are orthogonal. The demo shows a `--full` lead
+    (prompt `open`) over a `1/3 + 2/3` row. Styles in `styles/_pages.scss`
+    (no SFC `<style>`). The earlier config-driven `themeConfig.projects` +
+    `components/ProjectsPage.vue` were removed. Verified headless: fractional
+    widths (full 100%, third 32%, two-thirds 66% of the grid), live in-place
+    `项目` on the status-bar language toggle, single-column mobile grid, no
+    overflow.*
 
-- [ ] **PAGE-003** — About Me page
+- [x] **PAGE-003** — About Me page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** an About Me page organizing info with grid/card
     components; shell prompt used judiciously — more featured blocks carry the extra
     decoration; localized; mobile-correct.
+    *Landed 2026-07-18; reworked same day to authored views (same pattern as
+    PAGE-002). `src/about.md` imports `@/views/About.vue`; the dispatcher
+    renders `views/about/en.vue` / `views/about/zh-Hans.vue` by UI language.
+    Each authored view uses `Card` + the fractional `.ct-cardgrid` (span
+    modifiers `--third`/`--half`/`--two-thirds`/`--full`): a `--full` lead card
+    (shell prompt `whoami`) over a `2/3 + 1/3` row then a `1/2 + 1/2` row of
+    cards holding labeled `<dl>` info rows (now, built-with, elsewhere, contact).
+    The earlier config-driven `themeConfig.about` + `components/AboutPage.vue`
+    were removed. Verified headless: fractional widths, `关于` on switch,
+    lead prompt, mobile single-column no-overflow.*
 
 - [ ] **PAGE-004** — Friends page (spec incoming)
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001

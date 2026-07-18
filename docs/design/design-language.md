@@ -325,6 +325,17 @@ On constrained widths it progressively removes `@host`, reduces the path to its
 final section, and then applies an end ellipsis to the path; the command and
 arguments remain visible unless their own content is longer than the available
 line.
+
+*Implemented (PAGE-001/002/003):* the home welcome card is config-driven
+(`themeConfig.home`, `pages/HomePage.vue`) and always carries the prompt. The
+projects and About pages are hand-authored per-language **Vue views** under
+`.vitepress/theme/views/` (imported by `src/projects.md` / `src/about.md` via
+the `@` alias — content-architecture.md §8), not a config schema; each uses the
+`Card` component and the shared card grid (`.ct-cardgrid`), where a `featured`
+grid item spans the full row and carries the prompt while the rest are plain
+cards — the "more featured content carries the extra decoration" rule. Styles
+in `styles/_pages.scss`. See
+[`content-architecture.md`](content-architecture.md) §7–§8.
 Related: code blocks render as card-style floating windows in the same visual
 language — framed like the card component, but headed by a title bar (file name when
 given, plus the language name) holding a COPY button, **not** by a shell-prompt-like

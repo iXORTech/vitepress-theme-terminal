@@ -240,3 +240,77 @@ COMP-002 swiper demo.
 > slugs, URLs, and grouping — their *displayed* labels can localize through the
 > dedicated `themeConfig.taxonomy` map (I18N-008,
 > [`design-language.md`](design-language.md) §9, localizable taxonomy labels).
+
+> **Implemented (PAGE-001/002/003, 2026-07-18; projects/About reworked to
+> authored views the same day).**
+>
+> - **Home** (`src/index.md`, `home` page type → `pages/HomePage.vue`) renders
+>   a single reusable `Card` **with** the shell prompt from `themeConfig.home`
+>   (`command` default `whoami`; `greeting`/`tagline`/`body` LocalizableText,
+>   falling back to the localized site title/description; `links`
+>   call-to-action buttons). This one stays config-driven — it is a single
+>   welcome card.
+> - **Projects** (`src/projects.md`) and **About** (`src/about.md`) are normal
+>   pages whose body is a hand-authored, per-language **Vue view** (§8),
+>   following the reference theme's `views/About.vue` pattern rather than a
+>   config schema — a personal projects/About page is rich, bespoke content.
+>   Each `.md` imports its view via the `@` alias
+>   (`import About from "@/views/About.vue"`) and renders it.
+>
+> Both authored views use the theme's `Card` component and the shared card grid
+> (`.ct-cardgrid`): a `featured` grid item spans the full row and carries the
+> shell prompt, the rest are plain grid cards (design-language.md §4, cards —
+> "more featured content carries the extra decoration"). The grid collapses to
+> one column on mobile; `nf-*` card icons are Nerd-Font-gated. Styles are in
+> `.vitepress/theme/styles/_pages.scss` (never in an SFC `<style>` block —
+> AGENTS.md §6.3).
+
+## 8. Authored page views (`.vitepress/theme/views/`)
+
+Some pages are not lists of data but bespoke, personal content — the projects
+page and the About page (`PAGE-002`/`PAGE-003`). Rather than force that content
+into a rigid `themeConfig` schema, the theme authors it as **Vue views**,
+following the layout the reference theme
+([`iXORTech/vitepress-theme-arch`](https://github.com/iXORTech/vitepress-theme-arch/blob/main/src/about.md))
+uses for its About page:
+
+- View components live under **`.vitepress/theme/views/`**, kept separate from
+  the reusable `components/` (which hold shared building blocks like `Card.vue`)
+  and from `pages/` (the six page-**type** dispatch components).
+- The page's Markdown file imports its view in a `<script setup>` block and
+  renders it — e.g. `src/about.md`:
+
+  ```md
+  <script setup>
+  import About from "@/views/About.vue";
+  </script>
+
+  <About />
+  ```
+
+- The `@` alias resolves to `.vitepress/theme` (configured in
+  `.vitepress/config.mts` under `vite.resolve.alias`), so content pages import
+  theme code with a clean `@/…` path. The bare `@` alias only matches `@` and
+  `@/…`, so scoped packages (`@waline/client`, …) are unaffected.
+- Each view is a thin **language dispatcher** (`views/About.vue`,
+  `views/Projects.vue`) that renders a hand-authored per-language content
+  component (`views/about/en.vue`, `views/about/zh-Hans.vue`, and likewise for
+  projects) chosen from the active UI language (`useThemeLocale().language`,
+  matched by primary subtag with an English fallback). Because the language
+  ref is reactive, switching the UI language re-renders the matching component
+  **in place**, consistent with the rest of the theme's URL-free i18n (§9 of
+  [`design-language.md`](design-language.md)).
+- The authored components use the theme's `Card` component and the shared card
+  grid (`.ct-cardgrid`, styles in `styles/_pages.scss`). The grid is a
+  **6-column track** (the LCM of halves and thirds), so each item picks a
+  fractional width with a span modifier on `.ct-cardgrid__item` —
+  `--third` (1/3), `--half` (1/2), `--two-thirds` (2/3), or `--full` (whole
+  row) — and any per-row mix that adds up works: `1/3 + 2/3`, `1/2 + 1/2`,
+  `2/3 + 1/3`, or a single full-width card. Width and the shell prompt are
+  orthogonal: the prompt is set per `Card` with `show-prompt` (a lead card is
+  typically `--full` + a prompt). Below 640px the grid collapses to a single
+  column. All styling stays in SCSS partials, never in SFC `<style>` blocks
+  (AGENTS.md §6.3).
+
+To adapt these pages, a site owner edits the per-language view files directly —
+that authoring **is** the configuration surface for this kind of page.

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { defineConfigWithTheme } from "vitepress";
 import type { TerminalThemeConfig } from "./theme/config";
 import { themeHead } from "./theme/head";
@@ -86,6 +87,8 @@ export const themeConfig: TerminalThemeConfig = {
         ],
       },
       { text: { en: "Archives", "zh-Hans": "归档" }, link: "/archives", icon: "fa-solid fa-box-archive" },
+      { text: { en: "Projects", "zh-Hans": "项目" }, link: "/projects", icon: "fa-solid fa-diagram-project" },
+      { text: { en: "About", "zh-Hans": "关于" }, link: "/about", icon: "fa-solid fa-user" },
     ],
     actions: [
       {
@@ -124,6 +127,37 @@ export const themeConfig: TerminalThemeConfig = {
     inTags: true,
     // inPosts: true,
   },
+
+  // Home page welcome content (PAGE-001) — the home page renders a single
+  // welcome card WITH the shell prompt. `greeting`/`tagline` fall back to the
+  // localized site title/description when unset; `command` is the literal shell
+  // verb in the prompt (default `whoami`); `links` are call-to-action buttons.
+  home: {
+    command: "whoami",
+    greeting: { en: "Hi, I'm the Terminal theme", "zh-Hans": "你好，我是终端主题" },
+    tagline: {
+      en: "A TUI-inspired VitePress theme for blogs and personal sites.",
+      "zh-Hans": "一个受 TUI 界面风格启发的 VitePress 博客与个人网站主题。",
+    },
+    body: {
+      en: "Everything on this demo — the shell chrome, cards, explorer, and these very pages — is the theme showing itself off. Browse the guide, posts, and projects below.",
+      "zh-Hans": "本演示中的一切——外壳界面、卡片、资源管理器，以及这些页面本身——都是主题在自我展示。欢迎浏览下方的指南、文章与项目。",
+    },
+    links: [
+      { text: { en: "Read the guide", "zh-Hans": "阅读指南" }, link: "/guide/", icon: "fa-solid fa-book" },
+      { text: { en: "Browse posts", "zh-Hans": "浏览文章" }, link: "/posts", icon: "fa-solid fa-feather" },
+      {
+        text: "GitHub",
+        link: "https://github.com/iXORTech/vitepress-theme-terminal",
+        icon: "fa-brands fa-github",
+      },
+    ],
+  },
+
+  // The projects page (PAGE-002, `src/projects.md`) and the About page
+  // (PAGE-003, `src/about.md`) are authored per-language Vue views under
+  // `.vitepress/theme/views/{projects,about}/`, imported by the markdown — not
+  // configured here (content-architecture.md §8).
 
   // Auto-discover every Markdown file below src/. Folder index pages become
   // folder links; page labels come from frontmatter title metadata. An
@@ -182,6 +216,18 @@ const shikiThemes = {
 // https://vitepress.dev/reference/site-config
 export default defineConfigWithTheme<TerminalThemeConfig>({
   srcDir: "src",
+
+  // `@` → the theme root, so content pages can import authored view components
+  // cleanly (e.g. `@/views/About.vue` in `src/about.md`). The bare `@` alias
+  // only matches `@` and `@/…`, so scoped packages like `@waline/client` are
+  // unaffected.
+  vite: {
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./theme", import.meta.url)),
+      },
+    },
+  },
 
   title: "VitePress Theme Terminal",
   description: "A TUI-inspired VitePress Theme for Blog and Personal Website",

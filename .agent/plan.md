@@ -1190,11 +1190,33 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     field; its design-doc `name` sample is outdated). Verified headless
     17/17 + dark/light/mobile screenshots; full note in friend-links.md §9.*
 
-- [ ] **DEMO-001** — Markdown demo pages
+- [x] **DEMO-001** — Markdown demo pages
   - **Category:** Content · **Deps:** STYLE-005, MD-001, MD-002
   - **Acceptance criteria:** demo files show markdown sources alongside their rendered
     results, covering standard markdown, the plugin suite (MD-001), and callouts
     (MD-002); reachable from the site navigation.
+    *Landed 2026-07-19: `src/markdown-examples.md` rewritten into a complete
+    **Markdown Demo** — every feature shown as an **Input** (raw source) next to
+    its rendered **Output**, organized into Basic Markdown (STYLE-005 scope:
+    headings h1–h6, paragraphs + `\` line break, emphasis/strong/bold-italic +
+    `~~strikethrough~~`, nested blockquotes, ordered/unordered/nested lists,
+    horizontal rules, links incl. reference/autolink/internal, inline code,
+    alignment tables, inline HTML + Font Awesome), Code Blocks (STYLE-004
+    highlighting + `[name]` title bar), Markdown Extensions (the full MD-001
+    suite — emoji, sub/sup, ins/mark, footnotes, definition lists,
+    abbreviations, math), Callouts (all MD-002 types + note/caution aliases +
+    custom title + nested), Images/galleries (COMP-002 lightbox + `:::: swiper`
+    deck), and the Card component (DEMO-002, preserved). Task lists are
+    deliberately omitted — the theme ships no task-list plugin and VitePress
+    doesn't enable them, so `- [ ]` would render literally (also outside
+    STYLE-005 scope). Reachable from the tool bar via a new **Markdown Demo**
+    child under the Guide submenu (`config.mts`), on top of the auto-explorer.
+    Build green; headless-verified on `/markdown-examples`: 9 callouts, 4 cards,
+    25 code cards, swiper deck, alignment table, footnotes, 3 MathJax
+    expressions, details callout, single page h1 (example headings start at
+    h3), no 360px overflow. Gotcha fixed: the initial write leaked stray
+    `</content></invoke>` tokens at EOF → Vue "Invalid end tag" compile failure;
+    stripped.*
 
 - [x] **DEMO-002** — Card component demo
   - **Category:** Content · **Deps:** COMP-001

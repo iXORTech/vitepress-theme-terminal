@@ -74,6 +74,11 @@ export const themeConfig: TerminalThemeConfig = {
             link: "/guide/advanced/",
             icon: "fa-solid fa-flask",
           },
+          {
+            text: { en: "Markdown Demo", "zh-Hans": "Markdown 演示" },
+            link: "/markdown-examples",
+            icon: "fa-solid fa-hashtag",
+          },
         ],
       },
       {

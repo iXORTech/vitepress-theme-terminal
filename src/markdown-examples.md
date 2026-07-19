@@ -1,28 +1,272 @@
 ---
+outline: [2, 3]
 title:
-  en: "Markdown Examples"
-  zh-Hans: "Markdown 示例"
-date: 2026-07-12T12:38:02+08:00
+  en: "Markdown Demo"
+  zh-Hans: "Markdown 演示"
 ---
 
 <script setup lang="ts">
 import Card from '../.vitepress/theme/components/Card.vue'
 </script>
 
-# Markdown Extension Examples
+# Markdown Demo
 
-This page demonstrates the markdown extensions provided by the theme: the
-markdown-it plugin suite (MD-001), math formulas, and the callout containers
-(MD-002), alongside VitePress's built-in Shiki syntax highlighting.
+A complete reference for everything you can write in this theme's Markdown. Each
+feature is shown twice: an **Input** block with the raw source, followed by the
+**Output** it renders to. Three families are covered:
 
-The basic Markdown syntax, *emphasis*, **strong**, `inline code`, [links](https://vitepress.dev/), and lists are supported as usual. The following sections show the theme's extensions or enhancements on a certain feature.
+- **Basic Markdown** — the standard syntax (headings, text, lists, tables,
+  quotes, links, images, code), styled to the terminal design language.
+- **Markdown extensions** — the plugin suite (emoji, subscript/superscript,
+  inserted/marked text, footnotes, definition lists, abbreviations, math).
+- **Callouts** — the admonition containers, plus the theme's card and image
+  components.
 
-## Syntax Highlighting
+## Basic Markdown
 
-Code blocks are highlighted by Shiki with the Oxocarbon palettes, following
-the active color mode (dark / light / paper). Each block renders as a
-card-style window (STYLE-004) headed by a title bar — the language name and a
-COPY button — never a shell prompt.
+### Headings
+
+Headings run from level 1 (`#`) to level 6 (`######`). This page's own title is
+a level‑1 heading and every section below is a level‑2 heading, so the live
+examples here start at level 3.
+
+**Input**
+
+```md
+# Heading level 1
+## Heading level 2
+### Heading level 3
+#### Heading level 4
+##### Heading level 5
+###### Heading level 6
+```
+
+**Output**
+
+### Heading level 3
+
+#### Heading level 4
+
+##### Heading level 5
+
+###### Heading level 6
+
+### Paragraphs and line breaks
+
+Blank lines separate paragraphs. To force a line break **inside** a paragraph,
+end a line with two trailing spaces or a backslash.
+
+**Input**
+
+```md
+The first paragraph of prose. Neutral body text keeps the accent color for
+emphasis only.
+
+A second paragraph, separated by a blank line.\
+This sentence sits on a new line thanks to a trailing backslash.
+```
+
+**Output**
+
+The first paragraph of prose. Neutral body text keeps the accent color for
+emphasis only.
+
+A second paragraph, separated by a blank line.\
+This sentence sits on a new line thanks to a trailing backslash.
+
+### Emphasis
+
+**Input**
+
+```md
+*Italic* and _also italic_, **bold** and __also bold__,
+***bold italic***, and ~~strikethrough~~ for removed text.
+```
+
+**Output**
+
+*Italic* and _also italic_, **bold** and __also bold__,
+***bold italic***, and ~~strikethrough~~ for removed text.
+
+### Blockquotes
+
+Blockquotes can hold any other Markdown and can be nested.
+
+**Input**
+
+```md
+> "The terminal is the most honest interface."
+>
+> > A nested quote replies.
+>
+> — someone, probably
+```
+
+**Output**
+
+> "The terminal is the most honest interface."
+>
+> > A nested quote replies.
+>
+> — someone, probably
+
+### Lists
+
+Unordered lists use `-`, `*`, or `+`; ordered lists use `1.`. Indent to nest,
+and mix the two freely.
+
+**Input**
+
+```md
+- Tool bar
+- Explorer
+  - Auto-discovered pages
+  - Source-local metadata
+- Status bar
+
+1. Read the guide
+2. Configure the theme
+   1. Set the main color
+   2. Add your author identity
+3. Ship it
+```
+
+**Output**
+
+- Tool bar
+- Explorer
+  - Auto-discovered pages
+  - Source-local metadata
+- Status bar
+
+1. Read the guide
+2. Configure the theme
+   1. Set the main color
+   2. Add your author identity
+3. Ship it
+
+### Horizontal rules
+
+Three or more `-`, `*`, or `_` on their own line draw a rule.
+
+**Input**
+
+```md
+Above the rule.
+
+---
+
+Below the rule.
+```
+
+**Output**
+
+Above the rule.
+
+---
+
+Below the rule.
+
+### Links
+
+Inline links, links with a title, reference-style links, bare autolinks, and
+internal links to other pages on the site are all supported.
+
+**Input**
+
+```md
+An [inline link](https://vitepress.dev/) and one
+[with a title](https://vitepress.dev/ "VitePress home").
+
+A [reference link][vp] defined elsewhere. A bare URL is linkified
+automatically: https://vitepress.dev/
+
+An internal link to [the guide](/guide/).
+
+[vp]: https://vitepress.dev/
+```
+
+**Output**
+
+An [inline link](https://vitepress.dev/) and one
+[with a title](https://vitepress.dev/ "VitePress home").
+
+A [reference link][vp] defined elsewhere. A bare URL is linkified
+automatically: https://vitepress.dev/
+
+An internal link to [the guide](/guide/).
+
+[vp]: https://vitepress.dev/
+
+### Inline code
+
+Wrap code in backticks; use more backticks when the span itself contains one.
+
+**Input**
+
+```md
+Run `pnpm dev`, read `themeConfig.mainColor`, and note that
+`` `code` `` shows a literal backtick.
+```
+
+**Output**
+
+Run `pnpm dev`, read `themeConfig.mainColor`, and note that
+`` `code` `` shows a literal backtick.
+
+### Tables
+
+Pipes separate columns; the dashes row sets alignment with `:`.
+
+**Input**
+
+```md
+| Region     | Position      | Aligned right |
+| :--------- | :-----------: | ------------: |
+| Tool bar   | top           |             1 |
+| Viewport   | center        |            22 |
+| Status bar | bottom        |           333 |
+```
+
+**Output**
+
+| Region     | Position      | Aligned right |
+| :--------- | :-----------: | ------------: |
+| Tool bar   | top           |             1 |
+| Viewport   | center        |            22 |
+| Status bar | bottom        |           333 |
+
+### Inline HTML and Font Awesome icons
+
+Raw HTML is allowed inline, and Font Awesome Free loads with the theme
+(FONT-002), so its icons work as inline HTML on any page.
+
+**Input**
+
+```md
+Press <kbd>/</kbd> to open search. Text can be <mark>highlighted</mark> or
+noted as <sub>small</sub> / <sup>raised</sup> with HTML too.
+
+<i class="fa-solid fa-terminal"></i> terminal ·
+<i class="fa-brands fa-github"></i> github ·
+<i class="fa-solid fa-rss"></i> rss
+```
+
+**Output**
+
+Press <kbd>/</kbd> to open search. Text can be <mark>highlighted</mark> or
+noted as <sub>small</sub> / <sup>raised</sup> with HTML too.
+
+<i class="fa-solid fa-terminal"></i> terminal ·
+<i class="fa-brands fa-github"></i> github ·
+<i class="fa-solid fa-rss"></i> rss
+
+## Code Blocks
+
+Fenced code blocks are highlighted by Shiki with the Oxocarbon palettes,
+following the active color mode (dark / light / paper). Each block renders as a
+card-style window (STYLE-004) headed by a title bar carrying the language name
+and a COPY button — never a shell prompt.
 
 **Input**
 
@@ -67,7 +311,11 @@ body { color: var(--ct-main); }
 body { color: var(--ct-main); }
 ```
 
-## Emoji
+## Markdown Extensions
+
+These come from the markdown-it plugin suite (MD-001).
+
+### Emoji
 
 **Input**
 
@@ -79,7 +327,7 @@ Ship it! :tada: :rocket: — reviewed with :heart: and a bit of :coffee:
 
 Ship it! :tada: :rocket: — reviewed with :heart: and a bit of :coffee:
 
-## Subscript & Superscript
+### Subscript & superscript
 
 **Input**
 
@@ -91,7 +339,7 @@ H~2~O is water, E = mc^2^, and the 19^th^ element is K.
 
 H~2~O is water, E = mc^2^, and the 19^th^ element is K.
 
-## Inserted & Marked Text
+### Inserted & marked text
 
 **Input**
 
@@ -103,7 +351,7 @@ VitePress is ++simple++ and this theme makes it ==terminal-flavored==.
 
 VitePress is ++simple++ and this theme makes it ==terminal-flavored==.
 
-## Footnotes
+### Footnotes
 
 **Input**
 
@@ -123,7 +371,7 @@ The theme follows the Oxocarbon palette[^1] and IBM Plex type[^2].
 
 [^2]: IBM's open-source typeface family: Sans, Serif, and Mono.
 
-## Definition Lists
+### Definition lists
 
 **Input**
 
@@ -143,7 +391,7 @@ Tool bar
 Status bar
 : Mode indicator, location, reading progress, and switchers.
 
-## Abbreviations
+### Abbreviations
 
 Hover the acronyms in the output to see their expansions.
 
@@ -163,7 +411,10 @@ The theme renders a TUI look while keeping full SSR support.
 
 The theme renders a TUI look while keeping full SSR support.
 
-## Math Formulas
+### Math formulas
+
+Math is rendered by MathJax (markdown-it-mathjax3), inline with `$…$` and as a
+display block with `$$…$$`.
 
 **Input**
 
@@ -187,32 +438,99 @@ $$
 \int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
 $$
 
-## Icons (Font Awesome)
+## Callouts
 
-Font Awesome Free loads with the theme (FONT-002), so its icons can be used
-directly as inline HTML in any page.
+Callout containers (MD-002) render as minimal left-bar admonitions. Default
+titles are localized and follow the language switcher; a custom title can be
+given on the opening line. `note` shares `info`'s color and `caution` shares
+`danger`'s. `details` is collapsible.
 
 **Input**
 
 ```md
-<i class="fa-solid fa-terminal"></i> terminal ·
-<i class="fa-brands fa-github"></i> github ·
-<i class="fa-solid fa-rss"></i> rss
+::: info
+Plain information.
+:::
+
+::: note
+A note in the margin of the session.
+:::
+
+::: tip
+Use the keyboard: `/` opens the find palette.
+:::
+
+::: warning
+The explorer is hidden in paper mode.
+:::
+
+::: danger
+`rm -rf` has no undo.
+:::
+
+::: caution
+Alias of danger — same color, its own title.
+:::
+
+::: important
+Derived colors are computed, never configured.
+:::
+
+::: details
+Collapsed by default — click the title to expand. Callouts can hold any
+Markdown, including lists and `code`.
+:::
+
+::: tip Custom title with `code`
+Custom titles render inline Markdown and are not re-localized.
+:::
 ```
 
 **Output**
 
-<i class="fa-solid fa-terminal"></i> terminal ·
-<i class="fa-brands fa-github"></i> github ·
-<i class="fa-solid fa-rss"></i> rss
+::: info
+Plain information.
+:::
 
-## Images
+::: note
+A note in the margin of the session.
+:::
+
+::: tip
+Use the keyboard: `/` opens the find palette.
+:::
+
+::: warning
+The explorer is hidden in paper mode.
+:::
+
+::: danger
+`rm -rf` has no undo.
+:::
+
+::: caution
+Alias of danger — same color, its own title.
+:::
+
+::: important
+Derived colors are computed, never configured.
+:::
+
+::: details
+Collapsed by default — click the title to expand. Callouts can hold any
+Markdown, including lists and `code`.
+:::
+
+::: tip Custom title with `code`
+Custom titles render inline Markdown and are not re-localized.
+:::
+
+## Images and galleries
 
 Content images are interactive by default (COMP-002): **click any image** to
 enlarge it in a lightbox, and browse every image on the page as slides with the
-arrow keys or controls — the plain image below and the three cards in the deck
-further down all belong to the same gallery. Images wrapped in a link keep
-their link, and `data-no-lightbox` opts a single image out.
+arrow keys or controls. Images wrapped in a link keep their link, and
+`data-no-lightbox` opts a single image out.
 
 **Input**
 
@@ -226,10 +544,10 @@ their link, and `data-no-lightbox` opts a single image out.
 
 ### Swiper cards
 
-A `:::: swiper` container with nested `::: swiper-slide-no-shadow` blocks
-renders its images as SwiperJS slides with the **cards effect** — the slides
-sit stacked on top of each other like a deck. Drag a card away (or swipe on
-touch) to reveal the next one.
+A `:::: swiper` container with nested `::: swiper-slide-no-shadow` blocks renders
+its images as SwiperJS slides with the **cards effect** — the slides sit stacked
+on top of each other like a deck. Drag a card away (or swipe on touch) to reveal
+the next one.
 
 **Input**
 
@@ -263,12 +581,13 @@ touch) to reveal the next one.
 
 ## Card component
 
-The reusable card is a floating window with an optional shell-prompt
-decoration. Set `showPrompt` to `true` to render it. The `prompt` object accepts
-optional `host` and `path`, required `command`, and optional `args`; omitted
-values default to the configured `themeConfig.siteName` or, when unset, the
-automatically normalized site title, plus the current page path. All values remain
-overridable.
+The reusable card (DEMO-002) is a floating TUI window with an optional
+shell-prompt decoration. Set `showPrompt` to `true` to render the prompt line.
+The `prompt` object accepts optional `host` and `path`, a required `command`,
+and optional `args`; omitted values default to the configured
+`themeConfig.siteName` (or, when unset, the automatically normalized site title)
+plus the current page path. All values remain overridable, and the prompt is off
+by default.
 
 **Input**
 
@@ -340,91 +659,7 @@ import Card from '../.vitepress/theme/components/Card.vue'
   <p>And is off by default.</p>
 </Card>
 
-## Callouts
-
-Callout containers render as TUI cards. Default titles are localized and
-follow the language switcher; custom titles are supported. `note` shares
-`info`'s color, `caution` shares `danger`'s.
-
-**Input**
-
-```md
-::: info
-Plain information.
-:::
-
-::: note
-A note in the margin of the session.
-:::
-
-::: tip
-Use the keyboard: `/` opens the find palette.
-:::
-
-::: warning
-The explorer is hidden in paper mode.
-:::
-
-::: danger
-`rm -rf` has no undo.
-:::
-
-::: caution
-Alias of danger — same color, its own title.
-:::
-
-::: important
-Derived colors are computed, never configured.
-:::
-
-::: details
-Collapsed by default — click the title to expand.
-:::
-
-::: tip Custom title with `code`
-Custom titles render inline markdown and are not re-localized.
-:::
-```
-
-**Output**
-
-::: info
-Plain information.
-:::
-
-::: note
-A note in the margin of the session.
-:::
-
-::: tip
-Use the keyboard: `/` opens the find palette.
-:::
-
-::: warning
-The explorer is hidden in paper mode.
-:::
-
-::: danger
-`rm -rf` has no undo.
-:::
-
-::: caution
-Alias of danger — same color, its own title.
-:::
-
-::: important
-Derived colors are computed, never configured.
-:::
-
-::: details
-Collapsed by default — click the title to expand.
-:::
-
-::: tip Custom title with `code`
-Custom titles render inline markdown and are not re-localized.
-:::
-
 ## More
 
-Full option documentation for the markdown pipeline lands with the user docs
-(plan DOC-002/DOC-004).
+Full option documentation for the Markdown pipeline and the rest of the theme
+lands with the user documentation (plan DOC-002 / DOC-004).

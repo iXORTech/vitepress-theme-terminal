@@ -2,7 +2,16 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**ARCH-004 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-19 (**DEMO-001 landed**
+— `src/markdown-examples.md` rewritten into the complete **Markdown Demo**:
+every feature shown as Input source beside rendered Output, across Basic
+Markdown (STYLE-005), Code Blocks (STYLE-004), Markdown Extensions (full MD-001
+suite), Callouts (all MD-002 types), Images/galleries (COMP-002), and the Card
+component (DEMO-002, preserved). Task lists omitted (unsupported). New tool-bar
+**Markdown Demo** child under the Guide submenu in `config.mts`. Fixed a
+Write-leaked `</content></invoke>` EOF token that had broken the Vue compile.
+Build green + headless-verified. See the `markdown-examples.md` entry below.)
+Earlier 2026-07-18 (**ARCH-004 landed**
 — explorer sibling ordering for auto-discovery: an `order` attribute (any
 finite number, smaller = higher, default `0`, negatives/fractions honored,
 non-finite → `0`) on a page's frontmatter or a folder's `explorer.json`
@@ -572,7 +581,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
   nav tabs — the last three surface the POST-001 listing pages — +
   a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
-  Getting Started + Advanced child links with icons; the `posts` tab's items
+  Getting Started + Advanced + **Markdown Demo** (DEMO-001,
+  `/markdown-examples`) child links with icons; the `posts` tab's items
   include Categories/Tags/Series; demo also adds `projects`/`about`/`friends`
   nav tabs
   surfacing the PAGE-002/003/004 pages), a `home` demo block (PAGE-001: localized
@@ -1524,19 +1534,30 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `drafts/{draft-post.md,explorer.json}` — ARCH-002 demo: the folder's
   `explorer.json` `{"showInExplorer": false}` prunes the whole `drafts/`
   subtree from the explorer; the draft still builds at `/drafts/draft-post`.
-- `markdown-examples.md` — input/output demo of the theme markdown pipeline:
-  Shiki highlighting incl. a `[main.scss]` file-name code-block card (STYLE-004),
-  every MD-001 plugin (emoji, sub/sup, ins/mark, footnotes,
-  deflists, abbr), math, inline Font Awesome icons (FONT-002), the COMP-002
-  image demos (a lightbox gallery image + a `:::: swiper` /
-  `::: swiper-slide-no-shadow` three-card deck), all 8 callout
-  types + custom-title example (MD-002), the defaulted, fully overridden, and
-  prompt-free COMP-001 card demo (including current-page path defaults and a long
-  overridden path for prompt-overflow behavior), the configurable
-  `themeConfig.siteName` host override and automatic fallback, and localized
-  explorer title metadata. Carries a `date` frontmatter so the auto-appended COMP-003 license
-  card (rendered on every article by Layout) shows its release row; the
-  last-updated row falls back to VitePress's git `lastUpdated`.
+- `markdown-examples.md` — the complete **Markdown Demo** page (DEMO-001,
+  rewritten 2026-07-19; title map `Markdown Demo`/`Markdown 演示`,
+  `outline: [2,3]`). Every feature is shown as an **Input** (raw source, in a
+  fenced block) beside its rendered **Output**, in five parts: **Basic
+  Markdown** (STYLE-005 — headings h1–h6 with live h3–h6 examples, paragraphs +
+  `\` line break, italic/bold/bold-italic + `~~strikethrough~~`, nested
+  blockquotes, ordered/unordered/nested lists, horizontal rules, links incl.
+  reference/autolink/internal, inline code, alignment tables, inline HTML
+  (`<kbd>/<mark>/<sub>/<sup>`) + Font Awesome icons); **Code Blocks** (STYLE-004
+  Shiki highlighting + a `[main.scss]` file-name title-bar card); **Markdown
+  Extensions** (all MD-001 plugins — emoji, sub/sup, ins/mark, footnotes,
+  deflists, abbr, math); **Callouts** (all 8 MD-002 types + note/caution
+  aliases + custom-title + nested); **Images and galleries** (COMP-002 lightbox
+  image + a `:::: swiper` / `::: swiper-slide-no-shadow` three-card deck); and
+  the **Card component** (DEMO-002 — defaulted, fully-overridden, prompt-off,
+  and prompt-disabled COMP-001 cards). Task lists are intentionally excluded
+  (no task-list plugin; VitePress renders `- [ ]` literally — also outside the
+  STYLE-005 list). Reachable from the tool bar via a new **Markdown Demo** child
+  under the Guide submenu (`config.mts`) plus the auto-explorer. The former
+  `date` frontmatter was dropped (a normal page doesn't render the COMP-003
+  license card). Build green; headless-verified. Write gotcha: the initial
+  Write leaked stray `</content></invoke>` closing tokens at EOF, which Vue
+  compiled as an "Invalid end tag" (build failure) — strip any such trailing
+  tool-syntax tokens after a large Write.
 - `public/images/demo-terminal-{1,2,3}.svg` — static demo art for the COMP-002
   image demos: three 800×600 terminal-mock SVGs in the theme palette (session /
   split panes / paper mode), served from the VitePress public dir as

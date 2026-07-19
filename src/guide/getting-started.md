@@ -2,6 +2,7 @@
 title:
   en: "Getting Started"
   zh-Hans: "快速上手"
+order: -1
 ---
 
 # Getting Started
@@ -67,6 +68,32 @@ A folder — with everything below it — is hidden the same way from its
 
 The default is always shown. This site hides `/guide/advanced/hidden-page`
 (frontmatter) and the whole `drafts/` folder (JSON) as working examples.
+
+### Ordering entries
+
+By default siblings sort with folders first, then by name. Give a page or
+folder an `order` to move it — any finite number, smaller sorts higher, the
+default is `0`:
+
+```yaml
+---
+order: -1
+---
+```
+
+A negative value pins an entry **above** the unnumbered `0` siblings without
+having to renumber them. A folder takes its `order` from its `explorer.json`
+(which wins) or its `index.md` frontmatter:
+
+```json
+{ "order": 1 }
+```
+
+Entries with the same `order` keep the folders-first-then-name fallback, so
+untouched trees look exactly as before. Non-numeric or non-finite values are
+ignored. This site pins `guide/getting-started` above the `advanced` folder
+(`order: -1`) and pushes the `advanced-2` folder below `deep-dive` (`order: 1`)
+as working examples.
 
 Explicit `explorer` arrays remain supported when a hand-authored tree is
 preferred. Folder expansion follows the existing depth and persistence rules.

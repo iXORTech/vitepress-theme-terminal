@@ -2,7 +2,23 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**PAGE-004 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**ARCH-004 landed**
+— explorer sibling ordering for auto-discovery: an `order` attribute (any
+finite number, smaller = higher, default `0`, negatives/fractions honored,
+non-finite → `0`) on a page's frontmatter or a folder's `explorer.json`
+(wins) / `index.md` frontmatter reorders auto-discovered siblings, with the
+folders-first-then-natural-name comparison kept as the tie-break so
+unconfigured trees are unchanged. `useExplorer.ts` now sorts each level with
+`siblingComparator(directorySegments)` → `branchOrder()` (`explorer.json` →
+page frontmatter → `0`, filtered by `toFiniteOrder()`); `compareBranches`
+renamed `compareBranchNames`; new `order?: number` on `ExplorerJsonConfig`.
+Display-only (URLs/discovery/routes untouched), SSR + client identical,
+explicit `themeConfig.explorer` arrays bypass it. Demo: `guide/getting-started`
+frontmatter `order:-1` (above the `advanced` folder) + `advanced-2`
+`explorer.json` `order:1` (below `deep-dive`). Docs: design-language.md §4
+sibling ordering, content-architecture.md §3, guide/getting-started.md. Build
+green; headless-verified both demo cases + unchanged name order elsewhere.)
+Earlier same day (**PAGE-004 landed**
 — friends page implemented per the binding spec `docs/design/friend-links.md`
 (written + confirmed the same day). Data: external
 `blog-friend-links-data-generator` format — `linksData.mjs` array of
@@ -375,10 +391,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   2026-07-16, plus I18N-008 (localizable taxonomy labels) and THEME-020
   (tool-bar nav hover submenus — `TerminalNavItem.items` child links in a
   floating TUI dropdown) same day.
-  ARCH-004 (planned 2026-07-16, not started): explorer sibling ordering via an
+  ARCH-004 (done 2026-07-18): explorer sibling ordering via an
   `order` attribute in frontmatter / `explorer.json` — any finite number incl.
   negatives (pin above the `0` defaults) and fractions; non-finite → `0`; ties
-  keeping today's folders-first name sort.
+  keeping today's folders-first name sort. `useExplorer.ts`
+  `siblingComparator`/`branchOrder`/`toFiniteOrder`; JSON order wins over
+  index frontmatter; display-only, SSR + client identical; explicit arrays
+  bypass it. Demo: `guide/getting-started` `order:-1`, `advanced-2`
+  `explorer.json` `order:1`.
   POST-002 (posts & series: series.yml schema + loader, order sorting,
   `themeConfig.series` listing toggles) and POST-003 (frontmatter cover
   images in cards + article header) done 2026-07-16.
@@ -819,7 +839,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   loses just its link; visible children keep the folder alive) and prunes any
   subtree whose `explorer.json` sets `showInExplorer: false` (branches left
   with no page and no visible children vanish; root `/` config honored).
-  `asLocalizableText` now imported from `../locales` (ARCH-003).
+  `asLocalizableText` now imported from `../locales` (ARCH-003). ARCH-004:
+  each sibling level sorts through `siblingComparator(directorySegments)` —
+  `order` first, then the folders-first-then-natural-name fallback
+  (`compareBranchNames`, ex-`compareBranches`). `branchOrder()` resolves a
+  branch's order: `explorer.json` `order` wins (new `order?: number` on
+  `ExplorerJsonConfig`) → page/`index.md` frontmatter `order` → `0`;
+  `toFiniteOrder()` keeps only finite numbers (negatives/fractions honored,
+  `NaN`/`±Infinity`/non-numbers → `0`). Display-only, SSR + client identical;
+  explicit `themeConfig.explorer` arrays bypass discovery entirely.
 - `theme/composables/useFloatingWindow.ts` — shared floating-window singleton
   (THEME-003/016/017): `active` shallowRef holding the current utility payload
   `{ id, label(), panes: [{ title(), icon?, component }] }` — `label()` names

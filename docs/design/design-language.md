@@ -138,6 +138,20 @@ pages still build and remain reachable by URL — this controls navigation
 chrome, not routing. Explicit hand-written `themeConfig.explorer` trees are
 unaffected: what is listed there is what renders.
 
+*Sibling ordering (ARCH-004):* an auto-discovered entry's position among its
+siblings is set with an `order` — any finite number (negatives and fractions
+included), smaller sorts higher, default `0`. A page reads it from frontmatter;
+a folder reads it from its `explorer.json` (which **wins**, mirroring the
+title/visibility precedence) or its `index.md` frontmatter. Because negatives
+are allowed, an entry can be pinned above the unnumbered `0` siblings without
+renumbering them. Non-numeric or non-finite values (`NaN`, `±Infinity`) are
+ignored and fall back to `0`. Entries with equal `order` keep the existing
+deterministic fallback (folders before files, then case-insensitive natural
+name comparison), so unconfigured trees render exactly as before. Ordering is
+display-only — URLs, discovery, and route behavior are unchanged, and it
+applies identically in SSR and client navigation. Explicit
+`themeConfig.explorer` arrays stay hand-ordered and unaffected.
+
 **Floating windows (THEME-003/017)** — all floating utilities (find palette,
 settings panel, pickers) share **one** window instance, rendered in the
 Unicode-frame TUI idiom (2026-07-12 rework): a utility is composed of one or

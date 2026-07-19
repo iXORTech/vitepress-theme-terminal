@@ -54,6 +54,12 @@ interface ExplorerJsonConfig {
   title?: LocalizableText
   /** `false` hides the folder — and everything below it — from the explorer (ARCH-002). */
   showInExplorer?: boolean
+  /**
+   * Sort position among siblings (ARCH-004): any finite number (negative or
+   * fractional included), smaller = higher, default `0`. On a folder the JSON
+   * `order` wins over the folder `index.md` frontmatter `order`.
+   */
+  order?: number
 }
 
 interface ExplorerBranch {
@@ -114,7 +120,40 @@ function pageLabel(page: ExplorerPage): LocalizableText {
   return page.data.title || page.url
 }
 
-function compareBranches(left: ExplorerBranch, right: ExplorerBranch): number {
+// The URL used to look a branch up in the source-local `explorer.json` map:
+// its page URL when it has one, otherwise the folder path built from segments.
+function branchUrl(branch: ExplorerBranch, directorySegments: string[]): string {
+  return (
+    branch.page?.url ??
+    `/${[...directorySegments, branch.name].join('/')}/`
+  )
+}
+
+// A raw metadata value is only an order if it is a finite number (ARCH-004):
+// `NaN`, `±Infinity`, strings, etc. are ignored so the entry keeps the default.
+function toFiniteOrder(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+// A branch's sibling order (ARCH-004): the folder's `explorer.json` `order`
+// wins, then the page/`index.md` frontmatter `order`, else the default `0`.
+function branchOrder(
+  branch: ExplorerBranch,
+  directorySegments: string[],
+): number {
+  const config = explorerConfigs.get(branchUrl(branch, directorySegments))
+  const configOrder = toFiniteOrder(config?.order)
+  if (configOrder !== undefined) return configOrder
+
+  const frontmatterOrder = toFiniteOrder(branch.page?.data.frontmatter?.order)
+  if (frontmatterOrder !== undefined) return frontmatterOrder
+
+  return 0
+}
+
+// Tie-breaker for equal `order`: folders before files, then case-insensitive
+// natural name comparison — the deterministic fallback unconfigured trees use.
+function compareBranchNames(left: ExplorerBranch, right: ExplorerBranch): number {
   const leftIsFolder = left.children.size > 0
   const rightIsFolder = right.children.size > 0
   if (leftIsFolder !== rightIsFolder) return leftIsFolder ? -1 : 1
@@ -122,6 +161,19 @@ function compareBranches(left: ExplorerBranch, right: ExplorerBranch): number {
     numeric: true,
     sensitivity: 'base',
   })
+}
+
+// Comparator for the siblings that live directly under `directorySegments`:
+// `order` first (ARCH-004), then the folders-first name fallback.
+function siblingComparator(
+  directorySegments: string[],
+): (left: ExplorerBranch, right: ExplorerBranch) => number {
+  return (left, right) => {
+    const orderDelta =
+      branchOrder(left, directorySegments) - branchOrder(right, directorySegments)
+    if (orderDelta !== 0) return orderDelta
+    return compareBranchNames(left, right)
+  }
 }
 
 function branchFor(
@@ -153,11 +205,10 @@ function toExplorerItem(
   // A folder's `explorer.json` can opt the whole subtree out (ARCH-002).
   if (config?.showInExplorer === false) return null
 
+  const childSegments = [...directorySegments, branch.name]
   const childItems = [...branch.children.values()]
-    .sort(compareBranches)
-    .map((child) =>
-      toExplorerItem(child, [...directorySegments, branch.name]),
-    )
+    .sort(siblingComparator(childSegments))
+    .map((child) => toExplorerItem(child, childSegments))
     .filter((item): item is TerminalExplorerItem => item !== null)
   // A branch whose page and children were all hidden has nothing to show.
   if (!branch.page && childItems.length === 0) return null
@@ -207,7 +258,7 @@ function discoverExplorer(): TerminalExplorerItem[] {
   }
   items.push(
     ...[...root.children.values()]
-      .sort(compareBranches)
+      .sort(siblingComparator([]))
       .map((branch) => toExplorerItem(branch, []))
       .filter((item): item is TerminalExplorerItem => item !== null),
   )

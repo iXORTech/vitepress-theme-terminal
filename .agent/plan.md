@@ -910,7 +910,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     guide/getting-started.md. Verified headless (13/13): en/zh-Hans post
     cards, archives after reload, license-card title, tab title, SSR meta.*
 
-- [ ] **ARCH-004** — Explorer ordering: configurable sibling order for auto-discovered entries
+- [x] **ARCH-004** — Explorer ordering: configurable sibling order for auto-discovered entries
   - **Category:** Architecture · **Deps:** ARCH-001, THEME-012, ARCH-002
   - **Acceptance criteria:** the position of an auto-discovered page or folder
     among its explorer siblings can be controlled with an `order` attribute
@@ -929,6 +929,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `themeConfig.explorer` arrays remain hand-ordered and unaffected; documented
     in the explorer spec (design-language.md §4 auto-discovery), the content
     architecture, and the user guide; verified on the rendered site.
+    *Landed 2026-07-18: `discoverExplorer()` in `useExplorer.ts` now sorts each
+    sibling level with a context-aware `siblingComparator(directorySegments)` —
+    `order` first, then the existing folders-first-then-natural-name
+    `compareBranchNames` fallback (the old `compareBranches` renamed). A branch's
+    `order` resolves via `branchOrder()`: the folder's `explorer.json` `order`
+    wins (new `order?: number` on `ExplorerJsonConfig`), then the page /
+    `index.md` frontmatter `order`, else `0`; `toFiniteOrder()` accepts only
+    finite numbers so `NaN`/`±Infinity`/non-numbers fall back to `0`, and
+    negatives/fractions are honored. Display-only (discovery/URLs/routes
+    untouched) and shared by SSR + client since the one discover function feeds
+    both. Explicit `themeConfig.explorer` arrays bypass it entirely. Demo:
+    `guide/getting-started` frontmatter `order: -1` pins it above the `advanced`
+    folder; `guide/advanced/advanced-2/explorer.json` `order: 1` pushes that
+    folder below `deep-dive` — both overriding folders-first. Docs:
+    design-language.md §4 (sibling ordering), content-architecture.md §3,
+    guide/getting-started.md. Build green; headless-verified the two demo cases
+    (Guide → `[Getting Started, Advanced, …]`; Advanced → `[Deep Dive,
+    advanced-2]`) and that unconfigured subtrees keep their name order.*
 
 ### Content & pages
 

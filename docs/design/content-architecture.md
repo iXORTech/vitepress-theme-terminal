@@ -94,6 +94,14 @@ everything under `src/` is listed). A folder opts out — subtree included — v
 and stays reachable by URL; only the navigation tree is affected. Full semantics in
 [`design-language.md`](design-language.md) §4 (file explorer, visibility toggle).
 
+**Explorer ordering (ARCH-004).** An auto-discovered page or folder may set an
+`order` (any finite number, smaller sorts higher, default `0`) to control its
+position among its siblings — a page in frontmatter, a folder in its
+`explorer.json` (which wins) or `index.md` frontmatter. Negatives pin an entry
+above the unnumbered `0` siblings; equal orders keep the folders-first-then-name
+fallback, so untouched trees are unchanged. Display-only. Full semantics in
+[`design-language.md`](design-language.md) §4 (file explorer, sibling ordering).
+
 **Localized frontmatter (ARCH-003).** Every frontmatter field that is *displayed*
 to the reader — `title`, `description`, the `series.yml` title/description
 (POST-002) — accepts a per-language map (`{ en: …, zh-Hans: … }`) as well as a

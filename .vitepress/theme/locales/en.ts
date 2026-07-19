@@ -138,6 +138,12 @@ export const en = {
   'series.articleCount': '{count} articles',
   'series.empty': 'No series yet',
 
+  // Friends page (PAGE-004) — the random-visit control and the no-data
+  // notice. The link data itself is authored content and renders verbatim
+  // (docs/design/friend-links.md §4).
+  'friends.random': 'Random visit',
+  'friends.empty': 'No friend links yet',
+
   // 404 page type (ARCH-001)
   'notFound.title': 'Page not found',
   'notFound.home': 'Back to home',

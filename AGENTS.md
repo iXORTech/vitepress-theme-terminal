@@ -27,6 +27,7 @@ Design decisions are **binding** and recorded in `docs/design/`:
 | Colors: main color & derivation rule, IBM Carbon base, Oxocarbon code colors, the three color modes | [`docs/design/color-system.md`](docs/design/color-system.md) |
 | Fonts (IBM Plex) and icons (Font Awesome, Nerd Font), and how they are loaded | [`docs/design/typography-and-icons.md`](docs/design/typography-and-icons.md) |
 | Content architecture: `src/` directory layout and the per-page-type component dispatch | [`docs/design/content-architecture.md`](docs/design/content-architecture.md) |
+| Friends page: external friend-links data format, submodule sync, page composition | [`docs/design/friend-links.md`](docs/design/friend-links.md) |
 
 ## 2. Session protocol — MANDATORY, every session
 

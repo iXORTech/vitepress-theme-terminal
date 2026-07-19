@@ -14,6 +14,7 @@ import './styles/main.scss'
 // them without a per-file import.
 import ArchivesList from './components/ArchivesList.vue'
 import CategoriesIndex from './components/CategoriesIndex.vue'
+import FriendLinks from './components/FriendLinks.vue'
 import PostsIndex from './components/PostsIndex.vue'
 import SeriesArticles from './components/SeriesArticles.vue'
 import SeriesIndex from './components/SeriesIndex.vue'
@@ -41,5 +42,7 @@ export default {
     // Series listing components (POST-002).
     app.component('SeriesIndex', SeriesIndex)
     app.component('SeriesArticles', SeriesArticles)
+    // Friends page component (PAGE-004), placed by `src/friends.md`.
+    app.component('FriendLinks', FriendLinks)
   }
 } satisfies Theme

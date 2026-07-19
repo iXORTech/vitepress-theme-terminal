@@ -227,6 +227,11 @@ COMP-002 swiper demo.
 | Post/series-article cover images | `POST-003` |
 | Home / Projects / About / Friends normal pages | `PAGE-001`…`PAGE-004` |
 
+> **Friends page (PAGE-004).** `src/friends.md` is a normal page whose links
+> are fed by external `linksData.mjs` data modules (hand-authored and/or a
+> git-submodule-synced generator output) — the full data format, discovery,
+> i18n, and composition spec is [`friend-links.md`](friend-links.md).
+
 > **Implemented (POST-001, 2026-07-14).** Posts under `src/posts/` declare
 > `tags` / `categories` (a string or a list) in frontmatter; each becomes a link
 > to `/tags/<slug>` or `/categories/<slug>` (slug = lowercased, accent-stripped,

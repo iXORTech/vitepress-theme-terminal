@@ -89,6 +89,7 @@ export const themeConfig: TerminalThemeConfig = {
       { text: { en: "Archives", "zh-Hans": "归档" }, link: "/archives", icon: "fa-solid fa-box-archive" },
       { text: { en: "Projects", "zh-Hans": "项目" }, link: "/projects", icon: "fa-solid fa-diagram-project" },
       { text: { en: "About", "zh-Hans": "关于" }, link: "/about", icon: "fa-solid fa-user" },
+      { text: { en: "Friends", "zh-Hans": "友链" }, link: "/friends", icon: "fa-solid fa-user-group" },
     ],
     actions: [
       {
@@ -158,6 +159,23 @@ export const themeConfig: TerminalThemeConfig = {
   // (PAGE-003, `src/about.md`) are authored per-language Vue views under
   // `.vitepress/theme/views/{projects,about}/`, imported by the markdown — not
   // configured here (content-architecture.md §8).
+
+  // Friends page (PAGE-004) — the link DATA lives in
+  // `.vitepress/theme/assets/**/linksData.mjs` modules (hand-authored and/or
+  // the generator submodule), not here (docs/design/friend-links.md). This
+  // block only holds display options; `groups` localizes generated
+  // plain-string group labels, keyed by `group` id (demo: the submodule's
+  // `group2`, which no hand-authored file relabels).
+  friends: {
+    // showCount: true,
+    // showRandom: true,
+    groups: {
+      group2: {
+        name: { en: "Group 2", "zh-Hans": "第二组" },
+        desc: { en: "Localized via themeConfig.friends.groups.", "zh-Hans": "通过 themeConfig.friends.groups 本地化。" },
+      },
+    },
+  },
 
   // Auto-discover every Markdown file below src/. Folder index pages become
   // folder links; page labels come from frontmatter title metadata. An

@@ -1127,11 +1127,50 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     were removed. Verified headless: fractional widths, `关于` on switch,
     lead prompt, mobile single-column no-overflow.*
 
-- [ ] **PAGE-004** — Friends page (spec incoming)
+- [x] **PAGE-004** — Friends page (spec: `docs/design/friend-links.md`)
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
-  - **Acceptance criteria:** a page listing friends, fed by a formatted data source.
-    **The data-source spec is still to be provided — do not start this task until the
-    spec lands and this entry is updated.**
+  - **Acceptance criteria:** per [`docs/design/friend-links.md`](../docs/design/friend-links.md):
+    `src/friends.md` (normal page, authored Markdown around a globally registered
+    `<FriendLinks />`) renders grouped friend links from every
+    `.vitepress/theme/assets/**/linksData.mjs` data module (eager build-time glob,
+    SSR-rendered) — the external format is the `blog-friend-links-data-generator`
+    output (`{ group, groupName, groupDesc, entries: [{ title, url, description?,
+    avatar?, screenshot? (reserved) }] }`); sources sort deterministically (depth,
+    then path) and same-`group`-id groups merge (first occurrence fixes
+    position/labels, later sources append entries); malformed sources degrade with
+    a warning, a missing submodule never breaks the build. Each group renders a
+    header (name · dim count · dim description) over a responsive auto-fill grid
+    of compact TUI link cards (rounded-square lazy avatar with FA placeholder
+    fallback + `data-no-lightbox` · ellipsized title · 2-line-clamped dim
+    description; whole card an external link; hover/focus = derived main-color
+    accents); a localized `[⇄ random]` control opens a random entry; localized
+    empty state. i18n: data strings verbatim by default, `LocalizableText`
+    accepted in hand-authored files (`asLocalizableText()` validation, in-place
+    re-resolution on switch), generated group labels overridable via
+    `themeConfig.friends.groups`; chrome strings through new `friends.*` locale
+    keys (en + zh-Hans). `themeConfig.friends = { showCount?, showRandom?,
+    groups? }` (defaults true/true/{}). Demo: the
+    `blog-friend-links-data-generator-demo` `data`-branch submodule at
+    `.vitepress/theme/assets/generatedLinkData` (**added 2026-07-18**) plus a
+    hand-authored demo `assets/linksData.mjs` exercising localization, a missing
+    avatar, and a group merge; a Friends nav/explorer entry reaches the page.
+    Styles in dedicated `styles/_friends.scss`; mobile-correct (single-column
+    collapse, ≥44px targets); verified on the rendered site.
+    *Landed 2026-07-18 (spec confirmed same day): `theme/friends.ts`
+    (`mergeFriendSources()` — validation via `asLocalizableText()` + skip
+    warnings; merge refinement: labels come from the first source that
+    PROVIDES them, so an unlabeled local group inherits generated labels) +
+    globally registered `FriendLinks.vue` (module-scope eager glob = SSR
+    HTML; reactive label resolution config override → data → id; `@error`
+    avatar fallback to the placeholder glyph; random = `window.open`
+    `_blank,noopener`); `TerminalFriendsConfig` in config.ts;
+    `friends.random`/`friends.empty` strings; `_friends.scss` (auto-fill
+    15rem grid, 1-col ≤640px). Demo: submodule + hand-authored
+    `assets/linksData.mjs` + `friends.groups` override for generated
+    `group2` + Friends nav tab; `src/friends.md` intro/apply in `::: lang`
+    blocks (apply JSON uses `title` — the generator's real issue-template
+    field; its design-doc `name` sample is outdated). Verified headless
+    17/17 + dark/light/mobile screenshots; full note in friend-links.md §9.*
 
 - [ ] **DEMO-001** — Markdown demo pages
   - **Category:** Content · **Deps:** STYLE-005, MD-001, MD-002

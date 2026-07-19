@@ -122,6 +122,10 @@ export const zhHans: ThemeLocaleStrings = {
   'series.articleCount': '{count} 篇文章',
   'series.empty': '暂无系列',
 
+  // Friends page (PAGE-004)
+  'friends.random': '随机访问',
+  'friends.empty': '暂无友链',
+
   // 404 page type (ARCH-001)
   'notFound.title': '页面未找到',
   'notFound.home': '返回主页',

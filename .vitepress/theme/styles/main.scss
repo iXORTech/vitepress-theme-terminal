@@ -19,6 +19,7 @@
 @use "content"; // base markdown content styling (STYLE-005)
 @use "posts";   // posts, taxonomy & listing pages (ARCH-001 / POST-001)
 @use "pages";   // home, projects & About content pages (PAGE-001/002/003)
+@use "friends"; // friends page: grouped link cards (PAGE-004)
 @use "card";    // reusable TUI floating cards (COMP-001)
 @use "license"; // end-of-article license card (COMP-003)
 @use "comments"; // Waline comments + article counts (COMP-004)

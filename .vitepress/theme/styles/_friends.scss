@@ -1,0 +1,166 @@
+// ============================================================================
+// _friends.scss — friends page: grouped link cards (PAGE-004)
+// ============================================================================
+// Styles for FriendLinks.vue: the random-visit control, group headers, and the
+// responsive grid of compact link cards (avatar · title · blurb). Scoped under
+// `.ct-content` like the other listing styles so the rules out-specify the
+// base markdown styling — the component renders inside the content column.
+// Card finish and hover accents follow the TUI card language: neutral borders,
+// main-color derivatives only (color-system.md §3).
+
+.ct-content {
+  .ct-friends {
+    margin: 1.5rem 0;
+  }
+
+  // --------------------------------------------------------------------------
+  // Actions row — the `[⇄ random]` text control, right-aligned
+  // --------------------------------------------------------------------------
+  .ct-friends__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .ct-friends__random {
+    padding: 0.3rem 0.625rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-small);
+    background: none;
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    color: var(--ct-text-dim);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--ct-link);
+      background: var(--ct-main-subtle);
+      border-color: var(--ct-main-border);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Group header: name · dim count · dim description sub-line
+  // --------------------------------------------------------------------------
+  .ct-friends__group {
+    margin-top: 2rem;
+  }
+
+  .ct-friends__heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .ct-friends__count {
+    font-family: var(--ct-font-mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--ct-text-dim);
+  }
+
+  .ct-friends__desc {
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+    color: var(--ct-text-dim);
+  }
+
+  // --------------------------------------------------------------------------
+  // Entry grid — auto-fill columns collapsing to one on narrow viewports
+  // --------------------------------------------------------------------------
+  .ct-friends__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--ct-gap);
+  }
+
+  // One friend card: a single external link (≥44px touch target)
+  .ct-friends__card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0.75rem;
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius);
+    background: var(--ct-surface);
+    text-decoration: none;
+    color: var(--ct-text);
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      border-color: var(--ct-main-border);
+      background: var(--ct-main-subtle);
+
+      .ct-friends__title {
+        color: var(--ct-link);
+      }
+    }
+  }
+
+  // Avatar: rounded-square (TUI idiom — not a circle) image over a neutral
+  // placeholder glyph; the glyph shows when the entry has no avatar or the
+  // image errors (the <img> hides itself).
+  .ct-friends__avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--ct-radius);
+    overflow: hidden;
+    background: var(--ct-surface-2);
+    color: var(--ct-text-dim);
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .ct-friends__data {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .ct-friends__title {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+  }
+
+  // Blurb clamped to two lines
+  .ct-friends__blurb {
+    font-size: 0.8125rem;
+    color: var(--ct-text-dim);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .ct-friends__empty {
+    font-family: var(--ct-font-mono);
+    color: var(--ct-text-dim);
+  }
+
+  // Mobile: force a single column so the minmax floor can never overflow
+  @media (max-width: 640px) {
+    .ct-friends__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

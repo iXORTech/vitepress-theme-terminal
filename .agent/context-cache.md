@@ -2,7 +2,41 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**PAGE-001/002/003
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-18 (**PAGE-004 landed**
+— friends page implemented per the binding spec `docs/design/friend-links.md`
+(written + confirmed the same day). Data: external
+`blog-friend-links-data-generator` format — `linksData.mjs` array of
+`{ group, groupName, groupDesc, entries: [{ title, url, description?,
+avatar?, screenshot? (reserved) }] }` (entry field is `title` — the generator
+design-doc's `name` sample is outdated; the real issue template uses `title`).
+New framework-free `theme/friends.ts`: `mergeFriendSources()` — validation via
+`asLocalizableText()` with skip warnings; depth-then-path source ordering;
+same-`group`-id merge (first occurrence fixes position, labels from the first
+source that PROVIDES them, later sources append entries). New
+`components/FriendLinks.vue` (registered globally, placed by new
+`src/friends.md`): module-scope eager glob `../assets/**/linksData.mjs` → SSR
+HTML, no client fetch; group label resolution `themeConfig.friends.groups`
+override → data label → id verbatim (reactive on language); `[⇄ random]`
+control (`window.open` `_blank,noopener`); avatar `<img>` hides on `@error`,
+revealing the placeholder glyph behind (no-avatar entries render glyph only).
+Config: `TerminalFriendsConfig = { showCount?, showRandom?, groups? }`
+(defaults true/true/{}) in config.ts; new `friends.random`/`friends.empty`
+strings (en + zh-Hans). Styles: new `_friends.scss` under `.ct-content`
+(auto-fill minmax(15rem,1fr) grid, single column ≤640px, derived-accent
+hover). Demo: `data`-branch submodule `theme/assets/generatedLinkData` (in
+`.gitmodules`) + hand-authored `theme/assets/linksData.mjs` (localized
+`friends` group, no-avatar entry, unlabeled `group1` merging into the
+generated group) + config.mts `friends.groups` override localizing generated
+`group2` + Friends nav tab; `src/friends.md` authors intro/apply sections in
+`::: lang` blocks (duplicate explicit `{#apply}` ids across lang blocks break
+the VitePress build — dropped). The submodule's avatar URL 404s, organically
+exercising the error fallback. Gotcha: a JSDoc comment containing the literal
+glob `assets/**/…` terminates the block comment at `*/` — reworded in
+config.ts. Verified headless 17/17 (merge order/counts, empty-group header,
+override labels, avatar vs placeholder, noopener, random via `window.open`
+stub — a real popup follows redirects off-site, zh-Hans in-place
+re-localization, 360px single-column no-overflow) + dark/light/mobile
+screenshots.) Earlier same day (**PAGE-001/002/003
 landed, then projects/About reworked to authored views** — user asked to
 match the reference theme's `views/About.vue` pattern and not dump everything
 into `components/`).
@@ -288,8 +322,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
   `.vitepress/cache`; ignores `themeConfig.mjs` **except**
   `.vitepress/theme/assets/themeConfig.mjs` (reserved path from the upstream template).
+- `.gitmodules` — git submodules (PAGE-004): `.vitepress/theme/assets/generatedLinkData`
+  → `iXORTech/blog-friend-links-data-generator-demo`, branch `data` (the demo
+  friend-links data consumed by the friends page).
 - `AGENTS.md` — single source of agent instructions: session protocol, plan &
-  context-cache rules, compliance code, engineering conventions (hard rules), repo map.
+  context-cache rules, compliance code, engineering conventions (hard rules), repo map;
+  §1 table indexes the binding design docs incl. `docs/design/friend-links.md`.
 - `CLAUDE.md` — pure pointer to `AGENTS.md` (read by Claude Code). No content.
 
 ## .claude/
@@ -346,8 +384,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   images in cards + article header) done 2026-07-16.
   PAGE-001/002/003 (home welcome card + projects/about card grids, all
   config-driven via `themeConfig.home`/`.projects`/`.about`) done 2026-07-18.
-  Roadmap:
-  friends page PAGE-004 (spec TBD), DEMO-001 markdown demo pages,
+  PAGE-004 (friends page: `theme/friends.ts` merge layer + global
+  `FriendLinks.vue` fed by `assets/**/linksData.mjs` modules incl. the
+  generator submodule, per `docs/design/friend-links.md`) done 2026-07-18.
+  Roadmap: DEMO-001 markdown demo pages,
   DOC-002/004 documentation, MOBILE-001 pass. I18N-001 includes
   a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
@@ -476,7 +516,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   carry a dim series-name prefix before their title in archives/per-term
   listings, chip suppressed there); §5a the POST-003
   cover-image note (frontmatter `cover`, desktop-right/mobile-top, lazy,
-  fixed aspect, lightbox-excluded).
+  fixed aspect, lightbox-excluded); §7 note points to `friend-links.md` for the
+  PAGE-004 friends page.
+- `design/friend-links.md` — binding (PAGE-004, implemented 2026-07-18 — §9
+  implemented note):
+  friends page — external `blog-friend-links-data-generator` `linksData.mjs`
+  format (group/entry arrays; entry `title`/`url` required, `screenshot`
+  reserved), eager SSR-safe glob of `theme/assets/**/linksData.mjs` with
+  deterministic ordering + `group`-id merging, i18n (data verbatim /
+  LocalizableText in hand-authored files / `themeConfig.friends.groups`
+  overrides; reference's localized-file scheme not followed), TUI composition
+  (`<FriendLinks />`, group headers, auto-fill link-card grid, random control),
+  `themeConfig.friends` surface, demo submodule at
+  `theme/assets/generatedLinkData` (`data` branch).
 
 ## .vitepress/
 
@@ -501,10 +553,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   nav tabs — the last three surface the POST-001 listing pages — +
   a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
   Getting Started + Advanced child links with icons; the `posts` tab's items
-  include Categories/Tags/Series; demo also adds `projects`/`about` nav tabs
-  surfacing the PAGE-002/003 pages), a `home` demo block (PAGE-001: localized
+  include Categories/Tags/Series; demo also adds `projects`/`about`/`friends`
+  nav tabs
+  surfacing the PAGE-002/003/004 pages), a `home` demo block (PAGE-001: localized
   welcome with command/greeting/tagline/body/links — projects/About are
-  authored views, not config), a `taxonomy` block (I18N-008: zh-Hans labels for the
+  authored views, not config), a `friends` block (PAGE-004: display options
+  only — the link data lives in `theme/assets/**/linksData.mjs`; demo
+  `groups.group2` override localizes a generated plain-string group label),
+  a `taxonomy` block (I18N-008: zh-Hans labels for the
   `theme`/`color` tags + `Guides`/`Design` categories),
   a `series` block (POST-002: `inArchives`/`inCategories`/`inTags: true` —
   the demo series joins those listings with the series-name title prefix
@@ -519,6 +575,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `transformPageData: createPageDataTransformer(lang)` (ARCH-003 — resolves
   localized frontmatter maps for the SSR head); `markdown.math: true`
   (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
+- `theme/assets/generatedLinkData/` — git submodule (PAGE-004 demo):
+  `iXORTech/blog-friend-links-data-generator-demo` `data` branch;
+  `output/linksData.{json,mjs}` is generated friend-links data picked up by
+  the `FriendLinks.vue` glob. Content managed upstream via GitHub Issues —
+  never edited here. (Its one avatar URL 404s, organically demoing the
+  placeholder fallback.)
+- `theme/assets/linksData.mjs` — PAGE-004 hand-authored demo friend-links
+  data (generator format + LocalizableText, friend-links.md §2/§4): a
+  localized `friends` group (working GitHub avatar entry + a no-avatar
+  entry) and an unlabeled `group1` whose entry merges into the generated
+  submodule group (inheriting its labels).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002/004:
   Font Awesome 6 `all.min.css` from cdnjs + generated Nerd Font CSS from
@@ -617,6 +684,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `resolveComments()` (blank `serverURL` → `waline: null` = unconfigured) with
   the exported `isCommentsConfigured()` helper; default `{ provider:'waline',
   waline:null }`.
+  PAGE-004: `friends: TerminalFriendsConfig` — `{ showCount?, showRandom?,
+  groups?: Record<groupId, { name?, desc? }> }` display options (the label
+  overrides mirror `taxonomy`; the link DATA lives in data modules, the
+  documented §6.5 exception), resolved to `Required<>` with
+  `{ true, true, {} }` defaults.
   PAGE-001: `home: TerminalHomeConfig`
   (`command`/`greeting`/`tagline`/`body`/`links: TerminalPageLink[]`
   (`{ text, link, icon? }`), default `{}`) — the home welcome card. Projects
@@ -643,7 +715,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (byline labels) + empty/undated/taggedWith/inCategory (`{term}`)/allTags/
   allCategories/pagination/prevPage/nextPage (POST-001), `series.label`
   (ARCH-001 series breadcrumb) + `series.indexTitle`/`series.articleCount`
-  (`{count}`)/`series.empty` (POST-002 series index), `notFound.title`/`.home`
+  (`{count}`)/`series.empty` (POST-002 series index),
+  `friends.random`/`friends.empty` (PAGE-004 friends page — the data strings
+  themselves render verbatim/LocalizableText, not through the table),
+  `notFound.title`/`.home`
   (ARCH-001 404) —
   grows per feature; PAGE-002/003 projects/About are authored per-language
   views, so they hold no locale keys); exports
@@ -809,12 +884,20 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   wrapper filling the `pre-footer` slot, THEME-006); `enhanceApp` globally
   registers the POST-001/002 listing components (`PostsIndex`, `ArchivesList`,
   `CategoriesIndex`, `TagsIndex`, `TermPosts`, `SeriesIndex`,
-  `SeriesArticles`) so the listing `.md` pages can
+  `SeriesArticles`) and the PAGE-004 `FriendLinks` so those `.md` pages can
   place them without per-file imports (the PAGE-002/003 projects/About views
   are instead imported directly by their `.md` via `@/views/…`, not registered
   here); named-exports the reusable `Card`
   component and the theme's own `Layout`; imports `styles/main.scss`. Swap the
   default `Layout` back to the real one to ship without the demo section.
+- `theme/friends.ts` — PAGE-004 framework-free friend-links data layer:
+  `FriendLinkEntry`/`FriendLinkGroup`/`FriendLinkSource` types +
+  `mergeFriendSources()` — validates the generator-format modules
+  (`asLocalizableText()`, entries need title+url, `screenshot` ignored;
+  invalid input skipped with a `[theme/friends]` console warning), orders
+  sources depth-then-path, merges same-`group`-id groups (first occurrence
+  fixes position, labels from the first source that provides them, entries
+  append).
 - `theme/posts.ts` — POST-001/002/003 framework-free post & series helpers:
   `PostEntry`/`RawContentEntry`/`TermGroup` types; `normalizePosts(raw)` (maps +
   date-sorts the content-loader output, unzoned `YYYY-MM-DD` = UTC; drops series
@@ -1040,6 +1123,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   to the index, and `<PostList series-in-title>` (admitted series articles
   show their series name in the card title). Rendered by
   `{tags,categories}/[name].md`.
+- `theme/components/FriendLinks.vue` — PAGE-004 friends-page component
+  (globally registered, placed by `src/friends.md`): module-scope eager
+  `import.meta.glob('../assets/**/linksData.mjs')` → `mergeFriendSources()`
+  (SSR-complete HTML, no client fetch; missing submodule = no match, no
+  crash); renders the `[⇄ random]` control (`window.open` `_blank,noopener`,
+  hidden when `showRandom` off or no entries), per-group `h2` header (label:
+  `themeConfig.friends.groups` override → data label → id verbatim; dim
+  `(count)` gated on `showCount`; dim desc line) over the card grid — each
+  card one external `<a>` with a rounded-square avatar over a placeholder
+  glyph (`<img>` hides itself on `@error`; `data-no-lightbox`), ellipsized
+  title, 2-line blurb; `friends.empty` notice when no groups at all; all
+  LocalizableText display reactive on the UI language.
 - `theme/components/SeriesIndex.vue` — POST-002 series index (rendered by
   `series.md`): merges `series.data.mts` metadata with article-only series
   folders (folder-name defaults), sorts by `compareSeries`, and renders
@@ -1108,10 +1203,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
-  settings/content/**posts**/card/license/comments/footer/prefooter-demo/code/
+  settings/content/**posts**/pages/**friends**/card/license/comments/footer/
+  prefooter-demo/code/
   callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
   `window`, SEARCH-002; `license`/`comments` after `card`, COMP-003/004;
-  `posts` after `content`, ARCH-001/POST-001), then base document styles
+  `posts` after `content`, ARCH-001/POST-001; `friends` after `pages`,
+  PAGE-004), then base document styles
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
@@ -1151,6 +1248,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-lang` rules: `display: contents` (layout-neutral wrapper) with
   `.ct-lang[hidden]{display:none}` winning by specificity so hidden
   language blocks leave the flow.
+- `theme/styles/_friends.scss` — PAGE-004 friends-page styles, scoped under
+  `.ct-content`: `[⇄ random]` mono text-button (derived-accent hover), group
+  headers (dim mono count + dim desc), `repeat(auto-fill, minmax(15rem,1fr))`
+  card grid (forced 1-col ≤640px), compact link cards (surface + border +
+  radius, ≥44px, main-color-derived hover border/title accent), 3rem
+  rounded-square avatar with the placeholder glyph behind an absolutely
+  positioned cover img, 2-line blurb clamp, `friends.empty` dim notice.
 - `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003 posts, series,
   taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
   base markdown list/heading rules): `.ct-taxonomy` link chips;
@@ -1368,6 +1472,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `about.md` — normal page (localized `title` frontmatter) whose
   `<script setup>` imports `@/views/About.vue` and renders `<About/>`
   (PAGE-003 authored view).
+- `friends.md` — PAGE-004 friends page: normal page (localized `title`)
+  placing the global `<FriendLinks />` between authored `::: lang` en/zh-Hans
+  blocks — a localized intro (h1) and a "How to apply" section with the
+  generator issue-JSON template (`title` field; no explicit `{#apply}` ids —
+  duplicating one id across lang blocks fails the VitePress build).
 - `guide/index.md`, `guide/getting-started.md`, `guide/advanced/index.md`,
   `guide/advanced/deep-dive.md`, and
   `guide/advanced/advanced-2/{deep-dive.md,explorer.json}` — explorer demo

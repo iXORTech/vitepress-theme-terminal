@@ -341,6 +341,39 @@ export interface TerminalHomeConfig {
   links?: TerminalPageLink[]
 }
 
+/**
+ * Display-label overrides for one friend-link group (PAGE-004) — used to
+ * localize (or relabel) groups whose data is generated as plain strings.
+ */
+export interface TerminalFriendsGroupLabels {
+  /** Displayed group name, localizable (I18N-004). */
+  name?: LocalizableText
+
+  /** Displayed group description, localizable (I18N-004). */
+  desc?: LocalizableText
+}
+
+/**
+ * Friends page options (PAGE-004). The link *data* itself is intentionally not
+ * configured here — it lives in `linksData.mjs` data modules under
+ * `.vitepress/theme/assets/` (hand-authored and/or synced from the external
+ * generator as a git submodule; docs/design/friend-links.md §1/§3).
+ */
+export interface TerminalFriendsConfig {
+  /** Show the per-group entry count in group headers. Default `true`. */
+  showCount?: boolean
+
+  /** Show the random-visit control above the groups. Default `true`. */
+  showRandom?: boolean
+
+  /**
+   * Display-label overrides keyed by `group` id (the generator's group label),
+   * mirroring `themeConfig.taxonomy` (I18N-008). Display-only — the id and
+   * grouping identity stay as authored/generated.
+   */
+  groups?: Record<string, TerminalFriendsGroupLabels>
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -422,6 +455,13 @@ export interface TerminalThemeConfig {
    * Unset, the home welcome card falls back to the site title/description.
    */
   home?: TerminalHomeConfig
+
+  /**
+   * Friends page options (PAGE-004); see {@link TerminalFriendsConfig}.
+   * The link data itself lives in `linksData.mjs` modules under
+   * `.vitepress/theme/assets/`.
+   */
+  friends?: TerminalFriendsConfig
 }
 
 // -----------------------------------------------------------------------------
@@ -465,6 +505,7 @@ export type ResolvedTerminalThemeConfig = Required<
     | 'taxonomy'
     | 'series'
     | 'home'
+    | 'friends'
   >
 > & {
   author: ResolvedAuthorConfig
@@ -478,6 +519,7 @@ export type ResolvedTerminalThemeConfig = Required<
   // Home keeps all-optional inner fields, so it resolves to the user's value
   // (or an empty object) rather than a `Required<>` shape (PAGE-001).
   home: TerminalHomeConfig
+  friends: Required<TerminalFriendsConfig>
 }
 
 /** Theme defaults, used wherever the user leaves an option unset. */
@@ -529,6 +571,10 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // title/description until configured. Projects/About are authored per-page
   // views (PAGE-002/003), not config.
   home: {},
+  // Friends page (PAGE-004): counts and the random-visit control on by
+  // default; no group label overrides until configured — generated labels
+  // display verbatim.
+  friends: { showCount: true, showRandom: true, groups: {} },
 }
 
 /**
@@ -675,5 +721,12 @@ export function resolveThemeConfig(
   if (user?.search) resolved.search = resolveSearch(user.search)
   if (user?.comments) resolved.comments = resolveComments(user.comments)
   if (user?.home) resolved.home = user.home
+  if (user?.friends) {
+    resolved.friends = {
+      showCount: user.friends.showCount ?? true,
+      showRandom: user.friends.showRandom ?? true,
+      groups: user.friends.groups ?? {},
+    }
+  }
   return resolved
 }

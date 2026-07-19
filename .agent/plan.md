@@ -188,6 +188,19 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the theme alias used by the CSS gate and TUI tokens; repeated browser loads
     show explorer icons consistently.*
 
+- [ ] **FONT-005** — IBM Plex Math for rendered math
+  - **Category:** Typography · **Deps:** FONT-001, MD-001, MD-004
+  - **Acceptance criteria:** both math renderers use **IBM Plex Math** as the
+    math typeface — LaTeX (the `$`/`$$` MathJax path from MD-001) and the Typst
+    math container/inline (MD-004) — instead of each renderer's default math
+    font; IBM Plex Math loads via stylesheet, consistent with the FONT-001
+    loading rule and the no-npm-font-packages rule
+    (`docs/design/typography-and-icons.md`), with a documented fallback stack;
+    the change is applied through configuration/styling, not by editing rendered
+    output; both LaTeX and Typst formulas render in IBM Plex Math across the
+    three color modes and on mobile, verified on the rendered site; the math-font
+    decision is recorded in `docs/design/typography-and-icons.md`.
+
 ### Markdown
 
 - [x] **MD-001** — markdown-it plugin suite
@@ -218,6 +231,21 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     fails to load; `docs/design/typography-and-icons.md` §2 is updated first to
     extend the Nerd Font scope to callout chrome (currently tool bar / status bar /
     explorer only).
+
+- [ ] **MD-004** — Typst math container (block + inline)
+  - **Category:** Markdown · **Deps:** MD-001
+  - **Acceptance criteria:** authors can write **Typst** math and have it
+    rendered, alongside the existing MathJax path — the `$`/`$$` delimiters stay
+    **LaTeX** (unchanged MD-001 behavior); a markdown container renders a block of
+    Typst math, and ideally an inline form lets Typst math sit within a
+    paragraph; the Typst and LaTeX delimiters/containers are unambiguous (no
+    collision — e.g. `$$…$$` never routes to Typst); rendering works during SSR
+    and after client navigation; malformed Typst input fails gracefully (no build
+    crash, a visible error/fallback rather than blank); the container/inline
+    syntax is documented and exercised in the markdown demo
+    (`src/markdown-examples.md`, DEMO-001); any new dependency is a regular
+    devDependency (the no-npm rule covers only fonts/icons) and its licence is
+    noted. Math-font styling for both renderers is handled by FONT-005.
 
 ### i18n
 

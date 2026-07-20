@@ -481,7 +481,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   tap box via margin-overlay) and THEME-022 (right-side tool-bar overflow
   drawer behind `[⋮]`, measured collapse at any width, ≤640px CSS floor)
   done 2026-07-19 from user feedback on MOBILE-001.
-  Roadmap: DOC-002/004 documentation, FONT-005 + MD-004 Typst support.
+  Roadmap: DOC-002/004 documentation, FONT-005 + MD-004 Typst support,
+  THEME-023 (heading anchor links — jump via URL hash, in-panel scroll),
+  THEME-024 (right-side clickable/jumpable article TOC with scroll-spy), and
+  THEME-025 (drag-adjustable explorer width with min/max, persisted).
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 

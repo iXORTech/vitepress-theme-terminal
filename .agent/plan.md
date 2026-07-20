@@ -798,6 +798,49 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     tabline + hover submenus intact, resize collapse/re-expand cycle, and
     the full-site MOBILE-001 audits re-run green (33/33).*
 
+- [ ] **THEME-023** — Heading anchor links (jump-to via URL hash)
+  - **Category:** Theme · **Deps:** THEME-008, STYLE-005
+  - **Acceptance criteria:** every article heading (`h1`–`h6` in `.ct-content`)
+    carries a stable slug `id` and a clickable anchor permalink — a `#`-style
+    control revealed on hover/focus and keyboard-reachable — that, when activated,
+    sets the URL hash to that heading; loading or navigating to a URL with a
+    `#slug` scrolls the target heading into view **inside the viewport panel**
+    (THEME-008's fixed-frame scrolling — never the window), both on first load and
+    after client-side navigation; the anchor control's accessible label is
+    localized and it presents a ≥44px tap target on mobile (§8); styling follows
+    the design language across the three color modes, uses only derived accent
+    colors, and lives in dedicated SCSS; the behavior is recorded in
+    `docs/design/design-language.md`.
+
+- [ ] **THEME-024** — Article table of contents (right-side, clickable & jumpable)
+  - **Category:** Theme · **Deps:** THEME-001, THEME-008, THEME-023
+  - **Acceptance criteria:** article pages render a table of contents to the right
+    of the content, built from the page's headings (default `h2`–`h3`, depth
+    configurable via `themeConfig`); each entry is a link that jumps to its heading
+    using the THEME-023 anchors, scrolling within the viewport panel; the entry for
+    the section currently in view is highlighted as the reader scrolls (scroll-spy),
+    updating on scroll and after navigation; the panel presents in the theme's TUI
+    idiom with derived accent colors across the three modes; it renders only when
+    the page has enough headings and can be disabled via config; it is not rendered
+    in paper mode / print; on narrow viewports it collapses out of the reading
+    column per `docs/design/design-language.md` §8 (hidden or relocated, never
+    overflowing); the "on this page" label and any controls are localized; styles
+    live in dedicated SCSS; documented in `design-language.md` §4 and
+    `docs/design/ui-sketch.md`.
+
+- [ ] **THEME-025** — Adjustable explorer width (drag handle, min/max, persisted)
+  - **Category:** Theme · **Deps:** THEME-002, THEME-011
+  - **Acceptance criteria:** on desktop the file-explorer sidebar's width can be
+    adjusted by dragging a handle on its inner edge; the width is clamped between a
+    documented **minimum and maximum** (never collapsing the tree unreadably nor
+    crowding the viewport); the chosen width persists across reloads and navigation
+    (localStorage, alongside the existing `ct-explorer` retract state) and is
+    applied pre-paint without a flash; the resize handle is keyboard-operable with a
+    localized accessible name; the default width is unchanged until the user resizes;
+    the mobile ≤640px off-canvas drawer behavior and the not-rendered-in-paper-mode
+    rule are unaffected; styles live in dedicated SCSS and the feature is recorded
+    in the explorer spec (`design-language.md` §4).
+
 ### Components
 
 - [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration

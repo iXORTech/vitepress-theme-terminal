@@ -2,7 +2,26 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**THEME-023 +
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**INFRA-002 landed**
+— Cloudflare Pages deploy fix: Pages rejects files > 25 MiB and the bundled
+Typst compiler WASM is 28.3 MB. New build-only Vite plugin
+`theme/vite/gzipWasm.ts` (wired in config.mts `vite.plugins`): in
+`generateBundle`, any `.wasm` asset over 24 MiB is re-emitted gzipped (level 9,
+28.3 MB → 10.7 MB) as `<name>.wasm.gz` and every chunk reference is rewritten
+(the ~1 MB renderer WASM stays raw). **Rolldown gotcha** (Vite 8): assigning a
+new `bundle[key]` in `generateBundle` is silently ignored — the replacement
+asset must go through `this.emitFile({ type: "asset", fileName, source })`
+(deleting the old key and mutating `chunk.code` both work). `useTypst`'s
+compiler `getModule` now goes through `fetchWasmModule()`: a non-`.gz` URL
+passes through (dev — the plugin is `apply: "build"`); a `.gz` URL is fetched
+and, when the bytes carry the gzip magic `1f 8b` (content check, so a server
+that transparently decodes `Content-Encoding` still works), piped through
+`DecompressionStream('gzip')` → `ArrayBuffer` (a valid `BufferSource` module
+ref). Decompression failure lands in the existing visible
+"renderer failed to load" path. Documented in design-language.md §4 Rendered
+math note. Verified: dist has no file ≥ 24 MiB; headless 7/7 on the built site
+— compiler fetched as `.wasm.gz` 200, no raw compiler request, block + inline
+Typst → SVG, source hidden, no page errors.) Same day (**THEME-023 +
 THEME-024 landed** — heading anchors + article TOC. THEME-023: VitePress
 already emits heading slug `id`s + `.header-anchor` links; the theme adds
 `styles/_anchors.scss` (a `#` `::before` glyph, `opacity:0` until heading
@@ -732,7 +751,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   the WASM URLs resolving and avoids the re-optimization churn that can leave
   the lazily imported chunk failing to load (which silently drops Typst math to
   raw source — the fix for "Typst shows only its code"; a dev-server restart is
-  needed after adding these deps/this config); title, description; **exported**
+  needed after adding these deps/this config); `vite.plugins` wires
+  `gzipLargeWasm()` (INFRA-002, `theme/vite/gzipWasm.ts` — ships the oversized
+  Typst compiler WASM gzipped so Cloudflare Pages' 25 MiB cap is met);
+  title, description; **exported**
   `themeConfig` const (the
   `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
   with commented option
@@ -803,6 +825,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   crashes the build) and backfills `pageData.title` from a `title` map when a
   page has no body h1. The raw maps stay in `pageData.frontmatter` for
   client-side re-resolution.
+- `theme/vite/gzipWasm.ts` — node-side build-only Vite plugin `gzipLargeWasm()`
+  (INFRA-002, wired in `config.mts` `vite.plugins`): in `generateBundle`,
+  re-emits any bundled `.wasm` asset over 24 MiB gzipped (level 9) as
+  `<name>.wasm.gz` and rewrites all chunk references — the ~27 MiB Typst
+  compiler WASM broke Cloudflare Pages' 25 MiB file cap (now ~10.7 MB shipped;
+  the small renderer WASM stays raw). `useTypst` decompresses the `.gz`
+  client-side before compiler init. Rolldown gotcha: new bundle keys can't be
+  assigned in `generateBundle` — must use `this.emitFile` (delete +
+  `chunk.code` mutation are fine).
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr), then `mathPlugin` (LaTeX→MathML,
@@ -1012,7 +1043,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   from Layout. On mount + `onContentUpdated`, finds every unprocessed
   `.ct-content .ct-typst`, lazily imports `@myriaddreamin/typst.ts` (configured
   once — compiler/renderer WASM via bundled Vite `?url`, `loadFonts` the IBM Plex
-  Math OTF `?url` as the only font), builds a minimal Typst doc (`$…$` inline /
+  Math OTF `?url` as the only font; the compiler URL goes through
+  `fetchWasmModule()` (INFRA-002): a `.gz` build asset (see
+  `theme/vite/gzipWasm.ts`) is fetched and, if it carries the gzip magic bytes,
+  decompressed via `DecompressionStream` into an `ArrayBuffer` module ref —
+  non-`.gz` dev URLs pass through), builds a minimal Typst doc (`$…$` inline /
   `$ … $` display, `#set page(fill: none)`, `#show math.equation: set
   text(font: "IBM Plex Math")`, 20pt block / 11pt inline), compiles to SVG,
   normalizes black `#000000`/`#000` **fills AND strokes** → `currentColor`

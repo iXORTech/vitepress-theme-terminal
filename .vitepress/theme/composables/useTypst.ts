@@ -38,6 +38,26 @@ type TypstSnippet = {
 }
 let typstReady: Promise<TypstSnippet> | null = null
 
+/**
+ * Resolve a bundled WASM URL to something the compiler/renderer init accepts.
+ * In production the oversized compiler module ships gzipped as `.wasm.gz`
+ * (Cloudflare Pages rejects files over 25 MiB — the build plugin
+ * theme/vite/gzipWasm.ts re-emits it compressed, INFRA-002), so it is fetched
+ * and piped through `DecompressionStream` here before init. The gzip magic
+ * bytes are checked rather than trusting the extension, so a server that
+ * transparently decodes `Content-Encoding: gzip` still works. Plain `.wasm`
+ * URLs (dev, and the small renderer module) pass through untouched.
+ */
+async function fetchWasmModule(url: string): Promise<string | ArrayBuffer> {
+  if (!url.endsWith('.gz')) return url // raw wasm — let the init fetch it
+  const compressed = await (await fetch(url)).arrayBuffer()
+  const head = new Uint8Array(compressed, 0, 2)
+  if (head[0] !== 0x1f || head[1] !== 0x8b) return compressed // already decoded
+  const stream = new Response(compressed)
+    .body!.pipeThrough(new DecompressionStream('gzip'))
+  return await new Response(stream).arrayBuffer()
+}
+
 /** Lazily import and configure typst.ts (WASM modules + IBM Plex Math font). */
 function getTypst(): Promise<TypstSnippet> {
   if (typstReady) return typstReady
@@ -49,7 +69,7 @@ function getTypst(): Promise<TypstSnippet> {
     // and it forces the FONT-005 typeface (loadFonts replaces the default font
     // set, so nothing else is fetched).
     $typst.setCompilerInitOptions({
-      getModule: () => compilerWasmUrl,
+      getModule: () => fetchWasmModule(compilerWasmUrl as string),
       beforeBuild: [mod.loadFonts([mathFontUrl as string])],
     })
     $typst.setRendererInitOptions({ getModule: () => rendererWasmUrl })

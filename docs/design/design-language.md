@@ -511,6 +511,13 @@ Both render in **IBM Plex Math** (the font decision lives in
   with `#show math.equation: set text(font: "IBM Plex Math")`. See
   `theme/markdown/typst.ts` + `theme/composables/useTypst.ts`.
 
+  The WASM stays **self-hosted** (no runtime CDN), but the compiler module
+  (~27 MiB) exceeds static-host file-size caps (Cloudflare Pages: 25 MiB), so
+  the build ships it **gzipped** as a `.wasm.gz` asset (~10.7 MB) and
+  `useTypst()` decompresses it client-side via `DecompressionStream` before
+  compiler init (INFRA-002 — `theme/vite/gzipWasm.ts`; dev serves the raw WASM
+  unchanged, and a decompression failure surfaces the visible Typst error).
+
 **Dependency & license note:** `mathjax-full` (Apache-2.0) drives the LaTeX→MathML
 conversion; `@myriaddreamin/typst.ts` and its WASM compiler/renderer (Apache-2.0)
 drive Typst. Both are regular devDependencies (the no-npm rule covers only

@@ -4,6 +4,7 @@ import type { TerminalThemeConfig } from "./theme/config";
 import { themeHead } from "./theme/head";
 import { createMarkdownConfig } from "./theme/markdown";
 import { createPageDataTransformer } from "./theme/pageData";
+import { gzipLargeWasm } from "./theme/vite/gzipWasm";
 import {
   oxocarbonDark,
   oxocarbonLight,
@@ -256,6 +257,10 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
         "@": fileURLToPath(new URL("./theme", import.meta.url)),
       },
     },
+    // Static hosts cap file sizes (Cloudflare Pages: 25 MiB); the bundled
+    // Typst compiler WASM is ~27 MiB. The build re-emits oversized WASM
+    // gzipped (`.wasm.gz`), decompressed client-side by useTypst (INFRA-002).
+    plugins: [gzipLargeWasm()],
     // The Typst renderer (MD-004, loaded lazily by useTypst) is a WASM-glue
     // package with internal dynamic imports + `?url` WASM assets. Excluding it
     // from Vite's dependency pre-bundling is the recommended handling for such

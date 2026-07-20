@@ -59,6 +59,29 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     established with a `main.scss` entry imported by the theme; `style.css` retired;
     `pnpm dev` and `pnpm build` succeed.
 
+- [x] **INFRA-002** — Deployable Typst WASM under host asset-size limits
+  - **Category:** Infrastructure · **Deps:** MD-004
+  - **Acceptance criteria:** the built site contains no file over 25 MiB, so a
+    Cloudflare Pages deploy no longer fails on
+    `assets/typst_ts_web_compiler_bg.*.wasm` (27 MiB); the Typst compiler stays
+    self-hosted (the MD-004 no-runtime-CDN decision is unchanged) — the
+    oversized WASM ships as a compressed build asset and is decompressed
+    client-side before compiler init; dev mode keeps serving the raw WASM
+    unchanged; a decompression-path failure surfaces the existing visible
+    Typst error (never a blank render); Typst math still renders on the built
+    site, verified headless.
+    *Landed 2026-07-20: a build-only Vite plugin
+    (`theme/vite/gzipWasm.ts`, wired in `config.mts` `vite.plugins`) re-emits
+    any bundled `.wasm` asset over 24 MiB gzipped (level 9) as `<name>.wasm.gz`
+    (28.3 MB → 10.7 MB) and rewrites every chunk reference to the new file
+    name; `useTypst`'s `getModule` fetches the URL and, when it ends in `.gz`
+    AND the bytes carry the gzip magic (content check — a server that
+    transparently decodes `Content-Encoding` still works), pipes them through
+    `DecompressionStream('gzip')` before handing the `ArrayBuffer` to the
+    compiler init. Dev URLs keep the plain `.wasm` path (plugin is
+    `apply: "build"`). Verified: dist has no file ≥ 25 MiB; headless on the
+    built site, block + inline Typst compile to SVG with no page errors.*
+
 ### Configuration
 
 - [x] **CONF-001** — Theme configuration surface

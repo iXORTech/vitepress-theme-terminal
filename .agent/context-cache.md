@@ -2,7 +2,63 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-19 (**DEMO-001 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-19 (**THEME-021 +
+THEME-022 landed**, same day as MOBILE-001, from user feedback on it.
+THEME-021 — concise explorer drawer: the mobile tree keeps the desktop-tight
+1.25rem chevron/icon columns (label at +44px again, not +68px); the chevron's
+44×44 tap box now comes from `width: var(--ct-tap)` + `margin-inline-end:
+calc(1.25rem - var(--ct-tap))` + z-index overlay (§8 pattern); leaf-mark
+width override removed. THEME-022 — tool-bar overflow drawer: when the bar
+can't show title/nav/icons IN FULL (measured via ToolBar's momentary
+`--measuring` no-shrink scrollWidth read — flex items shrink before
+overflowing; re-checked on ResizeObserver/language/fonts.ready; requiredWidth
+remembered, optimistic re-expand; ≤640px CSS-floor collapsed), nav + ALL
+actions (incl. built-in search/mode) move into the new right-side
+`NavDrawer.vue` behind the `.ct-toolbar__more` `[⋮]` expander — new
+`useNavDrawer.ts` singleton (one drawer at a time), `_navdrawer.scss`
+(explorer-drawer mirror, width-independent, `--ct-tap` rows),
+`nav.menu`/`nav.menuClose` strings, gotcha: base `__more{display:none}` must
+FOLLOW the `.ct-toolbar__action` rule (source-order tie on the shared class).
+Docs: design-language.md §4 (both notes) + §8 bullet, ui-sketch.md §1/§3 +
+region map. Verified headless 31/31 + full-site audits re-run 33/33 green.
+Later same day, footer refinement from user feedback: mobile footer SENTENCE
+links switched from real `min-height: 44px` (which opened ~44px line gaps in
+the wrapped powered-by row) to the §8 padding + negative-margin pattern (1.6
+line rhythm restored, rects still 44px), and icon-cluster glyphs went flush
+left (justify-center dropped) so the first social icon aligns with the text
+column; §8 doc examples updated; verified 8/8 + audits 33/33. And a
+statusline-separator fix, also user feedback: the THEME-010 divider became a
+fixed 0.85rem row-centered mark instead of 70% of the segment's box — beside
+44px mobile tap-box controls vs 17px text spans the proportional dividers
+drew 30.8px vs 11.9px; now all dividers are 13.59px at one shared center on
+both viewports, desktop look unchanged. Then a follow-up on the SPACING
+around them (still uneven — centered 44px tap boxes vs edge-hugging text
+gave 8–16px, 7.6–25px in zh-Hans): the mobile statusline is now a CELL
+layout — touching cells, divider on the seam, one shared
+`--ct-status-inset` (0.75rem) on every divider-facing side, nothing
+shrinkable (`__cluster` was absorbing all tight-fit pixels alone), labels
+`nowrap`, and below 360px the redundant mode indicator drops out; new §4
+"statusline separator rhythm" rule documents the model. All gaps 12px
+(spread 4.0), verified 360/320px × en/zh-Hans, audits 33/33.)
+Earlier same day (**MOBILE-001 landed**
+— mobile adaptation pass, audited headless at 360×740 over all 33 built pages.
+Overflow: `.ct-cardgrid` → `repeat(6, minmax(0, 1fr))` + `min-width: 0` on
+gridded cards (a nowrap card prompt line could prop the `1fr` auto floor —
+About/Projects overflowed the panel; desktop fractions now exact); raw `<pre>`
+in `.ct-content` scrolls (api-examples). Touch targets: new `--ct-tap: 2.75rem`
+token + design-language.md §8 rule — ≤640px every interactive theme control is
+a ≥44px box in both dimensions via REAL growth (tool/status bars grow to
+54/50px; drawer close/chevron/labels + leaf-mark column alignment; window `[x]`
+with `background-clip: content-box` keeping the border mask; settings, search,
+`[copy]`, callout summaries, footer links/icons, taxonomy chips,
+archive/term/pagination/back links, home CTAs, friends random, license CC
+cluster, 404 link; dense in-card title lines use padding + negative margin);
+exemptions documented: prose-inline links (WCAG inline) and vendor internals
+(Waline gets best-effort `.wl-*` overrides). §8 drawer/condensed/reduced/sheet
+behaviors re-verified; desktop 1280px regression-checked. Touched:
+`_tokens/_toolbar/_statusbar/_explorer/_window/_settings/_search/_code/
+_callouts/_posts/_pages/_content/_footer/_friends/_license/_comments.scss` +
+design-language.md §8.) Earlier same day (**DEMO-001 landed**
 — `src/markdown-examples.md` rewritten into the complete **Markdown Demo**:
 every feature shown as Input source beside rendered Output, across Basic
 Markdown (STYLE-005), Code Blocks (STYLE-004), Markdown Extensions (full MD-001
@@ -416,9 +472,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   PAGE-004 (friends page: `theme/friends.ts` merge layer + global
   `FriendLinks.vue` fed by `assets/**/linksData.mjs` modules incl. the
   generator submodule, per `docs/design/friend-links.md`) done 2026-07-18.
-  Roadmap: DEMO-001 markdown demo pages,
-  DOC-002/004 documentation, MOBILE-001 pass. I18N-001 includes
-  a shipped Chinese (Simplified) locale.
+  DEMO-001 (complete markdown demo page) done 2026-07-19.
+  MOBILE-001 (mobile adaptation pass: cardgrid/raw-pre overflow fixes,
+  `--ct-tap` 44px touch-target rule at ≤640px per design-language.md §8,
+  drawer/condensed/reduced/sheet behaviors re-verified headless over all 33
+  pages) done 2026-07-19.
+  THEME-021 (concise explorer drawer rows — desktop-tight columns, chevron
+  tap box via margin-overlay) and THEME-022 (right-side tool-bar overflow
+  drawer behind `[⋮]`, measured collapse at any width, ≤640px CSS floor)
+  done 2026-07-19 from user feedback on MOBILE-001.
+  Roadmap: DOC-002/004 documentation, FONT-005 + MD-004 Typst support.
+  I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
 ## docs/
@@ -487,7 +551,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   via `transformPageData`, client re-resolves in place); §9 localizable
   taxonomy labels (I18N-008: `themeConfig.taxonomy` term-name → LocalizableText
   maps, display-only — slugs/URLs/grouping stay authored, unconfigured terms
-  verbatim).
+  verbatim); §8 touch-target rule (MOBILE-001: at ≤640px every interactive
+  theme control presents a ≥44px `--ct-tap` box in both dimensions via real
+  box growth — the bars grow taller, dense in-card lines may use padding +
+  negative margin; exempt: prose-inline links per the WCAG inline exception,
+  and third-party widget internals which get best-effort overrides); §4 tool
+  bar **overflow drawer** note (THEME-022: measured collapse — never
+  truncate/wrap; nav + ALL actions into the right-side drawer behind `[⋮]`,
+  ≤640px the CSS floor, drawer mirrors the explorer drawer with ≥44px rows,
+  mode row applies in place, search row opens the palette, one drawer at a
+  time) + §8 tool-bar bullet updated; §4 explorer **concise drawer rows**
+  note (THEME-021: drawer keeps desktop-tight 1.25rem columns, rows grow in
+  height only, chevron tap box via the §8 padding/negative-margin pattern
+  with a small intentional overlay strip).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
   modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
@@ -513,12 +589,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   palette as stacked framed panes — border titles + text `[x]` close
   (§2, reworked THEME-017; the generic window shell is landed, find content =
   SEARCH-002),
-  mobile layout with explorer drawer, paper mode (keeps minimal tool/status bars,
+  mobile layout (§3) with BOTH drawers — explorer behind `[=]` on the left,
+  the THEME-022 nav drawer behind `[⋮]` on the right (nav rows + indented
+  children + GitHub/search/mode action rows; one drawer at a time) — plus a
+  §1 note that the measured overflow collapse applies at any width, paper
+  mode (keeps minimal tool/status bars,
   hides explorer/utility panels), in-viewport footer (attribution row lighter on
   desktop), card component with explicit `showPrompt`, configurable `siteName` host
   with normalized-title fallback, and code-block variant with file/lang/COPY title
   bar (§6); legend of placeholder
-  glyphs and a region → spec → build-task map.
+  glyphs and a region → spec → build-task map (rows added for THEME-021/022).
 - `design/content-architecture.md` — binding (ARCH-001): the `src/` content layout
   modeled on `iXORTech/vitepress-theme-arch/src` — normal/standalone pages (home
   `index.md`, `about`, `projects`, `friends`) sit **directly in `src/`** (no `pages/`
@@ -748,6 +828,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`{count}`)/`series.empty` (POST-002 series index),
   `friends.random`/`friends.empty` (PAGE-004 friends page — the data strings
   themselves render verbatim/LocalizableText, not through the table),
+  `nav.menu`/`nav.menuClose` (THEME-022 overflow drawer),
   `notFound.title`/`.home`
   (ARCH-001 404) —
   grows per feature; PAGE-002/003 projects/About are authored per-language
@@ -988,7 +1069,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   :is=pageComponent>` where `pageComponent` maps `resolvePageType(page,
   frontmatter)` → the matching `pages/*Page.vue` — then the `.ct-footer-region`
   (THEME-004/006) with the optional `.ct-prefooter` slot above
-  `<SiteFooter :divided/>`) — `<StatusBar/>`, and the shared `<FloatingWindow/>`
+  `<SiteFooter :divided/>`) — `<StatusBar/>`, the right-side `<NavDrawer/>`
+  (THEME-022), and the shared `<FloatingWindow/>`
   (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
   License/Comments) moved into HomePage/PostPage. Still calls
   `useCalloutTitles()` + `useCodeCopy()` + `useNerdFont()` + `useSearchShortcut()`
@@ -1062,7 +1144,33 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   the built-in find-palette search trigger (FA magnifying-glass →
   `useSearch().openSearch`, SEARCH-002) and the color-mode cycle button (FA
   half-circle, `mode.switch`); the settings gear moved to the status bar
-  (THEME-019).
+  (THEME-019). THEME-022: owns the overflow measurement — flex items SHRINK
+  (brand truncates) before overflowing, so `measure()` adds a momentary
+  `--measuring` class (no-shrink + visible title) for one synchronous
+  scrollWidth read, collapses (`useNavDrawer().collapsed` →
+  `.ct-toolbar--collapsed`) when the natural width exceeds the client width,
+  remembers `requiredWidth`, and optimistically re-expands (render → rAF
+  confirm) when width returns; re-evaluated via ResizeObserver, a `language`
+  watch, and `document.fonts.ready`; ≤640px force-collapsed via matchMedia.
+  The trailing `.ct-toolbar__more` `[⋮]` expander (always in SSR markup,
+  `aria-expanded`/`aria-controls`) toggles the right-side NavDrawer; the
+  explorer toggle closes the nav drawer first (one drawer at a time).
+- `theme/components/NavDrawer.vue` — right-side tool-bar overflow drawer
+  (THEME-022), rendered from Layout: MENU header (localized `nav.menu` +
+  close), a `<nav>` of rows — `~/home`, the configured nav tabs, and their
+  THEME-020 `items` children as indented `--child` rows (children carry their
+  own active accent; the parent highlights on its own link only) — then a
+  rule-divided actions section: configured `toolbar.actions` as icon+label
+  rows, a Search row (closes the drawer, opens the find palette), and a
+  Switch-color-mode row (cycles immediately, drawer stays open). Dismissed
+  via close control, backdrop tap, `Esc`, or navigation; auto-closes when
+  `collapsed` flips false (the expander trigger disappears on re-expansion).
+- `theme/composables/useNavDrawer.ts` — THEME-022 module singleton:
+  `collapsed` (written by ToolBar's measurement; read by the CSS class +
+  NavDrawer's auto-close watch) and `drawerOpen` with
+  `openDrawer`/`closeDrawer`/`toggleDrawer`; `openDrawer()` closes the
+  explorer drawer so only one side's drawer is ever open (the reverse
+  direction lives in ToolBar's explorer-toggle handler).
 - `theme/components/Explorer.vue` — file-explorer sidebar (THEME-002/012/014):
   `<nav>` panel with mobile-only header (localized EXPLORER title + FA close
   button) and the explicit or source-discovered recursive tree from
@@ -1240,7 +1348,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-statusbar__clock` (`useClock`, `HH:MM:SS`) at the far right; replaces the
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
-  (`_fonts.scss`), tokens/modes/shell/toolbar/explorer/statusbar/window/
+  (`_fonts.scss`), tokens/modes/shell/toolbar/**navdrawer** (THEME-022)/
+  explorer/statusbar/window/
   settings/content/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
   callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
@@ -1263,7 +1372,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   derivative hex), Carbon grays + semantic colors (incl. purple 40/60 for
   `--ct-important`, orange 40/60 for the footer RSS accent), IBM Plex font
   stacks + the aliased `--ct-font-nerd` (FONT-002/004), fixed Oxocarbon prompt
-  primitives, radius/gap.
+  primitives, radius/gap, and `--ct-tap: 2.75rem` — the 44px minimum
+  touch-target box every control presents at the mobile breakpoint
+  (MOBILE-001, design-language.md §8).
 - `theme/styles/_modes.scss` — semantic tokens (`--ct-bg/surface/text/link/border/
   inline-code/error/warning/info/success/important/rss/font-body`) as mixins per mode;
   body text NEUTRAL everywhere (STYLE-006: dark = gray-10, light/paper = gray-100),
@@ -1275,7 +1386,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (file name · language · text `[copy]` accent button, `--copied` success flash);
   inner `div[class*=language-]` de-framed (hides default copy/lang leftovers),
   `pre.shiki` basics, per-mode `--shiki-dark/-light/-paper` selection incl. print
-  (which also drops the card shadow).
+  (which also drops the card shadow); ≤640px the `[copy]` control grows to
+  `--ct-tap` (the title bar gets taller with it, MOBILE-001).
 - `theme/styles/_content.scss` — STYLE-005: `.ct-content` markdown styling (headings,
   text, links, lists, blockquotes, tables w/ overflow-x scroll, hr, img, inline code)
   via semantic tokens; 72ch measure; 480px mobile padding tier; `flex: 1 0 auto`
@@ -1285,14 +1397,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   reader font (else follow the mode default). Also carries the I18N-007
   `.ct-lang` rules: `display: contents` (layout-neutral wrapper) with
   `.ct-lang[hidden]{display:none}` winning by specificity so hidden
-  language blocks leave the flow.
+  language blocks leave the flow. Raw inline-HTML `<pre>` (outside the
+  `.ct-code` cards) gets `max-width: 100%; overflow-x: auto` so it scrolls
+  instead of spilling past the panel (MOBILE-001, api-examples).
 - `theme/styles/_friends.scss` — PAGE-004 friends-page styles, scoped under
   `.ct-content`: `[⇄ random]` mono text-button (derived-accent hover), group
   headers (dim mono count + dim desc), `repeat(auto-fill, minmax(15rem,1fr))`
   card grid (forced 1-col ≤640px), compact link cards (surface + border +
   radius, ≥44px, main-color-derived hover border/title accent), 3rem
   rounded-square avatar with the placeholder glyph behind an absolutely
-  positioned cover img, 2-line blurb clamp, `friends.empty` dim notice.
+  positioned cover img, 2-line blurb clamp, `friends.empty` dim notice; the
+  random control grows to `--ct-tap` ≤640px (MOBILE-001).
 - `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003 posts, series,
   taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
   base markdown list/heading rules): `.ct-taxonomy` link chips;
@@ -1318,20 +1433,30 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   centered 404. Mono chrome, accent hover
   (`--ct-main-subtle`/`--ct-main-border`); ≤640px
   stacks archive rows and flips `--cover` cards to column-reverse — the cover
-  becomes a full-width top strip fading downward into the card body.
+  becomes a full-width top strip fading downward into the card body — and
+  grows every discrete control to the `--ct-tap` box (MOBILE-001): taxonomy
+  chips / terms pills / pagination / archive rows / listing-back / 404-home
+  links get real padding or min sizes, while the dense post-card title and
+  series-banner name links grow via padding + negative margin.
 - `theme/styles/_settings.scss` — THEME-007: maps `<html data-ct-font-family|size>`
   to `--ct-content-font`/`--ct-content-font-size` (default family = no attr =
   follow mode; medium size = base), and styles the settings-panel controls —
   `.ct-settings` font rows (label + `.ct-settings__option` segmented control) and
-  `.ct-settings__langs` language list, accent active state (`--ct-main-subtle`).
+  `.ct-settings__langs` language list, accent active state (`--ct-main-subtle`);
+  ≤640px options + language rows grow to `--ct-tap` (rows center-aligned,
+  MOBILE-001).
 - `theme/styles/_pages.scss` — PAGE-001/002/003 built-in content pages (scoped
   under `.ct-content`): shared `.ct-page__title`; the **fractional**
-  `.ct-cardgrid` — a 6-column track (LCM of halves/thirds) where
+  `.ct-cardgrid` — a 6-column `repeat(6, minmax(0, 1fr))` track (LCM of
+  halves/thirds; `minmax(0,…)` + `min-width: 0` on the gridded card so a
+  nowrap prompt line can't prop the auto floor past its fraction — the
+  MOBILE-001 overflow fix, prompts scroll inside instead) where
   `.ct-cardgrid__item` picks a width via a span modifier `--third` (span 2 =
   1/3) / `--half` (span 3 = 1/2, also the default) / `--two-thirds` (span 4 =
   2/3) / `--full` (`1 / -1` = whole row), mixable per row; cards reset their
   stand-alone margin to fill the cell; ≤640px the grid collapses to one column
-  (all modifiers reset to `1 / -1`). Then the home card
+  (all modifiers reset to `1 / -1`) and the home CTA links grow to `--ct-tap`.
+  Then the home card
   (`.ct-home__greeting`/`__tagline`/`__body` + `__links` mono button chips);
   project cards (`.ct-project__name`/`__icon`/`__desc`/`__tags` chips); About
   cards (`.ct-about-block__title`/`__body`/`__items` labeled rows — a
@@ -1357,7 +1482,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   logo as an inline-SVG `mask` tinted by a faint `color-mix(--ct-text 7%)`
   `background-color`, rotated CCW and pushed past the right edge (`z-index:0`) —
   is clipped by the card's `overflow:hidden`; title/meta/statement get
-  `z-index:1` above it; the watermark crops harder ≤640px. The card frame/prompt
+  `z-index:1` above it; the watermark crops harder ≤640px and the CC `__icons`
+  cluster link grows to `--ct-tap` there (MOBILE-001). The card frame/prompt
   come from `_card.scss`.
 - `theme/styles/_comments.scss` — COMP-004 comments (`.ct-comments` rules scoped
   under `.ct-content` so the card title out-specifies `.ct-content h2`, like the
@@ -1368,6 +1494,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   heading;
   the `.ct-article-meta` count strip (mono, dim, accent icons, tabular-nums).
   Waline keeps its own light/dark var sets (wired via the `dark` selector);
+  ≤640px best-effort vendor touch-target overrides grow `.wl-btn`,
+  `.wl-header .wl-input`, `.wl-action`, and the `.wl-meta-foot` fine-print
+  links to `--ct-tap` (MOBILE-001, the documented §8 vendor exemption);
   comments + counts hidden in print (the license card still prints).
 - `theme/styles/_footer.scss` — THEME-004/006 in-viewport footer region: the
   `.ct-footer-region` wrapper (flex-shrink:0, bottom-pinned) owns the full
@@ -1384,7 +1513,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   powered/meta row is lightened via `color-mix(… 68%, transparent)` over the
   row above (derived, color-system §3); ≤640px collapses to one column in
   sketch-caption order (copyright · powered · social · meta) with left-aligned
-  icons; print drops link underlines. Underline is opt-in for TEXT links only
+  icons; touch targets split by row kind (MOBILE-001, spacing refined same
+  day): SENTENCE links (`__copyright a`/`__powered a`/`__license-text a`) get
+  their 44px rect via the §8 padding + negative-margin pattern so wrapped
+  lines keep the 1.6 line rhythm (no 44px line gaps), while `__icons a`
+  (social/RSS/license) are real `--ct-tap` boxes with glyphs flush LEFT
+  (no justify-center — the first icon aligns with the text column) and a
+  tightened 0.25rem cluster gap; print drops link underlines. Underline is opt-in for TEXT links only
   (`__copyright a`/`__powered a`/`__license-text a`) — icon anchors never
   underline in any state; RSS chip in `--ct-rss` orange (selector doubled
   `& &__rss` to out-rank `.ct-footer a`'s color inherit), license glyphs one
@@ -1395,7 +1530,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   accent + Nerd Font title glyph (nf-fa-* PUA, MD-003) per variant, glyphs gated
   behind `[data-ct-nerdfont]`; `<details>` variant hides the native marker and
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
-  gated rule via specificity).
+  gated rule via specificity); ≤640px the summary line becomes a centered flex
+  row grown to `--ct-tap` (MOBILE-001).
 - `theme/utils/pagePath.ts` — framework-free page-path helpers: `formatPageLocation()`
   (maps `relativePath` to `~` or a home-relative path without the Markdown
   extension; status bar + card prompt defaults), and the active-link matchers
@@ -1425,8 +1561,25 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   dimmed `.ct-toolbar__caret` marker; right-aligned `__actions` group with accent
   icon controls — `.ct-toolbar__action` now covers both `<button>` (search/mode)
   and the configurable `<a>` action slots (THEME-005: `inline-flex`,
-  `text-decoration:none`); tabs
-  hidden ≤640px (the explorer drawer takes over, THEME-002); hidden in print.
+  `text-decoration:none`); THEME-022 collapse rules — `.ct-toolbar__more`
+  `[⋮]` expander (base `display:none` + `margin-left:auto`, placed AFTER the
+  `.ct-toolbar__action` rule to win their source-order display tie),
+  `.ct-toolbar--collapsed` hides nav+actions and shows the expander, and
+  `.ct-toolbar--measuring` momentarily disables flex shrinking (+ visible
+  title overflow) for the natural-width read; the ≤640px block is the CSS
+  floor of the collapse (nav+actions hidden, expander shown pre-hydration),
+  where the brand and every action also grow to the `--ct-tap` box — the bar
+  gets taller (~54px) with tightened gaps (MOBILE-001); hidden in print.
+- `theme/styles/_navdrawer.scss` — THEME-022 right-side tool-bar overflow
+  drawer, mirroring `_explorer.scss`'s drawer on the opposite side but NOT
+  media-gated (measured collapse can trigger at any width): fixed panel
+  (top/bottom/right `--ct-gap`, `min(18rem, 85vw)`, surface/border/radius,
+  left-cast shadow, z-30 over the z-20 `.ct-navdrawer-backdrop`), off-canvas
+  `translateX(100% + gap + spill)` slide with `--open`; header (uppercase
+  title + tap-box close), `__nav`/`__actions` column sections divided by a
+  thin rule; `__link` rows (link or button) in the tabline accent language
+  with `min-height: var(--ct-tap)`, `--active` accent, `--child` 2rem indent
+  (THEME-020 children), fixed 1.25rem `__icon` column; print-hidden.
 - `theme/styles/_explorer.scss` — THEME-002/011 file-explorer sidebar: desktop
   15rem surface panel with own scroll (`--closed` = display:none, instant
   editor-tree retract, ≥641px only); mono TUI chrome. Rows nvim-tree style
@@ -1438,8 +1591,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   row = `--ct-main-subtle` bg + accent label; ≤640px = fixed off-canvas
   drawer (`translateX` slide, `--drawer-open`, z-30) over the
   `.ct-explorer-backdrop` dim layer (z-20, desktop-hidden), drawer-only
-  header; hidden in print. The drawer breakpoint must match useExplorer's
-  `DRAWER_QUERY`.
+  header, and the drawer controls keep ≥44px tap boxes at desktop-tight
+  density (MOBILE-001, reworked THEME-021): close 44×44, labels padded to
+  ≥44px rows, and the chevron tap-box wide (`width: var(--ct-tap)`) with
+  `margin-inline-end: calc(1.25rem - var(--ct-tap))` + `z-index: 1` so the
+  columns lay out at the visual 1.25rem widths (icon +22px, label +44px —
+  same as desktop) while the button's grown box floats over the decorative
+  icon column; glyph kept in column position via `text-align: start` +
+  0.35rem start padding; desktop rows stay dense; hidden in print. The
+  drawer breakpoint must match useExplorer's `DRAWER_QUERY`.
 - `theme/styles/_window.scss` — THEME-003/016/017 shared floating window:
   backdrop z-40 (above the explorer drawer's z-30) + invisible window
   container z-50 (centered top 14vh, `min(40rem, …)` wide, 70vh max) stacking
@@ -1453,7 +1613,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   absolute positioning + `translateY(-50%)` with a `--ct-surface` backing
   masking the line; `__pane-body` is each pane's scroll region; deeper
   `0 12px 32px` shadow per pane, mono chrome, 0.15s fade-in; ≤640px =
-  near-full-screen sheet inset by `--ct-gap` with the last pane growing;
+  near-full-screen sheet inset by `--ct-gap` with the last pane growing, and
+  the `[x]` grows to the `--ct-tap` box via padding with
+  `background-clip: content-box` so the surface backing still hugs only the
+  text and the border-mask illusion survives (MOBILE-001);
   hidden in print. (The temporary demo styles were removed with SEARCH-002;
   the find palette's own styles live in `_search.scss`.)
 - `theme/styles/_search.scss` — SEARCH-002 find-palette content inside the
@@ -1464,7 +1627,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   message line, and the `.ct-search__footer` (top rule, space-between) holding
   the `.ct-search__hint` keyboard row and the right-aligned `.ct-search__algolia`
   attribution link (dim → hover accent, 0.9375rem inline SVG). Mono is inherited
-  from the window chrome.
+  from the window chrome. ≤640px the field, result rows, and the attribution
+  link grow to `--ct-tap` (MOBILE-001).
 - `theme/styles/_lightbox.scss` — COMP-002 lightbox: `@use`s the Fancybox
   vendor CSS from node_modules (the SCSS entry is where vendor stylesheets
   load), zoom-in cursor on marked images, theme-token overlay
@@ -1494,9 +1658,26 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `__clock` uses tabular-nums. Accent text-button controls + `--icon`
   modifier (back-to-top THEME-009, settings gear THEME-019); THEME-010:
   `::before` pseudo-element dividers between top-level group segments (pseudo,
-  not border — survives the buttons' border reset) and a tight `__cluster`
+  not border — survives the buttons' border reset) — a FIXED 0.85rem mark
+  centered on the row (`top: 50%` + translate, NOT proportional to the
+  segment box: 44px tap-box controls beside 17px text spans made 70%-height
+  dividers render 30.8px vs 11.9px on mobile; MOBILE-001 follow-up) — and a
+  tight `__cluster`
   (progress + back-to-top, no divider inside); `__path` + `__clock` hidden
-  ≤640px (gear stays); hidden in print.
+  ≤640px (gear stays), where the remaining controls grow to the `--ct-tap`
+  box — the bar gets taller (~50px) — and the row becomes a **cell layout**
+  so the separator rhythm is even (design-language.md §4 statusline
+  separator rhythm): group `gap: 0` + no margins so cells TOUCH with the
+  divider on the seam (`left: 0`), one shared `--ct-status-inset` (0.75rem,
+  set on `.ct-statusbar`) on every divider-facing side — sized to fit the
+  widest shipped locale (zh-Hans) at 360px — controls keeping
+  `min-width/height: var(--ct-tap)` (a label narrower than the box centers,
+  the ~4px tolerance), `__cluster` + controls + segments all
+  `flex-shrink: 0` with `white-space: nowrap` (no cell may compress alone —
+  that was the zh-Hans 7.6px gap — and `zh-Hans` must not fold at its
+  hyphen). Below 360px the read-only `__segment--mode` indicator is dropped
+  (redundant, non-interactive) rather than compressing/overflowing the row;
+  hidden in print.
 
 ## src/ (site content — VitePress `srcDir`)
 

@@ -22,6 +22,11 @@
   }
 
   .ct-friends__random {
+    // Grows to the minimum tap box on mobile (design-language.md §8)
+    @media (max-width: 640px) {
+      min-height: var(--ct-tap);
+    }
+
     padding: 0.3rem 0.625rem;
     border: 1px solid var(--ct-border);
     border-radius: var(--ct-radius-small);

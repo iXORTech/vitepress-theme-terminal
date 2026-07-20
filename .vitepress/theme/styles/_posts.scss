@@ -581,5 +581,58 @@ html[data-ct-nerdfont] .ct-content .ct-series-icon[class*='nf-'] {
       -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 82%);
       mask-image: linear-gradient(to bottom, #000 45%, transparent 82%);
     }
+
+    // ------------------------------------------------------------------------
+    // Touch targets (design-language.md §8, MOBILE-001): every discrete
+    // control on the listing/article surfaces grows to the minimum tap box.
+    // Dense in-card lines (post-card title, series-banner name) grow their
+    // box via padding compensated by a negative margin, keeping the visual
+    // rhythm; standalone rows (chips, archive rows, term pills) grow for real.
+    // ------------------------------------------------------------------------
+    .ct-taxonomy__term {
+      padding: 0.6rem 0.75rem;
+    }
+
+    .ct-postcard__title a {
+      display: inline-block;
+      padding-block: 0.6rem;
+      margin-block: -0.6rem;
+    }
+
+    .ct-postcard__series {
+      align-items: center;
+      min-height: var(--ct-tap);
+    }
+
+    .ct-archives__link {
+      display: inline-block;
+      padding-block: 0.5rem;
+    }
+
+    .ct-terms__link {
+      align-items: center;
+      min-height: var(--ct-tap);
+    }
+
+    .ct-pagination__link {
+      min-width: var(--ct-tap);
+      min-height: var(--ct-tap);
+    }
+
+    .ct-listing__back a {
+      display: inline-block;
+      padding-block: 0.85rem;
+    }
+
+    .ct-series-banner__name {
+      display: inline-block;
+      padding-block: 0.6rem;
+      margin-block: -0.6rem;
+    }
+
+    .ct-notfound__home a {
+      display: inline-block;
+      padding: 0.75rem 1rem;
+    }
   }
 }

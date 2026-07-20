@@ -32,7 +32,10 @@
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    // minmax(0, …) so a card's unwrappable content (a nowrap shell-prompt
+    // line) can never prop a track open past its fraction — the prompt
+    // scrolls inside the card instead (MOBILE-001 overflow fix).
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--ct-gap);
   }
 
@@ -42,10 +45,12 @@
     grid-column: span 3; // default: 1/2 of the row
 
     // Reset the reusable card's stand-alone vertical margin inside the grid,
-    // and let it fill the cell height.
+    // and let it fill the cell height. min-width lets the card shrink below
+    // its min-content (the prompt line) to the cell width.
     .ct-card {
       margin: 0;
       width: 100%;
+      min-width: 0;
     }
   }
 
@@ -233,7 +238,7 @@
 // the full width regardless of its span modifier (design-language.md §8).
 @media (max-width: 640px) {
   .ct-content .ct-cardgrid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .ct-content .ct-cardgrid__item,
@@ -241,6 +246,12 @@
   .ct-content .ct-cardgrid__item--half,
   .ct-content .ct-cardgrid__item--two-thirds {
     grid-column: 1 / -1;
+  }
+
+  // Touch targets (design-language.md §8): the home CTA links grow to the
+  // minimum tap box.
+  .ct-content .ct-home__link {
+    min-height: var(--ct-tap);
   }
 }
 

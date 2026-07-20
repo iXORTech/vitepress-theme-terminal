@@ -21,6 +21,8 @@ export const en = {
   'lang.switch': 'Switch language',
 
   // Tool bar navigation (THEME-001; configurable entries: THEME-005)
+  'nav.menu': 'Menu',
+  'nav.menuClose': 'Close menu',
   'nav.label': 'Site navigation',
   'nav.home': 'home',
 

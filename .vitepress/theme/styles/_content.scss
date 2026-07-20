@@ -134,6 +134,16 @@
   }
 
   // --------------------------------------------------------------------------
+  // Raw preformatted blocks — inline-HTML <pre> outside the fenced-code cards
+  // (those handle their own scrolling in _code.scss). Scroll instead of
+  // spilling past the panel edge on narrow viewports (MOBILE-001).
+  // --------------------------------------------------------------------------
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  // --------------------------------------------------------------------------
   // Rules & images
   // --------------------------------------------------------------------------
   hr {

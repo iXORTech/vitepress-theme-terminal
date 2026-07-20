@@ -11,6 +11,7 @@
 @use "modes";   // dark / light / paper semantic tokens (STYLE-002)
 @use "shell";   // TUI shell frame: floating panel arrangement (THEME-001)
 @use "toolbar"; // top tool bar / tabline (THEME-001)
+@use "navdrawer"; // right-side tool-bar overflow drawer (THEME-022)
 @use "explorer"; // file-explorer navigation sidebar (THEME-002)
 @use "statusbar"; // bottom status bar / statusline (THEME-001)
 @use "window";  // shared floating utility window (THEME-003)

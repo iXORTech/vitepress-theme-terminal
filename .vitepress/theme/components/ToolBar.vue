@@ -20,7 +20,15 @@
 // floating TUI-panel dropdown of its children — open/close is pure
 // CSS :hover/:focus-within on the wrapper, so leaving both the tab and the
 // panel closes it (styles in _toolbar.scss).
-import { computed } from 'vue'
+//
+// THEME-022 keeps the bar honest: the moment the title, nav, and icons cannot
+// be displayed IN FULL, the nav + all actions collapse into the right-side
+// nav drawer behind the `[⋮]` expander. The collapse is measured — a
+// momentary no-shrink layout pass (`--measuring`) reads the bar's natural
+// content width, so it works at any window width — with ≤640px always
+// collapsed as the CSS floor (_toolbar.scss). Re-checked on resize, language
+// switch, and font readiness; re-expands when the bar fits again.
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useData, withBase } from 'vitepress'
 import type { TerminalNavItem } from '../config'
 import type { LocalizableText } from '../locales'
@@ -28,6 +36,7 @@ import { resolveLocalizedText } from '../locales'
 import { isExternalLink, linkRelativePath } from '../utils/pagePath'
 import { useColorMode } from '../composables/useColorMode'
 import { useExplorer } from '../composables/useExplorer'
+import { useNavDrawer } from '../composables/useNavDrawer'
 import { useSearch } from '../composables/useSearch'
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeConfig } from '../composables/useThemeConfig'
@@ -42,6 +51,104 @@ const { cycleMode } = useColorMode()
 // hidden entirely when the explorer doesn't exist (no tree / paper mode).
 const { available: explorerAvailable, toggle: toggleExplorer } = useExplorer()
 
+// Overflow state + right-side drawer (THEME-022). Opening one side's drawer
+// closes the other, so the explorer toggle also dismisses the nav drawer.
+const {
+  collapsed,
+  drawerOpen: navDrawerOpen,
+  toggleDrawer: toggleNavDrawer,
+  closeDrawer: closeNavDrawer,
+} = useNavDrawer()
+
+const onExplorerToggle = (): void => {
+  closeNavDrawer()
+  toggleExplorer()
+}
+
+// --------------------------------------------------------------------------
+// Overflow measurement (THEME-022)
+// --------------------------------------------------------------------------
+// The bar's flex items SHRINK before they overflow (the brand truncates), so
+// `scrollWidth` alone never exceeds the client width. The `--measuring` class
+// disables shrinking for one synchronous layout read — never painted — giving
+// the true natural width of explorer toggle + brand + nav + actions.
+const barEl = ref<HTMLElement | null>(null)
+
+// The shell's drawer breakpoint (matches _toolbar.scss / useExplorer):
+// below it the bar is always collapsed and measurement is meaningless.
+const MOBILE_QUERY = '(max-width: 640px)'
+const mobileViewport = ref(false)
+
+// Natural width captured when the bar last collapsed — the bar re-expands
+// only once the available width could fit it again (then re-confirms).
+let requiredWidth = 0
+
+const measure = (): void => {
+  const el = barEl.value
+  if (!el || mobileViewport.value || collapsed.value) return
+  el.classList.add('ct-toolbar--measuring')
+  const needed = el.scrollWidth
+  el.classList.remove('ct-toolbar--measuring')
+  if (needed > el.clientWidth + 1) {
+    requiredWidth = needed
+    collapsed.value = true
+  }
+}
+
+// Collapse/expand decision for the current width. Expanding is optimistic:
+// render expanded, then re-measure to confirm (worst case one frame).
+const evaluate = (): void => {
+  const el = barEl.value
+  if (!el) return
+  if (mobileViewport.value) return // CSS floor owns ≤640px
+  if (collapsed.value) {
+    if (el.clientWidth >= requiredWidth) {
+      collapsed.value = false
+      void nextTick(() => requestAnimationFrame(measure))
+    }
+    return
+  }
+  measure()
+}
+
+// A content change (language switch — label widths change) invalidates the
+// stored requirement: re-measure from the expanded state.
+const remeasure = (): void => {
+  if (mobileViewport.value) return
+  requiredWidth = 0
+  collapsed.value = false
+  void nextTick(() => requestAnimationFrame(measure))
+}
+
+let mql: MediaQueryList | null = null
+let resizeObserver: ResizeObserver | null = null
+const onMediaChange = (event: MediaQueryListEvent): void => {
+  mobileViewport.value = event.matches
+  collapsed.value = event.matches ? true : collapsed.value
+  if (!event.matches) evaluate()
+}
+
+onMounted(() => {
+  mql = window.matchMedia(MOBILE_QUERY)
+  mobileViewport.value = mql.matches
+  if (mql.matches) collapsed.value = true
+  mql.addEventListener('change', onMediaChange)
+
+  // Bar box changes (window resizes) re-run the decision
+  resizeObserver = new ResizeObserver(() => evaluate())
+  if (barEl.value) resizeObserver.observe(barEl.value)
+
+  // Webfonts settling changes text widths — confirm once they're ready
+  document.fonts?.ready.then(() => evaluate()).catch(() => {})
+
+  void nextTick(evaluate)
+})
+
+onBeforeUnmount(() => {
+  mql?.removeEventListener('change', onMediaChange)
+  resizeObserver?.disconnect()
+})
+
 // Find-palette search trigger (SEARCH-002) — also opens via the `/` shortcut
 const { openSearch } = useSearch()
 
@@ -52,6 +159,10 @@ const { title } = useSiteText()
 // layer (AGENTS.md §6.7 — all UI text resolves through it).
 const config = useThemeConfig()
 const { t, language } = useThemeLocale()
+
+// A language switch changes every label width — re-measure the overflow
+// decision from scratch (THEME-022)
+watch(language, () => remeasure())
 
 // The built-in home tab; its active state follows the current page.
 const isHome = computed(() => page.value.relativePath === 'index.md')
@@ -91,15 +202,20 @@ const href = (link: string): string =>
 </script>
 
 <template>
-  <header class="ct-toolbar">
+  <header
+    ref="barEl"
+    class="ct-toolbar"
+    :class="{ 'ct-toolbar--collapsed': collapsed }"
+  >
     <!-- Explorer toggle — the explicit retract/extend control on desktop,
-         the drawer trigger on mobile (THEME-002, ui-sketch.md §3 `[=]`) -->
+         the drawer trigger on mobile (THEME-002, ui-sketch.md §3 `[=]`);
+         closes the right-side nav drawer first (one drawer at a time) -->
     <button
       v-if="explorerAvailable"
       class="ct-toolbar__action"
       :title="t('explorer.toggle')"
       :aria-label="t('explorer.toggle')"
-      @click="toggleExplorer"
+      @click="onExplorerToggle"
     >
       <i class="fa-solid fa-bars" aria-hidden="true"></i>
     </button>
@@ -198,5 +314,19 @@ const href = (link: string): string =>
         <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
       </button>
     </div>
+
+    <!-- Overflow expander (THEME-022) — always in the SSR markup so the
+         ≤640px CSS floor can show it pre-hydration; visible only while the
+         bar is collapsed (nav + actions live in the right-side drawer) -->
+    <button
+      class="ct-toolbar__action ct-toolbar__more"
+      :title="t('nav.menu')"
+      :aria-label="t('nav.menu')"
+      :aria-expanded="navDrawerOpen ? 'true' : 'false'"
+      aria-controls="ct-navdrawer"
+      @click="toggleNavDrawer"
+    >
+      <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
+    </button>
   </header>
 </template>

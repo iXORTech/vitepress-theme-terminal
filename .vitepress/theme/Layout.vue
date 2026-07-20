@@ -17,6 +17,7 @@ import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
 import Explorer from './components/Explorer.vue'
 import FloatingWindow from './components/FloatingWindow.vue'
+import NavDrawer from './components/NavDrawer.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
 import ToolBar from './components/ToolBar.vue'
@@ -136,6 +137,10 @@ useWaline()
 
     <!-- Bottom status bar / statusline -->
     <StatusBar />
+
+    <!-- Right-side nav drawer — holds the collapsed tool bar's nav + actions
+         behind the `[⋮]` expander (THEME-022); off-canvas until opened -->
+    <NavDrawer />
 
     <!-- Shared floating utility window — hidden until a utility opens it
          (THEME-003) -->

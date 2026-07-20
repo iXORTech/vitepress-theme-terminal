@@ -168,6 +168,38 @@ html[data-ct-nerdfont] .ct-toolbar__glyph::before {
   margin-left: auto;
 }
 
+// Collapsed bar (THEME-022): the title, nav, and icons no longer fit in full —
+// nav + ALL actions retire into the right-side nav drawer (_navdrawer.scss)
+// and only explorer toggle · brand · expander remain. Set by ToolBar.vue's
+// measured-overflow state at any width.
+.ct-toolbar--collapsed {
+  .ct-toolbar__nav,
+  .ct-toolbar__actions {
+    display: none;
+  }
+
+  .ct-toolbar__more {
+    display: inline-flex;
+  }
+}
+
+// Measurement helper (THEME-022): momentarily disables flex shrinking so the
+// bar's scrollWidth reports the full natural width of brand + nav + actions
+// (the flex items normally SHRINK — the brand truncates — before anything
+// overflows). Added and removed within one synchronous layout read, never
+// painted.
+.ct-toolbar--measuring {
+  .ct-toolbar__brand,
+  .ct-toolbar__nav,
+  .ct-toolbar__actions {
+    flex-shrink: 0;
+  }
+
+  .ct-toolbar__title {
+    overflow: visible; // the full title is part of "displayed in full"
+  }
+}
+
 // Icon-only action control — controls take the accent (color-system.md §2).
 // Applies to both the built-in <button> controls and the configurable
 // <a> action-icon slots (THEME-005), so the group reads as one cluster.
@@ -191,11 +223,46 @@ html[data-ct-nerdfont] .ct-toolbar__glyph::before {
   }
 }
 
-// Mobile: the tool bar condenses — the tabs retire until the explorer drawer
-// takes over navigation (design-language.md §8, THEME-002)
+// Overflow expander `[⋮]` (THEME-022) — hidden while the full bar fits; the
+// measured `--collapsed` state or the ≤640px CSS floor below reveals it. It
+// pushes itself to the right edge, since the actions cluster (which normally
+// owns the auto margin) is hidden alongside the nav when collapsed. Must
+// follow the `.ct-toolbar__action` rule: the expander carries both classes
+// and this `display: none` wins their source-order tie.
+.ct-toolbar__more {
+  display: none;
+  margin-left: auto;
+}
+
+// Mobile: the CSS floor of the THEME-022 collapse — ≤640px the bar is always
+// collapsed (nav + actions in the right-side drawer behind `[⋮]`), styled
+// here so SSR/no-JS mobile renders correctly before the measured state
+// hydrates. Every remaining control grows to the minimum tap box, so the bar
+// itself gets taller (MOBILE-001; the wireframe bars are structural, not
+// pixel-binding).
 @media (max-width: 640px) {
-  .ct-toolbar__nav {
+  .ct-toolbar__nav,
+  .ct-toolbar__actions {
     display: none;
+  }
+
+  .ct-toolbar__more {
+    display: inline-flex;
+  }
+
+  .ct-toolbar {
+    gap: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+
+  // The brand links home — it must be tappable too
+  .ct-toolbar__brand {
+    min-height: var(--ct-tap);
+  }
+
+  .ct-toolbar__action {
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
   }
 }
 

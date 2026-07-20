@@ -147,3 +147,23 @@
     display: block;
   }
 }
+
+// Mobile: the field, result rows, and the attribution link grow to the
+// minimum tap box (design-language.md §8, MOBILE-001)
+@media (max-width: 640px) {
+  .ct-search__field {
+    min-height: var(--ct-tap);
+  }
+
+  .ct-search__result {
+    justify-content: center;
+    min-height: var(--ct-tap);
+  }
+
+  .ct-search__algolia {
+    align-items: center;
+    justify-content: center;
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
+  }
+}

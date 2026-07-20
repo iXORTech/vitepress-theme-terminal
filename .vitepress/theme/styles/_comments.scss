@@ -63,6 +63,39 @@
   }
 }
 
+// Mobile: best-effort touch-target overrides for the Waline form's own
+// controls (vendor internals — the documented §8 exemption; we grow what the
+// vendor markup lets us reach): buttons, the one-line header inputs, and the
+// icon actions reach the minimum tap box.
+@media (max-width: 640px) {
+  .ct-content .ct-comments__waline {
+    .wl-btn {
+      min-height: var(--ct-tap);
+    }
+
+    .wl-header .wl-input {
+      min-height: var(--ct-tap);
+    }
+
+    .wl-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--ct-tap);
+      min-height: var(--ct-tap);
+    }
+
+    // Fine-print footer links (subscribe RSS + Waline credit)
+    .wl-meta-foot a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: var(--ct-tap);
+      min-height: var(--ct-tap);
+    }
+  }
+}
+
 // Comments and counts are interactive/live — paper mode prints the article,
 // not the discussion. The license card (COMP-003) still prints.
 @media print {

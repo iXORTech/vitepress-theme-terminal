@@ -1,0 +1,146 @@
+// ============================================================================
+// _navdrawer.scss — right-side tool-bar overflow drawer (THEME-022)
+// ============================================================================
+// The off-canvas panel holding a collapsed tool bar's nav + actions,
+// mirroring the explorer drawer (_explorer.scss) on the opposite side.
+// Unlike the explorer's, this drawer is NOT media-gated: the bar collapses on
+// measured overflow, so the drawer can appear at any window width (a site
+// with many tabs collapses on a mid-size window too). Rows keep the §8
+// touch-target minimum (--ct-tap) at every width — the drawer is a touch-first
+// surface by nature. TUI chrome, so mono.
+
+// Backdrop — rendered only while the drawer is open; tap dismisses. Above the
+// shell panels, below the drawer (same layers as the explorer drawer).
+.ct-navdrawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgb(0 0 0 / 50%);
+}
+
+.ct-navdrawer {
+  position: fixed;
+  top: var(--ct-gap);
+  bottom: var(--ct-gap);
+  right: var(--ct-gap);
+  z-index: 30;
+  width: min(18rem, 85vw);
+  overflow-y: auto;
+  overscroll-behavior: contain; // don't chain scrolling to the page
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: -4px 0 16px rgb(0 0 0 / 24%);
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  // Fully off-canvas to the right, including gap and shadow spill
+  transform: translateX(calc(100% + var(--ct-gap) + 16px));
+  transition: transform 0.2s ease;
+
+  &--open {
+    transform: translateX(0);
+  }
+}
+
+// Drawer header — title row with the explicit close control (matches the
+// explorer drawer's header chrome)
+.ct-navdrawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--ct-border);
+}
+
+.ct-navdrawer__title {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ct-text-neutral);
+}
+
+// Close button — accent icon control like the tool-bar actions, tap-box sized
+.ct-navdrawer__close {
+  min-width: var(--ct-tap);
+  min-height: var(--ct-tap);
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font-size: 0.875rem;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+}
+
+// Sections stack their rows; the actions cluster is divided from the nav by a
+// thin rule (the drawer's counterpart of the bar's left/right split)
+.ct-navdrawer__nav,
+.ct-navdrawer__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.ct-navdrawer__actions {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ct-border);
+}
+
+// One row — a nav link or an action link/button, in the tabline's accent
+// language with the §8 tap box
+.ct-navdrawer__link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--ct-tap);
+  padding: 0.2rem 0.75rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  text-align: start;
+  color: var(--ct-text-neutral);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+
+  &--active {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link);
+  }
+
+  // Submenu children (THEME-020 `items`) indent under their parent tab
+  &--child {
+    padding-inline-start: 2rem;
+  }
+}
+
+// Fixed icon column so rows with and without icons still read as one list
+.ct-navdrawer__icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  text-align: center;
+}
+
+// On-screen chrome only — never printed
+@media print {
+  .ct-navdrawer,
+  .ct-navdrawer-backdrop {
+    display: none;
+  }
+}

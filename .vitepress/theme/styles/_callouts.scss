@@ -87,3 +87,14 @@ details.ct-callout {
     transform: rotate(90deg);
   }
 }
+
+// Mobile: the collapsible summary line is a control — it grows to the minimum
+// tap box, glyph and text vertically centered (design-language.md §8,
+// MOBILE-001). Flex also keeps the native marker suppressed.
+@media (max-width: 640px) {
+  details.ct-callout > summary.ct-callout__title {
+    display: flex;
+    align-items: center;
+    min-height: var(--ct-tap);
+  }
+}

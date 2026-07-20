@@ -104,4 +104,7 @@ html {
   --ct-radius: 6px;       // panels & floating windows — subtle, text-composed feel
   --ct-radius-small: 4px; // inline elements (inline code, small controls)
   --ct-gap: 12px;         // gap between floating panels
+  // Minimum touch-target box (both dimensions) every interactive theme control
+  // presents at the mobile breakpoint (design-language.md §8, MOBILE-001)
+  --ct-tap: 2.75rem;      // 44px
 }

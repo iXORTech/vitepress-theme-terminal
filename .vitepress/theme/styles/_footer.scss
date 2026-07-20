@@ -172,7 +172,13 @@
 
 // Mobile: the grid collapses to one stacked column in the sketch-caption
 // order — copyright line, powered-by line, social icons, RSS/license icons —
-// and the icon clusters align left with the text.
+// and the icon clusters align left with the text. Touch targets (§8,
+// MOBILE-001; spacing refined the same day): links inside the SENTENCE rows
+// keep the normal text rhythm — their ≥44px box comes from the §8
+// padding/negative-margin pattern, so a wrapped powered-by line doesn't open
+// huge line gaps — while the icon-cluster anchors are real tap boxes with
+// their glyphs flush LEFT (not centered), so the first icon aligns with the
+// text column above it.
 @media (max-width: 640px) {
   .ct-footer {
     grid-template-areas:
@@ -182,8 +188,31 @@
       "meta";
     grid-template-columns: 1fr;
 
+    // Sentence links: rect ≥44px, line boxes unchanged (1.6 line-height —
+    // the negative margin gives back exactly what the padding added)
+    &__copyright a,
+    &__powered a,
+    &__license-text a {
+      display: inline-flex;
+      align-items: center;
+      padding-block: calc((var(--ct-tap) - 1.6em) / 2);
+      margin-block: calc((1.6em - var(--ct-tap)) / 2);
+    }
+
+    // Icon clusters: left-aligned real tap boxes
     &__icons {
       justify-content: flex-start;
+      gap: 0.25rem;
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--ct-tap);
+      }
+    }
+
+    &__icon {
+      min-width: var(--ct-tap);
     }
   }
 }

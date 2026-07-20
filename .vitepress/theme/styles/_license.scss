@@ -115,9 +115,15 @@
 }
 
 // Narrow cards crop the watermark harder so it stays a right-edge accent
-// rather than sitting behind the (now full-width) content.
+// rather than sitting behind the (now full-width) content; the CC icon-cluster
+// link grows to the minimum tap box (design-language.md §8, MOBILE-001).
 @media (max-width: 640px) {
   .ct-content .ct-license__watermark {
     transform: translateX(38%) rotate(-10deg);
+  }
+
+  .ct-content .ct-license__icons {
+    align-items: center;
+    min-height: var(--ct-tap);
   }
 }

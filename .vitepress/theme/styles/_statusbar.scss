@@ -26,7 +26,13 @@
 // first draws a thin divider — the statusline separator (THEME-010). The
 // divider is a ::before pseudo-element (not a border) so it can't collide
 // with the buttons' own border reset, and hover backgrounds stay on the
-// segment itself.
+// segment itself. Its size is FIXED and centered on the row (not a
+// percentage of the segment's box): segments have very different box
+// heights on mobile — 44px tap-box controls beside plain text spans
+// (MOBILE-001) — and a proportional divider rendered tall marks beside
+// buttons and short ones beside text. All segments are vertically centered
+// in the row, so centering on any child lands every divider at the same
+// height and position.
 .ct-statusbar__group {
   display: flex;
   align-items: center;
@@ -41,8 +47,9 @@
       content: "";
       position: absolute;
       left: -0.75rem;
-      top: 15%;
-      height: 70%;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 0.85rem; // matches the pre-MOBILE-001 desktop divider size
       border-left: 1px solid var(--ct-border);
     }
   }
@@ -131,8 +138,13 @@
 }
 
 // Text-button controls: the language & color-mode switchers take the accent
-// (controls are emphasis elements, color-system.md §2)
+// (controls are emphasis elements, color-system.md §2). Statusline labels
+// never wrap or shrink-to-wrap ("zh-Hans" would fold at its hyphen under
+// width pressure) — if a locale's labels genuinely can't fit, that must
+// surface as measurable overflow, not garbled cells.
 .ct-statusbar__control {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.1rem 0.4rem;
   border: none;
   border-radius: var(--ct-radius-small);
@@ -156,12 +168,103 @@
   }
 }
 
+// Plain text segments (progress label, mode indicator) — same no-wrap /
+// no-shrink guarantee as the controls
+.ct-statusbar__segment {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 // Mobile: reduced segments — drop the location (with its trailing cursor) and
 // the clock; the state chip, progress cluster, switchers, and settings gear
-// stay reachable (design-language.md §8; full pass in MOBILE-001)
+// stay reachable (design-language.md §8). The remaining controls grow to the
+// minimum tap box — the bar gets taller (MOBILE-001).
+//
+// Spacing uses a CELL model so the separators read consistently: segments
+// TOUCH (no gaps/margins) with each divider drawn on the shared seam, and
+// every divider-facing side carries the same 0.95rem inset — so the visible
+// distance between a separator and the label on either side is identical at
+// every separator. The same padding is what grows the control rects to the
+// ≥44px tap width (centered 44px boxes would instead inset small glyphs
+// further than bare text, which is exactly the unevenness this replaces).
 @media (max-width: 640px) {
   .ct-statusbar__path,
   .ct-statusbar__clock {
+    display: none;
+  }
+
+  .ct-statusbar {
+    gap: 0.5rem;
+    padding: 0.125rem 0.625rem; // slightly tighter edges — headroom for wide
+  }                             // labels (zh-Hans language tag) in the cells
+
+  .ct-statusbar__group {
+    gap: 0;
+
+    > * + * {
+      margin-left: 0;
+
+      &::before {
+        left: 0; // on the seam between the touching cells
+      }
+    }
+  }
+
+  // The shared divider-facing inset. Sized so the widest shipped locale
+  // (zh-Hans: CJK labels + the 7-character `zh-Hans` tag) still fits the
+  // 360px row with headroom — if a cell had to shrink, its label would crowd
+  // one divider and the rhythm would break again.
+  .ct-statusbar {
+    --ct-status-inset: 0.75rem;
+  }
+
+  // Controls: the shared inset plus the §8 tap minimum. A label narrower than
+  // the 44px box (a lone glyph, a short language tag like `en`) centers in the
+  // stretched box, so its ink sits up to ~4px further from the divider than a
+  // full-width cell's — the one tolerance in the cell model, and far below the
+  // 8–16px spread it replaces. Widening the shared inset instead would push
+  // the widest locale (zh-Hans) past the 360px row.
+  .ct-statusbar__control {
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
+    padding-inline: var(--ct-status-inset);
+  }
+
+  .ct-statusbar__segment {
+    padding-inline: var(--ct-status-inset); // text segments, same inset
+  }
+
+  // Inside the tight progress cluster (THEME-010) the pair keeps its compact
+  // look: the back-to-top control takes its tap width from a centered
+  // min-width box instead of wide padding, and the progress label is only
+  // inset toward the divider it faces (its right), staying snug to the arrow.
+  // The cluster never shrinks — as the row's only flexible cell it would
+  // otherwise absorb every tight-fit pixel alone, pulling its label toward
+  // the divider while the others kept their inset (the zh-Hans case).
+  .ct-statusbar__cluster {
+    flex-shrink: 0;
+    gap: 0;
+
+    .ct-statusbar__control {
+      min-width: var(--ct-tap);
+      padding-inline: 0.35rem;
+    }
+
+    .ct-statusbar__segment {
+      padding-inline: 0.25rem var(--ct-status-inset);
+    }
+  }
+}
+
+// Below the 360px reference (design-language.md §8) the cells no longer fit
+// in every language — the widest shipped locale needs ~330px. Rather than
+// compressing one cell (which is what broke the rhythm) or overflowing the
+// row, the status bar drops one more segment: the color-mode INDICATOR,
+// which is read-only, redundant (the mode is evident from the colors and the
+// switcher lives in the tool bar), and therefore the cheapest to lose. Every
+// interactive control stays reachable.
+@media (max-width: 359px) {
+  .ct-statusbar__segment--mode {
     display: none;
   }
 }

@@ -21,6 +21,8 @@ export const zhHans: ThemeLocaleStrings = {
   'lang.switch': '切换语言',
 
   // Tool bar navigation
+  'nav.menu': '菜单',
+  'nav.menuClose': '关闭菜单',
   'nav.label': '站点导航',
   'nav.home': '主页',
 

@@ -721,6 +721,83 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     hover/close, TUI look, child navigation + parent/child active accents,
     focus-within, zh-Hans re-localization, mobile) + dark/light screenshots.*
 
+- [x] **THEME-021** — Concise explorer drawer rows (density rework of the MOBILE-001 explorer growth)
+  - **Category:** Theme · **Deps:** THEME-011, MOBILE-001
+  - **Acceptance criteria:** the mobile explorer drawer returns to the desktop
+    tree's tight column layout — chevron, leaf-marker, and icon columns at
+    their compact desktop widths (1.25rem), same indentation, no 44px-wide
+    marker columns — while every interactive row element keeps a ≥44px tap
+    box: rows stay ≥44px tall, and the chevron's box reaches 44×44 via the
+    documented §8 padding + negative-margin pattern (its grown box may overlay
+    the adjacent non-interactive icon column and the label's leading edge
+    only); the desktop tree is unchanged; the MOBILE-001 overflow + touch
+    target audits stay green; recorded in the explorer spec
+    (design-language.md §4); verified on the rendered site.
+    *Landed 2026-07-19: the `_explorer.scss` mobile block's chevron is
+    tap-box wide (`width: var(--ct-tap)`) with `margin-inline-end:
+    calc(1.25rem - var(--ct-tap))`, laying the icon/label out as if the
+    column were its visual 1.25rem; `position: relative; z-index: 1` floats
+    the button's grown box over the decorative icon column, and
+    `text-align: start` + `padding-inline-start: 0.35rem` keeps the glyph in
+    the desktop column position. The MOBILE-001 44px-wide leaf-mark override
+    was removed (back to the base 1.25rem). Verified headless at 360px:
+    chevron rect 44×44, icon at +22px, labels at +44px (previously +68px),
+    leaf and folder labels aligned, rows 44.2px, a real mouse click on the
+    visual chevron strip toggles the folder, and a folder-label click still
+    navigates (the overlay steals only the leading pixels); full-site
+    overflow + touch-target audits re-run green (33/33 pages).*
+
+- [x] **THEME-022** — Tool-bar overflow drawer: right-side nav/actions drawer
+  - **Category:** Theme · **Deps:** THEME-001, THEME-005, THEME-020, MOBILE-001
+  - **Acceptance criteria:** when the tool bar cannot display the title, nav
+    tabs, and action icons in full, the nav (including submenu children,
+    rendered as indented rows) and ALL action icons (configured slots plus the
+    built-in search and color-mode controls) move into a dedicated right-side
+    off-canvas drawer opened by a localized expander control at the bar's
+    right edge — the bar then shows only the explorer toggle, the brand, and
+    the expander; the collapse is driven by measured overflow (works at any
+    width, e.g. many tabs on a mid-size window), with ≤640px always collapsed
+    as the CSS/no-JS floor so SSR shows no mobile flash; the drawer mirrors
+    the explorer drawer's TUI presentation on the right side (fixed panel over
+    a dimmed backdrop, explicit close control, Esc / backdrop / navigation
+    dismissal, ≥44px rows); opening either side's drawer closes the other;
+    active page rows carry the accent; the mode row applies immediately
+    without closing the drawer, the search row opens the find palette; widths
+    re-checked on resize, language switch, and font readiness; strings
+    localized; styles in dedicated SCSS; documented in design-language.md
+    §4/§8 and ui-sketch.md; verified headless at 360px and at a mid-width
+    forced-overflow case, plus a desktop no-regression check.
+    *Landed 2026-07-19: new `composables/useNavDrawer.ts` singleton
+    (`collapsed` + `drawerOpen`; `openDrawer()` closes the explorer drawer —
+    one side at a time, the reverse handled by the tool bar's explorer
+    toggle). `ToolBar.vue` owns the measurement: the bar's flex items SHRINK
+    (brand truncates) before anything overflows, so a momentary
+    `--measuring` class (flex-shrink 0 + visible title overflow, added and
+    removed within one synchronous layout read — never painted) yields the
+    natural width; the bar collapses when it exceeds the client width,
+    remembers `requiredWidth`, and re-expands optimistically (render, then
+    rAF re-confirm) once the width could fit again. Re-evaluated via
+    ResizeObserver, a `language` watch (label widths change), and
+    `document.fonts.ready`; ≤640px is forced-collapsed via matchMedia + CSS
+    floor (`_toolbar.scss` hides nav+actions and shows `.ct-toolbar__more`
+    pre-hydration — the expander is always in the SSR markup). The base
+    `.ct-toolbar__more{display:none}` must FOLLOW the `.ct-toolbar__action`
+    rule (the expander carries both classes; source-order tie). New
+    `NavDrawer.vue` (rendered from Layout) — MENU header + close, `~/home` +
+    nav rows with THEME-020 children as indented rows (children carry their
+    own accent; the parent highlights on its own link only), divided actions
+    section (configured slots + built-in Search and Switch-color-mode rows);
+    navigation/Esc/backdrop dismiss, mode row cycles and keeps the drawer
+    open, search row closes it and opens the palette, and the drawer
+    auto-closes if the bar re-expands (its trigger disappears). New
+    `nav.menu`/`nav.menuClose` strings (en + zh-Hans); styles in new
+    `styles/_navdrawer.scss` (mirrors `_explorer.scss` on the right,
+    width-independent, `--ct-tap` rows, print-hidden). Verified headless
+    31/31 — 360px bar composition/tap boxes, drawer behaviors incl. zh-Hans,
+    720px measured collapse over the docked explorer, 1280px expanded
+    tabline + hover submenus intact, resize collapse/re-expand cycle, and
+    the full-site MOBILE-001 audits re-run green (33/33).*
+
 ### Components
 
 - [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration
@@ -1299,8 +1376,88 @@ parallel; tick `[x]` only when every acceptance criterion is met.
 
 ### Responsive
 
-- [ ] **MOBILE-001** — Mobile adaptation pass
+- [x] **MOBILE-001** — Mobile adaptation pass
   - **Category:** Responsive · **Deps:** all THEME-*, COMP-*, PAGE-*, POST-* tasks
   - **Acceptance criteria:** no horizontal overflow at 360 px; drawer/condensed/reduced
     behaviors per `docs/design/design-language.md` §8 verified on real viewport sizes;
     touch targets ≥ 44 px.
+    *Landed 2026-07-19: full-site audit + fix pass at 360×740 (headless Chromium
+    over all 33 built pages, window + viewport-panel overflow scans and a
+    bounding-box audit of every visible interactive element). Overflow fixes:
+    `.ct-cardgrid` tracks became `minmax(0, 1fr)` with `min-width: 0` on the
+    gridded cards, so a card's nowrap shell-prompt line can no longer prop the
+    tracks past their fraction (About/Projects overflowed the 334px panel at
+    401/409px; desktop fractions are now exact too — full/two-thirds/third/half
+    measure 100/66/32/49%); raw inline-HTML `<pre>` in `.ct-content` now scrolls
+    (`overflow-x: auto`; api-examples spilled the panel to 1706px). Touch
+    targets: new `--ct-tap: 2.75rem` token + a documented §8 rule
+    (design-language.md) — at the ≤640px breakpoint every interactive theme
+    control presents a ≥44px box in both dimensions via REAL box growth: the
+    tool/status bars grow (54/50px) to fit their controls (brand, actions,
+    statusline controls), the explorer drawer's close/chevrons/labels (with the
+    leaf-mark column matched to the grown chevron column for tree alignment),
+    the floating window's `[x]` (padding + `background-clip: content-box`
+    preserves the text-on-border mask), settings options + language rows, search
+    field/result rows/Algolia link, code-card `[copy]`, collapsible callout
+    summaries, all footer links + icon slots, taxonomy chips, archive/term/
+    pagination/back links, home CTAs, friends `[⇄ random]`, the license CC icon
+    cluster, and the 404 home link; dense in-card lines (post-card title,
+    series-banner name) grow their box via padding compensated by negative
+    margin. Documented exemptions: prose-inline links (WCAG 2.5.5 inline
+    exception) and third-party internals — Waline still gets best-effort
+    `.wl-btn`/`.wl-header .wl-input`/`.wl-action`/`.wl-meta-foot a` overrides in
+    _comments.scss. §8 behaviors re-verified on the rendered site at 360px:
+    explorer off-canvas drawer (fixed + backdrop + Esc), condensed tool bar
+    (tabs hidden), reduced status bar (path/clock hidden, gear reachable),
+    floating-window sheets at 93%×97% with the last pane growing; the COMP-002
+    swiper arrows were already 44×44. Desktop 1280px regression-checked (compact
+    44/34px bars, dense 23.4px explorer rows, exact grid fractions, no overflow)
+    plus dark/light mobile + desktop screenshots.
+    2026-07-19 follow-up (user feedback): the footer's blanket mobile
+    `min-height: 44px` on every anchor inflated wrapped SENTENCE lines (the
+    two-line powered-by row opened ~44px line gaps) and the centered glyphs
+    in 44px icon boxes left the first social icon visually indented. Reworked
+    in `_footer.scss`: copyright/powered-by/license-text links now use the
+    documented §8 padding + negative-margin pattern (rect stays 44px, line
+    boxes back to the 1.6 rhythm — the wrapped powered-by block measures
+    exactly 2×20.8px again), while the icon-cluster anchors keep real 44px
+    boxes with glyphs flush LEFT (justify-content center dropped), so the
+    first icon aligns with the text column (glyph x == text x, verified).
+    §8 doc examples updated; verified headless 8/8 (rhythm, rects, glyph
+    alignment, RSS/license rows, desktop two-row grid untouched) + full-site
+    audit re-run 33/33 green.
+    Second 2026-07-19 follow-up (user feedback): the statusline separators
+    rendered at inconsistent sizes on mobile — the THEME-010 divider was
+    proportional to its segment's box (`top: 15%; height: 70%`), so after
+    the tap-box growth the dividers beside 44px controls drew 30.8px tall
+    while the one beside the 17px mode-indicator span drew 11.9px, at
+    different vertical offsets. The divider is now a FIXED mark centered on
+    the row (`top: 50%; translateY(-50%); height: 0.85rem` — the same
+    ~13.6px the pre-MOBILE-001 desktop rendered): every segment is
+    vertically centered in the flex row, so centering on any child lands
+    all dividers at identical size and position regardless of box heights.
+    Verified headless: mobile 3/3 and desktop 5/5 dividers all 13.59px on
+    one shared row-center; desktop appearance unchanged.
+    Third 2026-07-19 follow-up (user feedback — spacing still uneven): with
+    the divider MARKS uniform, the space around them still was not — 44px
+    tap boxes centered their glyphs while text segments hugged their edges,
+    so ink-to-divider distances ran 8–16px (and 7.6–25px in zh-Hans). The
+    mobile statusline is now laid out as **cells** (rule recorded in
+    design-language.md §4, statusline separator rhythm): segments touch
+    (group `gap: 0`, no margins) with each divider drawn on the shared seam
+    (`left: 0`), and every divider-facing side carries one shared
+    `--ct-status-inset` (0.75rem) — sized so the widest shipped locale
+    (zh-Hans: CJK labels + the 7-char `zh-Hans` tag) still fits the 360px
+    row. `.ct-statusbar__cluster` gained `flex-shrink: 0` (as the row's only
+    flexible cell it had been absorbing every tight-fit pixel alone — the
+    zh-Hans 7.6px gap), and controls/segments got `flex-shrink: 0` +
+    `white-space: nowrap` so labels can never fold (`zh-Hans` would break at
+    its hyphen). Controls keep `min-width/height: var(--ct-tap)`; a label
+    narrower than that box centers in it, the one accepted ~4px tolerance.
+    Below the 360px reference the read-only color-mode indicator (new
+    `--mode` modifier) is dropped — redundant and non-interactive — instead
+    of compressing or overflowing the row (§8 updated). Verified headless at
+    360px and 320px × en/zh-Hans: every gap 12px (max spread 4.0px, was
+    8.4–42.9), no shrunk cells, no bar/document overflow, all controls
+    44×44; desktop unchanged (34.2px bar, five 13.59px dividers, indicator
+    visible); full-site audit re-run 33/33 green.*

@@ -152,6 +152,15 @@
     width: auto;
     max-height: none;
   }
+
+  // Touch target (design-language.md §8): the `[x]` grows to the minimum tap
+  // box while keeping the text-on-border look — the padding enlarges the box,
+  // and clipping the surface backing to the content box keeps the masking
+  // strip hugging the text exactly as on desktop.
+  .ct-window__close {
+    padding: calc((var(--ct-tap) - 1.2em) / 2) 0.75rem;
+    background-clip: content-box;
+  }
 }
 
 // On-screen chrome only — never printed (paper mode on screen keeps it usable)

@@ -129,3 +129,18 @@
   flex-shrink: 0;
   color: var(--ct-text-dim);
 }
+
+// Mobile: every settings control grows to the minimum tap box
+// (design-language.md §8, MOBILE-001)
+@media (max-width: 640px) {
+  .ct-settings__option {
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
+    padding-inline: 0.75rem;
+  }
+
+  .ct-settings__lang {
+    min-height: var(--ct-tap);
+    align-items: center; // center the taller row (baseline would top-hang)
+  }
+}

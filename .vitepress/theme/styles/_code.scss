@@ -92,6 +92,19 @@
   }
 }
 
+// Mobile: the `[copy]` control grows to the minimum tap box — the title bar
+// gets taller with it (design-language.md §8, MOBILE-001)
+@media (max-width: 640px) {
+  .ct-code__titlebar {
+    padding-block: 0.25rem;
+  }
+
+  .ct-code__copy {
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
+  }
+}
+
 // ----------------------------------------------------------------------------
 // Inner block — VitePress wraps fences in div[class*='language-']. Inside the
 // card its own frame is dropped; the card carries border/radius now.

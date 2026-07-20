@@ -63,7 +63,11 @@ panel:
                            │  getting started    │
                            │  advanced           │
                            ╰─────────────────────╯
-``` Explorer: tree navigation of the
+```
+
+When the bar cannot show the title, nav, and icons in full — measured, at any
+window width — the nav and every action icon collapse into the right-side nav
+drawer behind a `[⋮]` expander (THEME-022; sketch in §3). Explorer: tree navigation of the
 site content, collapsible. Status bar: the live state chip
 (`READ`/`HOME`/`404`), current location trailed by a blinking underscore cursor (`_`),
 reading progress, the language switcher, the color-mode indicator, the settings
@@ -110,28 +114,31 @@ DocSearch modal; unconfigured sites see a "not configured" notice
 ## 3. Mobile layout (≈360 px)
 
 Components adapt, they don't just shrink (design-language.md §8): the explorer moves
-behind `[=]` as an off-canvas drawer, the tool bar condenses, the status bar keeps a
-reduced set of segments.
+behind `[=]` as an off-canvas drawer on the **left**, the tool bar's nav + action
+icons move behind `[⋮]` as an off-canvas drawer on the **right** (THEME-022 — the
+same collapse triggers at *any* width where the bar can't show the title, nav,
+and icons in full), and the status bar keeps a reduced set of segments.
 
 ```
-╭─ tool bar ──────────────╮      ╭─ explorer (drawer) ─────╮
-│ [=]  site-name       [/]│      │ v posts/            [x] │
-╰─────────────────────────╯      │   v 2026/               │
-╭─ viewport ──────────────╮      │     - hello-world       │
-│                         │      │     - second-post       │
-│  # Post title           │      │   > drafts/             │
-│                         │      │ - about                 │
-│  Body text wraps to a   │      ╰─────────────────────────╯
-│  single column.         │       (drawer slides over the
-│                         │        dimmed content when [=]
-╰─────────────────────────╯        is tapped)
-╭─ status bar ────────────╮
-│ READ · 42% · [*] · dark │
-╰─────────────────────────╯
+╭─ tool bar ──────────────╮   ╭─ explorer (drawer) ──╮  ╭─ nav drawer ──────╮
+│ [=]  site-name      [⋮] │   │ EXPLORER         [x] │  │ MENU          [x] │
+╰─────────────────────────╯   │ v posts/             │  │ ~/home            │
+╭─ viewport ──────────────╮   │   v 2026/            │  │ guide             │
+│                         │   │     - hello-world    │  │   getting started │
+│  # Post title           │   │     - second-post    │  │ posts             │
+│                         │   │   > drafts/          │  │ ─────────────     │
+│  Body text wraps to a   │   │ - about              │  │ [gh] GitHub       │
+│  single column.         │   ╰──────────────────────╯  │ [/]  search       │
+│                         │   (left drawer over the     │ [o]  color mode   │
+╰─────────────────────────╯    dimmed content when      ╰───────────────────╯
+╭─ status bar ────────────╮    [=] is tapped; right
+│ READ · 42% · [*] · dark │    drawer likewise from
+╰─────────────────────────╯    [⋮] — one at a time)
 ```
 
 (mobile drops the location, its trailing cursor, and the clock; the settings
-gear `[*]` stays reachable.)
+gear `[*]` stays reachable. Drawer tree rows keep the desktop tree's tight
+columns — THEME-021 — only their height grows to the touch-target minimum.)
 
 ## 4. Paper / reader / print mode
 
@@ -243,8 +250,9 @@ given), language name, and a COPY button — not a shell-prompt decoration (STYL
 | Sketch region | Specification | Build task |
 | --- | --- | --- |
 | Tool bar / tabline | design-language.md §4–§5 | THEME-001, THEME-005 |
+| Tool-bar overflow → right nav drawer (`[⋮]`) | design-language.md §4 (tool bar), §8 | THEME-022 |
 | Status bar | design-language.md §4–§5 | THEME-001 |
-| File explorer / mobile drawer | design-language.md §4, §8 | THEME-002 |
+| File explorer / mobile drawer | design-language.md §4, §8 | THEME-002, THEME-021 |
 | Floating find window | design-language.md §4, §7 | THEME-003 |
 | Find palette (search input + results) | design-language.md §4 (floating windows) | SEARCH-001, SEARCH-002 |
 | Footer (in-viewport) + custom section | design-language.md §4 (footer) | THEME-004, THEME-006 |

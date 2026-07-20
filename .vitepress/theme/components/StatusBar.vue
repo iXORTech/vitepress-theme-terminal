@@ -104,8 +104,12 @@ const scrollToTop = (): void => {
         {{ language }}
       </button>
 
-      <!-- Read-only mode indicator — the switcher lives in the tool bar -->
-      <span class="ct-statusbar__segment">{{ t(`mode.${mode}`).toLowerCase() }}</span>
+      <!-- Read-only mode indicator — the switcher lives in the tool bar.
+           Its own modifier: it is the first segment dropped on viewports
+           narrower than the 360px reference (design-language.md §8). -->
+      <span class="ct-statusbar__segment ct-statusbar__segment--mode">
+        {{ t(`mode.${mode}`).toLowerCase() }}
+      </span>
 
       <!-- Settings gear (THEME-019): moved here from the tool bar; opens the
            settings utility in the shared floating window (THEME-007) -->

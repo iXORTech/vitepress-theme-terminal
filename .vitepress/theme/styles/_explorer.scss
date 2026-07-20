@@ -274,6 +274,36 @@ html[data-ct-nerdfont] .ct-explorer__icon {
       transform: translateX(0);
     }
   }
+
+  // Touch targets (design-language.md §8, MOBILE-001; density reworked by
+  // THEME-021): the drawer is the primary mobile navigation surface — every
+  // interactive row element keeps a ≥44px tap box, but the columns stay at
+  // the desktop tree's tight 1.25rem widths so the drawer reads as concise
+  // as the docked tree. Rows grow in HEIGHT only.
+  .ct-explorer__close {
+    min-width: var(--ct-tap);
+    min-height: var(--ct-tap);
+  }
+
+  // The chevron's 44×44 box comes from the §8 padding/negative-margin
+  // pattern: the button is tap-box wide, and the negative end margin lays the
+  // following columns out as if it were its visual 1.25rem — the grown box
+  // floats (z-index) over the non-interactive icon column and the label's
+  // first pixels, where a tap this close to the chevron reads as an expand
+  // gesture anyway. Glyph position matches the desktop column.
+  .ct-explorer__chevron {
+    position: relative;
+    z-index: 1;
+    width: var(--ct-tap);
+    min-height: var(--ct-tap);
+    margin-inline-end: calc(1.25rem - var(--ct-tap));
+    padding-inline-start: 0.35rem;
+    text-align: start;
+  }
+
+  .ct-explorer__label {
+    padding-block: 0.85rem; // single 0.8125rem mono line → ≥44px row box
+  }
 }
 
 // On-screen chrome only — never printed (paper mode already skips rendering)

@@ -37,6 +37,21 @@ UI text, default content, or shipped assets.
 Flavor details are welcome where they reinforce the metaphor without hurting usability —
 e.g. a mode indicator in the status bar, subtle line numbers on code blocks.
 
+**Statusline separator rhythm (THEME-010, refined 2026-07-19).** The separators
+must read as one even rhythm whatever a segment contains — an icon button, a
+text label, a CJK label — so the statusline is laid out as **cells**: segments
+touch (no gaps or margins), each divider is drawn on the shared seam as a
+**fixed** centered mark (never a percentage of the segment box, whose heights
+differ once controls carry touch targets), and every divider-facing side
+carries the **same inset**, so the distance from a separator to the label on
+either side of it is identical everywhere. Two consequences follow: no cell
+may be the row's only flexible one (it would absorb every tight-fit pixel
+alone and pull its label toward the divider), and the inset is sized so the
+**widest supported locale** still fits the reference width — a label narrower
+than the 44 px touch minimum (a lone glyph, a short language tag) centers in
+its stretched box and may sit ~4 px further from its divider, the model's one
+accepted tolerance.
+
 **Tool bar (THEME-001/005/010/020)** — the editor-style top bar: on the left the
 explorer toggle (`[=]`, THEME-002) and the brand (site glyph + localized title,
 links home), the navigation tabs beside it, and the global action icons pushed to
@@ -74,8 +89,25 @@ configurable from `themeConfig.toolbar` **without editing components** (THEME-00
   localizable accessible name that falls back to the URL.
 
 Both lists are plain data and default to empty; the tool bar renders identically
-to before when they are unset. On mobile the tabline collapses (the explorer
-drawer takes over navigation, §8) while the action icons remain.
+to before when they are unset.
+
+- **Overflow drawer (THEME-022, 2026-07-19)** — the tool bar never truncates or
+  wraps: the moment the title, nav tabs, and action icons **cannot be displayed
+  in full**, the nav (submenu children become indented rows) and *all* action
+  icons — configured slots **and** the built-in search + color-mode controls —
+  move into a dedicated **right-side off-canvas drawer**, and the bar condenses
+  to the explorer toggle · brand · a localized expander control (`[⋮]`) at the
+  right edge. The collapse is driven by **measured overflow** (a site with many
+  tabs collapses on a mid-size window too, and re-expands when room returns —
+  re-checked on resize, language switch, and font readiness), with ≤640px
+  always collapsed as the CSS floor so SSR/no-JS mobile renders correctly. The
+  drawer mirrors the explorer drawer on the opposite side: a fixed TUI panel
+  over a dimmed backdrop, explicit close control, dismissed by `Esc`, the
+  backdrop, or navigating; rows are ≥44px (§8) with active-page rows accented;
+  the color-mode row applies immediately and keeps the drawer open, the search
+  row opens the find palette. Opening either side's drawer closes the other.
+  The hover submenu remains a pointer affordance of the expanded tabline; in
+  the drawer the same children are plain indented rows.
 
 **File explorer (THEME-002/011)** — the side navigation tree, presented in the
 NeoVim file-browser idiom. Its contents are configured as a tree in
@@ -113,6 +145,16 @@ tint), and a file icon on leaves (dim tint); when the symbols font is unavailabl
 the row degrades to the sketch's plain `❯` / `-` markers with no icon column. In
 paper mode the explorer and its toggle are **not rendered at all** (this section's
 table; ui-sketch.md §4), and neither prints.
+
+*Concise drawer rows (THEME-021, 2026-07-19):* the mobile drawer keeps the
+desktop tree's **tight column layout** — chevron/marker/icon columns stay at
+their compact 1.25rem desktop widths and the indentation is identical — it does
+not widen columns to meet the §8 touch-target rule. Instead, rows grow only in
+**height** (≥44px), and the chevron's 44×44 tap box comes from the §8
+padding + negative-margin pattern: its grown box overlays the adjacent
+non-interactive icon column and the label's leading edge (an intentional,
+small ambiguity strip — a tap that close to the chevron reads as an expand
+gesture).
 
 *Auto-discovery (THEME-012 / I18N-006 / THEME-013):* `themeConfig.explorer` may be set to
 `"auto"` to derive the tree from every Markdown file below the site's `src/`
@@ -544,11 +586,38 @@ always remain fully sufficient on their own.
 
 The site must work well on mobile; components **adapt**, they don't just shrink:
 
-- file explorer → off-canvas drawer;
-- tool bar → condensed/collapsible;
-- status bar → reduced set of segments;
+- file explorer → off-canvas drawer (left side);
+- tool bar → condensed: overflowing nav + action icons collapse into the
+  right-side drawer behind an expander control (THEME-022 — measured overflow,
+  ≤640 px always collapsed);
+- status bar → reduced set of segments (location, cursor, and clock go first;
+  on viewports narrower than the 360 px reference the read-only color-mode
+  **indicator** follows — it is redundant, the switcher lives in the tool bar
+  and the mode is evident from the colors, so every interactive control stays
+  reachable rather than the row compressing or overflowing);
 - floating windows → full- or near-full-screen sheets;
 - no horizontal overflow at small widths (≈360 px); adequate touch targets.
+
+**Touch targets (MOBILE-001, 2026-07-19).** At the theme's mobile breakpoint
+(≤640 px, the same width that triggers the drawer/sheet behaviors) every
+interactive theme control presents a box of at least **44 px (`--ct-tap`,
+2.75 rem) in both dimensions** — as *real box growth* (padding/min sizes), not
+invisible hit-area extensions, so the rule stays objectively verifiable at the
+rendered surface. Where the visual rhythm must stay dense (post-card title
+links, the series-banner name, links inside the footer's copyright/powered-by
+sentences — a wrapped line must not open a 44 px line gap), the box may grow
+via padding compensated by a negative margin — the rendered box still
+measures ≥44 px. Icon clusters (the footer's social/RSS/license rows) keep
+real boxes but align their glyphs flush left, so the first icon lines up with
+the text column above it. The tool bar and
+status bar simply grow taller on mobile to fit their controls; that is the
+intended "adapt, don't shrink" reading, the wireframes are structural, not
+pixel-binding. Two documented exemptions:
+
+- **links inside running prose** (sentences, list items, footnote references)
+  follow the text's line height — the WCAG 2.5.5 "inline" exception;
+- **third-party widget internals** (the Waline form, Fancybox chrome) get
+  best-effort overrides in the theme's reconcile layer, not a guarantee.
 
 ## 9. i18n by design
 

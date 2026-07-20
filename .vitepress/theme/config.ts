@@ -374,6 +374,28 @@ export interface TerminalFriendsConfig {
   groups?: Record<string, TerminalFriendsGroupLabels>
 }
 
+/**
+ * Article table-of-contents options (THEME-024). The right-side "on this page"
+ * panel is built from the page's headings, jumps to them via the THEME-023
+ * anchors, and scroll-spies the section in view. It renders only on article
+ * pages that have at least {@link minHeadings} headings within the level range,
+ * and never in paper mode / print or on narrow viewports (design-language.md
+ * §4/§8).
+ */
+export interface TerminalTocConfig {
+  /** Master switch. Default `true` — set `false` to disable the TOC site-wide. */
+  enabled?: boolean
+
+  /** Shallowest heading level included, 1–6. Default `2` (h2). */
+  minLevel?: number
+
+  /** Deepest heading level included, 1–6. Default `3` (h3). */
+  maxLevel?: number
+
+  /** Minimum headings (within the level range) before the TOC shows. Default `2`. */
+  minHeadings?: number
+}
+
 /** User-facing theme configuration, as written in `.vitepress/config.mts`. */
 export interface TerminalThemeConfig {
   /**
@@ -420,6 +442,9 @@ export interface TerminalThemeConfig {
 
   /** Tool bar options (THEME-005); see {@link TerminalToolbarConfig}. */
   toolbar?: TerminalToolbarConfig
+
+  /** Article table-of-contents options (THEME-024); see {@link TerminalTocConfig}. */
+  toc?: TerminalTocConfig
 
   /** Footer options (THEME-004); see {@link TerminalFooterConfig}. */
   footer?: TerminalFooterConfig
@@ -502,6 +527,7 @@ export type ResolvedTerminalThemeConfig = Required<
     | 'search'
     | 'comments'
     | 'toolbar'
+    | 'toc'
     | 'taxonomy'
     | 'series'
     | 'home'
@@ -514,6 +540,7 @@ export type ResolvedTerminalThemeConfig = Required<
   search: ResolvedSearchConfig
   comments: ResolvedCommentsConfig
   toolbar: Required<TerminalToolbarConfig>
+  toc: Required<TerminalTocConfig>
   taxonomy: Required<TerminalTaxonomyConfig>
   series: Required<TerminalSeriesConfig>
   // Home keeps all-optional inner fields, so it resolves to the user's value
@@ -548,6 +575,9 @@ export const themeConfigDefaults: ResolvedTerminalThemeConfig = {
   // No extra nav tabs or action icons until configured (THEME-005) — the
   // built-in home tab and the search / color-mode controls always render.
   toolbar: { nav: [], actions: [] },
+  // Article TOC (THEME-024) on by default — h2–h3, shown once a page has ≥2
+  // qualifying headings (and only on wide-enough article views).
+  toc: { enabled: true, minLevel: 2, maxLevel: 3, minHeadings: 2 },
   // No explorer until the user configures a tree (THEME-002).
   explorer: [],
   // No localized taxonomy labels until configured — terms display verbatim
@@ -675,6 +705,33 @@ export function isCommentsConfigured(comments: ResolvedCommentsConfig): boolean 
   return comments.waline !== null
 }
 
+/** Clamp a heading level to the valid 1–6 range, falling back when non-finite. */
+function clampLevel(value: number | undefined, fallback: number): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback
+  return Math.min(6, Math.max(1, Math.round(value)))
+}
+
+/**
+ * Resolve the TOC block: fill defaults, clamp the levels to 1–6, and keep
+ * `minLevel <= maxLevel` (a reversed pair is swapped rather than emptied).
+ */
+function resolveToc(toc: TerminalTocConfig): Required<TerminalTocConfig> {
+  const defaults = themeConfigDefaults.toc
+  let minLevel = clampLevel(toc.minLevel, defaults.minLevel)
+  let maxLevel = clampLevel(toc.maxLevel, defaults.maxLevel)
+  if (minLevel > maxLevel) [minLevel, maxLevel] = [maxLevel, minLevel]
+  const minHeadings =
+    typeof toc.minHeadings === 'number' && Number.isFinite(toc.minHeadings)
+      ? Math.max(1, Math.round(toc.minHeadings))
+      : defaults.minHeadings
+  return {
+    enabled: toc.enabled ?? defaults.enabled,
+    minLevel,
+    maxLevel,
+    minHeadings,
+  }
+}
+
 /**
  * Apply defaults over a (possibly partial or absent) user `themeConfig`.
  * Options are copied individually so an explicit `undefined` from the user
@@ -703,6 +760,7 @@ export function resolveThemeConfig(
       actions: user.toolbar.actions ?? [],
     }
   }
+  if (user?.toc) resolved.toc = resolveToc(user.toc)
   if (user?.explorer) resolved.explorer = user.explorer
   if (user?.taxonomy) {
     resolved.taxonomy = {

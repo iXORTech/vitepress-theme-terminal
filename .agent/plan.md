@@ -838,7 +838,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     tabline + hover submenus intact, resize collapse/re-expand cycle, and
     the full-site MOBILE-001 audits re-run green (33/33).*
 
-- [ ] **THEME-023** — Heading anchor links (jump-to via URL hash)
+- [x] **THEME-023** — Heading anchor links (jump-to via URL hash)
   - **Category:** Theme · **Deps:** THEME-008, STYLE-005
   - **Acceptance criteria:** every article heading (`h1`–`h6` in `.ct-content`)
     carries a stable slug `id` and a clickable anchor permalink — a `#`-style
@@ -851,8 +851,23 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the design language across the three color modes, uses only derived accent
     colors, and lives in dedicated SCSS; the behavior is recorded in
     `docs/design/design-language.md`.
+    *Landed 2026-07-20: VitePress already emits the slug `id` + `.header-anchor`
+    link; the theme adds the presentation and localization. `styles/_anchors.scss`
+    draws a `#` (`::before`) hidden at `opacity: 0` until the heading is
+    `:hover`ed or the anchor is `:focus-visible` (accent `--ct-link`/`--ct-link-hover`
+    only), and at ≤640px keeps it visible with a ≥44px tap box via the §8
+    padding + negative-margin pattern (print-hidden). `composables/useHeadingAnchors.ts`
+    (called once from Layout, like useCodeCopy) re-writes each anchor's
+    `aria-label`/`title` from the locale `anchor.permalink` (`{title}` = heading
+    text minus the anchor) on mount / `onContentUpdated` / language switch.
+    In-panel hash scrolling was already handled by `useViewportScroll` (THEME-008)
+    since the anchors live inside `.ct-viewport`. New `anchor.permalink` string
+    (en + zh-Hans). Verified headless: localized aria-label, hover reveal
+    (0→1 opacity), anchor click scrolls the panel + sets `#hash` while the window
+    stays unscrolled, `#slug` deep-link scrolls the panel on load, zh-Hans
+    re-localization, 360px anchor tap box 44px + no overflow.*
 
-- [ ] **THEME-024** — Article table of contents (right-side, clickable & jumpable)
+- [x] **THEME-024** — Article table of contents (right-side, clickable & jumpable)
   - **Category:** Theme · **Deps:** THEME-001, THEME-008, THEME-023
   - **Acceptance criteria:** article pages render a table of contents to the right
     of the content, built from the page's headings (default `h2`–`h3`, depth
@@ -867,6 +882,25 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     overflowing); the "on this page" label and any controls are localized; styles
     live in dedicated SCSS; documented in `design-language.md` §4 and
     `docs/design/ui-sketch.md`.
+    *Landed 2026-07-20: new `components/ArticleToc.vue`, placed in the `.ct-main`
+    row after the viewport (Layout) so it renders as a fixed panel to the right
+    of the content, mirroring the explorer on the left (`styles/_toc.scss` — mono
+    TUI panel, own scroll, depth-indented entries, the active row's left rail lit
+    `--ct-main-border`). It reads the headings from the rendered `.ct-content` DOM
+    (so it follows localized `::: lang` bodies) on mount / `onContentUpdated` /
+    language switch; scroll-spy listens to `.ct-viewport` scroll (rAF-throttled,
+    getBoundingClientRect vs the panel top + a bottom-of-panel = last-heading
+    guard). Entry clicks `scrollIntoView` smooth inside the panel + `history.
+    replaceState` the `#hash` (never a router window scroll). New
+    `themeConfig.toc = { enabled?, minLevel?, maxLevel?, minHeadings? }`
+    (config.ts — `TerminalTocConfig`, `resolveToc()` clamps levels to 1–6, swaps a
+    reversed pair; defaults `true`/`2`/`3`/`2`). Renders only on post/series/normal
+    page types (via `resolvePageType`) with ≥`minHeadings` headings and `mode !==
+    paper`; hidden ≤1023px (CSS) and in print. New `toc.title` string (en +
+    zh-Hans). config.mts carries a commented `toc` example. Verified headless:
+    TOC + items at 1400px, "On this page" title, click jumps + active class,
+    scroll-spy active updates on scroll, deep-link scroll, zh-Hans "本页目录",
+    absent in paper mode / at 900px / on the home page, 360px no overflow.*
 
 - [ ] **THEME-025** — Adjustable explorer width (drag handle, min/max, persisted)
   - **Category:** Theme · **Deps:** THEME-002, THEME-011
@@ -880,6 +914,53 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the mobile ≤640px off-canvas drawer behavior and the not-rendered-in-paper-mode
     rule are unaffected; styles live in dedicated SCSS and the feature is recorded
     in the explorer spec (`design-language.md` §4).
+
+- [ ] **THEME-026** — Adjustable TOC width (drag handle, min/max, persisted)
+  - **Category:** Theme · **Deps:** THEME-024
+  - **Acceptance criteria:** on desktop the article table-of-contents sidebar's
+    width can be adjusted by dragging a handle on its inner edge; the width is
+    clamped between a documented **minimum and maximum** (never collapsing the TOC
+    unreadably nor crowding the viewport); the chosen width persists across reloads
+    and navigation (localStorage) and is applied pre-paint without a flash; the
+    resize handle is keyboard-operable with a localized accessible name; the default
+    width is unchanged until the user resizes; the mobile ≤640px off-canvas drawer
+    behavior and the not-rendered-in-paper-mode rule are unaffected; styles live in
+    dedicated SCSS and the feature is recorded in the TOC spec (`design-language.md`
+    §4).
+
+- [ ] **THEME-027** — Retractable TOC on Desktop (toggle button, persisted, pre-paint)
+  - **Category:** Theme · **Deps:** THEME-024
+  - **Acceptance criteria:** on desktop the article table-of-contents sidebar can be
+    retracted via a toggle button; the retracted state persists across reloads and
+    navigation (localStorage) and is applied pre-paint without a flash; the toggle
+    button is keyboard-operable with a localized accessible name; the default state
+    is unchanged until the user toggles; the mobile ≤640px off-canvas drawer behavior
+    and the not-rendered-in-paper-mode rule are unaffected; styles live in dedicated
+    SCSS and the feature is recorded in the TOC spec (`design-language.md` §4).
+
+- [ ] **THEME-028** — Link anchor copy: copy the full URL of a heading anchor to the clipboard
+  - **Category:** Theme · **Deps:** THEME-023
+  - **Acceptance criteria:** when a heading anchor is clicked, the full URL of that
+    heading (including the `#slug`) is copied to the clipboard; a temporary
+    notification appears confirming the copy action; the notification is accessible
+    and localized; styles live in dedicated SCSS and the feature is recorded in the
+    anchor link spec (`design-language.md` §4).
+
+- [ ] **THEME-029** — Link anchor copy feedback: show a temporary notification when a heading anchor is copied
+  - **Category:** Theme · **Deps:** THEME-028
+  - **Acceptance criteria:** when a heading anchor is clicked and the URL is copied
+    to the clipboard, a temporary notification appears confirming the copy action;
+    the notification is accessible and localized; it disappears after a short
+    duration or can be dismissed by the user; styles live in dedicated SCSS and the
+    feature is recorded in the anchor link spec (`design-language.md` §4).
+
+- [ ] **THEME-030** — No `.html` suffix in URLs: configure the site to generate clean URLs without the `.html` suffix
+  - **Category:** Theme · **Deps:** THEME-001
+  - **Acceptance criteria:** the site is configured to generate clean URLs without the
+    `.html` suffix; all internal links are updated accordingly; external links to
+    the site should still work with or without the `.html` suffix; document
+    the feature in the site configuration guide (`docs/configuration/clean-urls.md`)
+    when implementing.
 
 ### Components
 

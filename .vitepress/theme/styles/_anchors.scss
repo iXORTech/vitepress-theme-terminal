@@ -1,0 +1,66 @@
+// ============================================================================
+// _anchors.scss — heading permalink `#` controls (THEME-023)
+// ============================================================================
+// Every content heading carries a VitePress-generated slug `id` and a
+// `.header-anchor` link (its label is re-localized client-side by
+// useHeadingAnchors). This styles that link as a terminal-flavored `#` control:
+// hidden until the heading is hovered or the anchor itself is keyboard-focused,
+// drawn in the derived accent color across the three modes. On mobile it stays
+// visible (no hover) and presents a ≥44px tap target (design-language.md §8).
+//
+// In-panel hash scrolling is handled by useViewportScroll (THEME-008); the
+// viewport's `scroll-padding-top` (_shell.scss) keeps the jumped-to heading
+// clear of the panel's top edge.
+
+.ct-content {
+  :where(h1, h2, h3, h4, h5, h6) {
+    // Anchor for the absolute-positioned control and a hover surface that
+    // reaches the `#` sitting just past the heading's end.
+    position: relative;
+  }
+
+  .header-anchor {
+    // The `#` glyph itself — VitePress fills the link with a zero-width space,
+    // so the visible mark comes from ::before.
+    margin-inline-start: 0.35em;
+    color: var(--ct-link);
+    font-weight: 400;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease;
+
+    &::before {
+      content: "#";
+    }
+
+    &:hover {
+      color: var(--ct-link-hover);
+    }
+  }
+
+  // Reveal on heading hover or when the control takes keyboard focus.
+  :where(h1, h2, h3, h4, h5, h6):hover .header-anchor,
+  .header-anchor:focus-visible {
+    opacity: 1;
+  }
+}
+
+// Mobile (≤640px): no hover, so keep the control visible, and grow its tap box
+// to ≥44px via the §8 padding + negative-margin pattern (real box growth
+// without disturbing the heading's line rhythm).
+@media (max-width: 640px) {
+  .ct-content .header-anchor {
+    opacity: 1;
+    display: inline-block;
+    padding: calc((var(--ct-tap) - 1.3em) / 2) 0.6rem;
+    margin-block: calc((1.3em - var(--ct-tap)) / 2);
+    margin-inline-start: 0.1em;
+  }
+}
+
+// Printing: the `#` controls are interactive chrome — never on paper.
+@media print {
+  .ct-content .header-anchor {
+    display: none;
+  }
+}

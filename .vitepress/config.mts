@@ -188,6 +188,12 @@ export const themeConfig: TerminalThemeConfig = {
   // adjacent src/**/explorer.json file.
   explorer: "auto",
 
+  // Article table of contents (THEME-024) — the right-side "on this page"
+  // panel. On by default; these are the defaults shown for reference. Set
+  // `enabled: false` to disable it, or widen the level range / lower the
+  // heading threshold as desired.
+  // toc: { enabled: true, minLevel: 2, maxLevel: 3, minHeadings: 2 },
+
   // Footer (THEME-004) — the RSS icon renders only when a feed URL is set;
   // social icons are Font Awesome classes with a localizable label.
   // The copyright author and the license icons come from `author`/`license`.

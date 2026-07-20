@@ -71,6 +71,13 @@ export const en = {
   'code.copy': 'Copy',
   'code.copied': 'Copied',
 
+  // Heading anchor permalinks (THEME-023) — the hover/focus `#` control's
+  // accessible name; `{title}` is interpolated with the heading text.
+  'anchor.permalink': 'Permalink to {title}',
+
+  // Article table of contents (THEME-024) — the right-side "on this page" panel.
+  'toc.title': 'On this page',
+
   // Image containers (COMP-002) — the card deck's arrow controls. (The
   // lightbox chrome localizes through Fancybox's own shipped l10n tables —
   // design-language.md §4.)

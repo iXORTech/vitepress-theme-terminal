@@ -2,7 +2,36 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**FONT-005 + MD-004
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**THEME-023 +
+THEME-024 landed** — heading anchors + article TOC. THEME-023: VitePress
+already emits heading slug `id`s + `.header-anchor` links; the theme adds
+`styles/_anchors.scss` (a `#` `::before` glyph, `opacity:0` until heading
+`:hover` / anchor `:focus-visible`, accent-only, ≤640px stays visible with a
+§8 padding+negative-margin ≥44px tap box, print-hidden) and
+`composables/useHeadingAnchors.ts` (called once from Layout, re-writes each
+anchor's `aria-label`/`title` from the `anchor.permalink` locale string on
+mount/`onContentUpdated`/language switch — the useCodeCopy pattern). In-panel
+hash scroll was already covered by `useViewportScroll` (anchors live in
+`.ct-viewport`). THEME-024: new `components/ArticleToc.vue` placed in `.ct-main`
+after the viewport (fixed right panel, `styles/_toc.scss` mirrors `_explorer`;
+depth-indented entries, active row's left rail lit `--ct-main-border`). Reads
+headings from the rendered `.ct-content` DOM (follows `::: lang`) on
+mount/content-update/language switch; scroll-spy on `.ct-viewport` scroll
+(rAF-throttled getBoundingClientRect vs panel top + bottom-of-panel=last guard);
+entry click = `scrollIntoView` smooth + `history.replaceState('#id')`. New
+`themeConfig.toc = { enabled?, minLevel?, maxLevel?, minHeadings? }` (config.ts
+`TerminalTocConfig` + `resolveToc()` clamping levels 1–6, swapping a reversed
+pair; defaults true/2/3/2). Gated to post/series/normal page types with
+≥minHeadings headings and non-paper mode; CSS-hidden ≤1023px + print. New locale
+keys `anchor.permalink`/`toc.title` (en + zh-Hans); commented `toc` example in
+config.mts; docs in design-language.md §4 (two new notes) + §8 bullets and
+ui-sketch.md §1 sketch + region map. Verified headless 22/22 (anchor localized
+label + hover reveal + panel-scroll click + `#hash` set + window unscrolled +
+deep-link scroll; TOC render/title/items + click jump + active + scroll-spy +
+zh-Hans re-localize + absent in paper/900px/home + 360px anchor tap box + no
+overflow) + dark/light screenshots. Files added: `components/ArticleToc.vue`,
+`composables/useHeadingAnchors.ts`, `styles/_anchors.scss`, `styles/_toc.scss`.)
+Earlier same day (**FONT-005 + MD-004
 landed** — Typst math + IBM Plex Math for both renderers. MD-004: new
 `theme/markdown/typst.ts` — block container `::: typst … :::` (raw-source
 block rule, not markdown-parsed) + inline `:typst[…]` (bracket-balanced,
@@ -528,9 +557,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   done 2026-07-19 from user feedback on MOBILE-001.
   FONT-005 + MD-004 (Typst math + IBM Plex Math for both renderers — LaTeX
   switched to MathML, Typst via client-side typst.ts WASM) done 2026-07-20.
-  Roadmap: DOC-002/004 documentation,
-  THEME-023 (heading anchor links — jump via URL hash, in-panel scroll),
-  THEME-024 (right-side clickable/jumpable article TOC with scroll-spy), and
+  THEME-023 (heading `#` permalink controls — hover/focus reveal, localized
+  aria-label via useHeadingAnchors, in-panel hash scroll) + THEME-024
+  (right-side "on this page" TOC panel — DOM-read headings, scroll-spy,
+  `themeConfig.toc`, article-only, hidden ≤1023px/paper) done 2026-07-20.
+  Roadmap: DOC-002/004 documentation and
   THEME-025 (drag-adjustable explorer width with min/max, persisted).
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
@@ -705,7 +736,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `themeConfig` const (the
   `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
   with commented option
-  examples including the shell-prompt `siteName` override; `head:
+  examples including the shell-prompt `siteName` override and the THEME-024
+  `toc` example; `head:
   themeHead(themeConfig)` (fonts + main color + mode restore);
   `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
   `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
@@ -849,7 +881,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   for the hover dropdown submenu, THEME-020),
   actions?: TerminalToolbarAction[] ({ icon FA classes, link, label? }) }`,
   resolved to `Required<>` with `[]`/`[]` defaults (built-in home tab +
-  search/mode controls always render). THEME-002/011/012:
+  search/mode controls always render). THEME-024: `toc?: TerminalTocConfig` —
+  `{ enabled?, minLevel?, maxLevel?, minHeadings? }` article table-of-contents
+  options, resolved via `resolveToc()` (`clampLevel` keeps levels in 1–6, a
+  reversed min/max pair is swapped; `minHeadings ≥ 1`) with defaults
+  `{ true, 2, 3, 2 }`. THEME-002/011/012:
   `explorer: TerminalExplorerItem[] | "auto"` — explicit tree or automatic
   discovery of `src/**/*.md`; explicit nodes retain `{ text, link?, items? }`,
   while source-local `explorer.json` files can provide localized folder labels;
@@ -888,6 +924,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
   `code.copy`/`code.copied` (STYLE-004),
+  `anchor.permalink` (`{title}` — THEME-023 heading permalink label),
+  `toc.title` (THEME-024 "on this page"),
   `license.*` — author/published/updated/permalink/statement (COMP-003),
   `comments.title`/`comments.views` (COMP-004),
   `swiper.prev`/`swiper.next` (COMP-002 deck arrows),
@@ -946,6 +984,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   copies the `.ct-code pre code` source and flashes a localized "Copied"
   (`--copied` class, WeakSet guards the flash); `[data-ct-code-copy-label]` +
   aria/title re-localized on mount, `onContentUpdated`, and language switch.
+- `theme/composables/useHeadingAnchors.ts` — THEME-023 heading permalink label
+  localization; called once from the layout. Re-writes every `.ct-content
+  .header-anchor` `aria-label`/`title` from the `anchor.permalink` locale string
+  (`{title}` = the heading text minus the anchor's zero-width space) on mount,
+  `onContentUpdated`, and language switch (the useCodeCopy pattern). The `#`
+  glyph, hover/focus reveal, and in-panel hash scroll are handled elsewhere
+  (`_anchors.scss` + `useViewportScroll`).
 - `theme/composables/useLightbox.ts` — COMP-002 enlarge-on-click gallery:
   marks every `.ct-content img` (skipping linked / `data-no-lightbox` images)
   with `data-fancybox="ct-gallery"` on mount + `onContentUpdated`, lazy-loads
@@ -1162,11 +1207,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   :is=pageComponent>` where `pageComponent` maps `resolvePageType(page,
   frontmatter)` → the matching `pages/*Page.vue` — then the `.ct-footer-region`
   (THEME-004/006) with the optional `.ct-prefooter` slot above
-  `<SiteFooter :divided/>`) — `<StatusBar/>`, the right-side `<NavDrawer/>`
-  (THEME-022), and the shared `<FloatingWindow/>`
+  `<SiteFooter :divided/>`) followed by `<ArticleToc/>` (THEME-024 right-side
+  TOC panel, self-gating) still inside `.ct-main` — `<StatusBar/>`, the
+  right-side `<NavDrawer/>` (THEME-022), and the shared `<FloatingWindow/>`
   (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
   License/Comments) moved into HomePage/PostPage. Still calls
-  `useCalloutTitles()` + `useCodeCopy()` + `useNerdFont()` + `useSearchShortcut()`
+  `useCalloutTitles()` + `useCodeCopy()` + `useHeadingAnchors()` (THEME-023) +
+  `useNerdFont()` + `useSearchShortcut()`
   + `useLocalizedContent()` + `useLightbox()` / `useSwipers()` + `useTypst()`
   (MD-004) + `useWaline()`
   once (these are shell-wide, independent of page type).
@@ -1318,6 +1365,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   a small mono strip (eye + comment FA icons) with `.ct-article-meta__views` /
   `.ct-article-meta__comments` count spans (localized aria-labels) that Waline
   populates; rendered above the content on articles when comments are configured.
+- `theme/components/ArticleToc.vue` — THEME-024 right-side "on this page" TOC.
+  Rendered from Layout in the `.ct-main` row after the viewport (fixed panel
+  mirroring the explorer). Reads headings from the rendered `.ct-content` DOM
+  (level range from `themeConfig.toc`, skips `[hidden]` `::: lang` blocks) on
+  mount / `onContentUpdated` / language switch. Scroll-spy on `.ct-viewport`
+  scroll (rAF-throttled; getBoundingClientRect top vs a `SPY_OFFSET`, plus a
+  bottom-of-panel → last-heading guard) sets `.ct-toc__item--active`. Entry
+  click = `scrollIntoView` smooth + `history.replaceState('#id')` (no router
+  window scroll). `v-if` gated: `toc.enabled` ∧ mode ≠ paper ∧ page type ∈
+  {post,series,normal} (via `resolvePageType`) ∧ `headings ≥ minHeadings`.
+  Title localized `toc.title`; hidden ≤1023px + print via `_toc.scss`.
 - `theme/components/PostTaxonomy.vue` — POST-001 categories/tags as links
   (shared by PostPage byline + PostList cards): categories → `/categories/<slug>`,
   tags → `/tags/<slug>` (`slugify`, `withBase`); localized `post.categories`/
@@ -1443,8 +1501,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/toolbar/**navdrawer** (THEME-022)/
-  explorer/statusbar/window/
-  settings/content/**posts**/pages/**friends**/card/license/comments/footer/
+  explorer/**toc** (THEME-024, after explorer)/statusbar/window/
+  settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
   callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
   `window`, SEARCH-002; `license`/`comments` after `card`, COMP-003/004;
@@ -1494,6 +1552,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   language blocks leave the flow. Raw inline-HTML `<pre>` (outside the
   `.ct-code` cards) gets `max-width: 100%; overflow-x: auto` so it scrolls
   instead of spilling past the panel (MOBILE-001, api-examples).
+- `theme/styles/_anchors.scss` — THEME-023 heading permalink `#` controls.
+  `.ct-content .header-anchor` shows a `#` (`::before`) at `opacity:0`, revealed
+  to 1 on `:where(h1..h6):hover` or `.header-anchor:focus-visible` (accent
+  `--ct-link`/`--ct-link-hover` only; headings get `position: relative`). ≤640px
+  keeps it visible and grows a ≥44px tap box via the §8 padding + negative
+  `margin-block` pattern (`--ct-tap`); `@media print` hides it.
 - `theme/styles/_friends.scss` — PAGE-004 friends-page styles, scoped under
   `.ct-content`: `[⇄ random]` mono text-button (derived-accent hover), group
   headers (dim mono count + dim desc), `repeat(auto-fill, minmax(15rem,1fr))`
@@ -1709,6 +1773,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   icon column; glyph kept in column position via `text-align: start` +
   0.35rem start padding; desktop rows stay dense; hidden in print. The
   drawer breakpoint must match useExplorer's `DRAWER_QUERY`.
+- `theme/styles/_toc.scss` — THEME-024 right-side article TOC (`.ct-toc`),
+  mirroring `_explorer.scss`: `flex-shrink: 0`, 14rem, own scroll, surface bg
+  + border/radius + subtle shadow, mono. `__title` = uppercase drawer-style
+  header; `__list`/`__item`/`__link` rows indent by depth
+  (`--h3`…`--h6` `padding-inline-start` steps) with a transparent left rail;
+  `--active > __link` lights the rail `--ct-main-border` + text `--ct-link`.
+  Hidden ≤1023px (collapses out of the reading column, §8) and in `@media print`.
 - `theme/styles/_window.scss` — THEME-003/016/017 shared floating window:
   backdrop z-40 (above the explorer drawer's z-30) + invisible window
   container z-50 (centered top 14vh, `min(40rem, …)` wide, 70vh max) stacking

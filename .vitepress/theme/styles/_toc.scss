@@ -1,0 +1,90 @@
+// ============================================================================
+// _toc.scss — right-side article table of contents (THEME-024)
+// ============================================================================
+// A fixed floating panel right of the viewport, mirroring the explorer sidebar
+// (_explorer.scss, ui-sketch.md §1): TUI chrome, mono type, its own scroll.
+// Entries are indented by heading depth; the section in view carries the
+// derived accent (scroll-spy). It renders (v-if) only on article pages with
+// enough headings and never in paper mode (ArticleToc.vue); below a
+// wide-desktop threshold it collapses out of the reading column entirely so it
+// never crowds or overflows the content (design-language.md §8).
+
+.ct-toc {
+  flex-shrink: 0;
+  width: 14rem;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain; // don't chain scrolling to the page
+  padding: 0.75rem 0.75rem;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%); // subtle depth (design-language.md §5)
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+}
+
+// Panel heading — "On this page", styled like the explorer's drawer title.
+.ct-toc__title {
+  margin: 0 0 0.5rem;
+  padding: 0 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--ct-border);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ct-text-neutral);
+}
+
+.ct-toc__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ct-toc__item {
+  margin: 0;
+}
+
+// Depth indentation — h2 flush, each deeper level steps in. (Levels outside
+// h2–h4 fall back to the h2 inset; the configured range is 1–6.)
+.ct-toc__item--h3 .ct-toc__link { padding-inline-start: 1.25rem; }
+.ct-toc__item--h4 .ct-toc__link { padding-inline-start: 2rem; }
+.ct-toc__item--h5 .ct-toc__link { padding-inline-start: 2.75rem; }
+.ct-toc__item--h6 .ct-toc__link { padding-inline-start: 3.5rem; }
+
+.ct-toc__link {
+  display: block;
+  padding: 0.3rem 0.5rem;
+  border-inline-start: 2px solid transparent; // active-marker rail
+  color: var(--ct-text-dim);
+  text-decoration: none;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: var(--ct-link-hover);
+  }
+}
+
+// Section in view — accent text + the left rail lit (scroll-spy).
+.ct-toc__item--active > .ct-toc__link {
+  color: var(--ct-link);
+  border-inline-start-color: var(--ct-main-border);
+}
+
+// Below the wide-desktop threshold the TOC drops out of the reading column
+// (design-language.md §8) — it is supplementary, so hiding it (rather than
+// reflowing) keeps the content measure intact and avoids any overflow.
+@media (max-width: 1023px) {
+  .ct-toc {
+    display: none;
+  }
+}
+
+// Never in print / paper output.
+@media print {
+  .ct-toc {
+    display: none;
+  }
+}

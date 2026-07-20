@@ -67,6 +67,12 @@ export const zhHans: ThemeLocaleStrings = {
   'code.copy': '复制',
   'code.copied': '已复制',
 
+  // Heading anchor permalinks (THEME-023)
+  'anchor.permalink': '链接到 {title}',
+
+  // Article table of contents (THEME-024)
+  'toc.title': '本页目录',
+
   // Image containers (COMP-002) — card deck arrows
   'swiper.prev': '上一张',
   'swiper.next': '下一张',

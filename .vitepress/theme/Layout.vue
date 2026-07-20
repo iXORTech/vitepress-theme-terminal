@@ -15,6 +15,7 @@
 // and `isArticle` branching (content-architecture.md §3–4).
 import { computed, ref } from 'vue'
 import { useData } from 'vitepress'
+import ArticleToc from './components/ArticleToc.vue'
 import Explorer from './components/Explorer.vue'
 import FloatingWindow from './components/FloatingWindow.vue'
 import NavDrawer from './components/NavDrawer.vue'
@@ -29,6 +30,7 @@ import PostPage from './pages/PostPage.vue'
 import SeriesArticlePage from './pages/SeriesArticlePage.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
 import { useCodeCopy } from './composables/useCodeCopy'
+import { useHeadingAnchors } from './composables/useHeadingAnchors'
 import { useExplorer } from './composables/useExplorer'
 import { useLightbox } from './composables/useLightbox'
 import { useLocalizedContent } from './composables/useLocalizedContent'
@@ -79,6 +81,9 @@ useCalloutTitles()
 
 // Wire code-block COPY buttons and re-localize their labels (STYLE-004)
 useCodeCopy()
+
+// Re-localize heading permalink (`#`) labels on nav / language switch (THEME-023)
+useHeadingAnchors()
 
 // Reveal the active language's `::: lang` content block, switch on language
 // change (I18N-007)
@@ -138,6 +143,12 @@ useWaline()
           <SiteFooter :divided="!!$slots['pre-footer']" />
         </div>
       </main>
+
+      <!-- Right-side article table of contents (THEME-024) — a fixed panel
+           mirroring the explorer; renders itself only on article pages with
+           enough headings, never in paper mode, and collapses out on narrow
+           viewports (ArticleToc.vue / _toc.scss). -->
+      <ArticleToc />
     </div>
 
     <!-- Bottom status bar / statusline -->

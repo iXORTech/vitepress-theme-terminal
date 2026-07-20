@@ -32,16 +32,16 @@
 ╭─ tool bar / tabline ─────────────────────────────────────────────────────╮
 │ :: site-name    ~/home   posts   tags   about            [/]  [o]  [EN]  │
 ╰──────────────────────────────────────────────────────────────────────────╯
-╭─ explorer ─────────╮  ╭─ viewport ───────────────────────────────────────╮
-│ v posts/           │  │                                                  │
-│   v 2026/          │  │  # Post title                                    │
-│     - hello-world  │  │                                                  │
-│     - second-post  │  │  Body text in neutral near-white (dark mode).    │
-│   > drafts/        │  │  Bold, links and buttons take accent styling.    │
-│ - about            │  │                                                  │
-│                    │  │   1 │ code block · oxocarbon palette             │
-│                    │  │                                                  │
-╰────────────────────╯  ╰──────────────────────────────────────────────────╯
+╭─ explorer ─────────╮  ╭─ viewport ──────────────────────────╮  ╭─ on this page ─╮
+│ v posts/           │  │                                     │  │ Post title     │
+│   v 2026/          │  │  # Post title            #          │  │   Section one  │
+│     - hello-world  │  │                                     │  │ ▎ Section two  │
+│     - second-post  │  │  Body text in neutral near-white.   │  │   Subsection   │
+│   > drafts/        │  │  Bold, links and buttons accented.  │  │   Section three│
+│ - about            │  │                                     │  │                │
+│                    │  │   1 │ code block · oxocarbon        │  │                │
+│                    │  │                                     │  │                │
+╰────────────────────╯  ╰─────────────────────────────────────╯  ╰────────────────╯
 ╭─ status bar ─────────────────────────────────────────────────────────────╮
 │ READ │ ~/posts/2026/hello-world _          42% · en · dark · [*] · 14:52:07 │
 ╰──────────────────────────────────────────────────────────────────────────╯
@@ -68,7 +68,12 @@ panel:
 When the bar cannot show the title, nav, and icons in full — measured, at any
 window width — the nav and every action icon collapse into the right-side nav
 drawer behind a `[⋮]` expander (THEME-022; sketch in §3). Explorer: tree navigation of the
-site content, collapsible. Status bar: the live state chip
+site content, collapsible. Each heading in the viewport gains a hover/focus `#`
+permalink control (THEME-023) that jumps to it via the URL hash, scrolling
+inside the panel. **On this page** (right, THEME-024): the article's table of
+contents — a fixed panel mirroring the explorer, entries indented by depth, the
+section in view lit on its left rail (`▎`, scroll-spy); it collapses out of the
+reading column on narrow viewports and is absent in paper mode. Status bar: the live state chip
 (`READ`/`HOME`/`404`), current location trailed by a blinking underscore cursor (`_`),
 reading progress, the language switcher, the color-mode indicator, the settings
 gear (`[*]`), and a live clock at the right end.
@@ -253,6 +258,8 @@ given), language name, and a COPY button — not a shell-prompt decoration (STYL
 | Tool-bar overflow → right nav drawer (`[⋮]`) | design-language.md §4 (tool bar), §8 | THEME-022 |
 | Status bar | design-language.md §4–§5 | THEME-001 |
 | File explorer / mobile drawer | design-language.md §4, §8 | THEME-002, THEME-021 |
+| Heading `#` permalink controls | design-language.md §4 (heading anchor links) | THEME-023 |
+| On-this-page TOC (right panel, scroll-spy) | design-language.md §4 (article TOC), §8 | THEME-024 |
 | Floating find window | design-language.md §4, §7 | THEME-003 |
 | Find palette (search input + results) | design-language.md §4 (floating windows) | SEARCH-001, SEARCH-002 |
 | Footer (in-viewport) + custom section | design-language.md §4 (footer) | THEME-004, THEME-006 |

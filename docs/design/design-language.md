@@ -570,6 +570,44 @@ and the author & license system above:
 An author can opt a page out of both with `article: false` in frontmatter, or
 drop just one with `license: false` / `comments: false`.
 
+**Heading anchor links (THEME-023)** — every content heading (`h1`–`h6` inside
+`.ct-content`) carries a stable slug `id` and a clickable permalink control that
+sets the URL hash to that heading. VitePress emits the slug and the
+`.header-anchor` link; the theme styles it as a terminal-flavored `#` mark that
+stays hidden until the heading is hovered (or the control itself takes keyboard
+focus) and is drawn in the derived accent color across the three modes. Loading
+or navigating to a `#slug` URL — and clicking a `#` control — scrolls the target
+heading into view **inside the viewport panel**, never the window (§5, the fixed
+shell frame): the anchors live in the `.ct-viewport` scroll container, so the
+existing in-panel scroll handling (`useViewportScroll`) applies unchanged. The
+control's accessible name is localized (§9): its default English `aria-label` is
+re-written client-side from the active locale table (`anchor.permalink`,
+`{title}` = the heading text) on mount, after navigation, and on a language
+switch — the same re-localization pattern as the code-block COPY button. On
+mobile the control stays visible (no hover) and presents a ≥44px tap target
+(§8). *Implemented:* styles in `styles/_anchors.scss`; label localization in
+`composables/useHeadingAnchors.ts` (called once from Layout).
+
+**Article table of contents (THEME-024)** — article pages show an "on this page"
+panel to the **right** of the viewport, mirroring the explorer sidebar on the
+left: a fixed TUI panel (mono type, its own scroll, rounded/floating finish)
+built from the page's headings. Each entry is a link that jumps to its heading
+through the THEME-023 anchors, scrolling within the viewport panel, and the
+section currently in view is highlighted as the reader scrolls (**scroll-spy**);
+entries indent by heading depth and the active row lights its left rail in the
+derived accent. It reads the heading set from the rendered content DOM, so it
+follows localized `::: lang` bodies (§9) and re-reads after navigation and on a
+language switch. Configured via `themeConfig.toc = { enabled?, minLevel?,
+maxLevel?, minHeadings? }` (defaults `true` / `2` / `3` / `2` — h2–h3, shown
+once a page has ≥2 qualifying headings); it renders only on article page types
+(post / series / normal), never on the home, listing, or 404 types. It is not
+rendered in paper mode / print, and on narrow viewports (below the wide-desktop
+threshold) it collapses out of the reading column entirely rather than crowding
+or overflowing the content (§8). The "on this page" label is localized
+(`toc.title`). *Implemented:* `components/ArticleToc.vue` (placed in the
+`.ct-main` row after the viewport, in Layout) + `styles/_toc.scss`; the TOC
+hides ≤1023px via CSS.
+
 *Implemented (COMP-003/004):* `ArticleLicense.vue` (title · release + last-updated
 dates · author · permalink, license statement + CC icons, and a `.ct-license__watermark`
 — an absolutely-positioned `<span>` whose top/bottom insets make its height the
@@ -634,6 +672,11 @@ The site must work well on mobile; components **adapt**, they don't just shrink:
   and the mode is evident from the colors, so every interactive control stays
   reachable rather than the row compressing or overflowing);
 - floating windows → full- or near-full-screen sheets;
+- article table of contents (THEME-024) → collapses out of the reading column
+  (hidden below the wide-desktop threshold, well above the mobile breakpoint),
+  so the content measure stays intact and nothing overflows;
+- heading anchor `#` controls (THEME-023) → stay visible (no hover on touch)
+  and grow to a ≥44 px tap box via the padding + negative-margin pattern below;
 - no horizontal overflow at small widths (≈360 px); adequate touch targets.
 
 **Touch targets (MOBILE-001, 2026-07-19).** At the theme's mobile breakpoint

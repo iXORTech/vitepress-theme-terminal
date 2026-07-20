@@ -35,6 +35,7 @@ import { useLocalizedContent } from './composables/useLocalizedContent'
 import { useNerdFont } from './composables/useNerdFont'
 import { useSearchShortcut } from './composables/useSearch'
 import { useSwipers } from './composables/useSwipers'
+import { useTypst } from './composables/useTypst'
 import { useViewportScroll } from './composables/useViewportScroll'
 import { useWaline } from './composables/useWaline'
 import type { PageType } from './utils/pageType'
@@ -94,6 +95,10 @@ useSearchShortcut()
 // (COMP-002); both lazy-load their libraries client-side
 useLightbox()
 useSwipers()
+
+// Compile `::: typst` / `:typst[…]` math to SVG client-side (MD-004); the
+// typst.ts WASM + IBM Plex Math font load lazily on first use
+useTypst()
 
 // Waline comment widget + article view/comment counts (COMP-004); lazy-loaded
 // client-side, and a no-op unless a comment server is configured

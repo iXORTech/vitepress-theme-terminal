@@ -411,32 +411,64 @@ The theme renders a TUI look while keeping full SSR support.
 
 The theme renders a TUI look while keeping full SSR support.
 
-### Math formulas
+### Math formulas — LaTeX
 
-Math is rendered by MathJax (markdown-it-mathjax3), inline with `$…$` and as a
-display block with `$$…$$`.
+LaTeX math (MD-001) is written inline with `$…$` and as a display block with
+`$$…$$`. MathJax converts it to **MathML**, which the browser renders natively in
+the **IBM Plex Math** typeface (FONT-005).
 
 **Input**
 
 ```md
-Inline math: $E = mc^2$ and $\sqrt{x^2 + y^2}$.
+Inline math: $E = mc^2$ and $\sqrt{x^2 + y^2}$. Euler also happen to discover the identity $e^{i\pi} + 1 = 0$.
 
-Block math:
+Block math — Tupper's self-referential formula:
 
 $$
-\int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+\frac{1}{2} < \left\lfloor \mathrm{mod}\left( \left\lfloor \frac{y}{17} \right\rfloor 2^{-17 \lfloor x \rfloor - \mathrm{mod}(\lfloor y \rfloor, 17)}, 2 \right) \right\rfloor
 $$
 ```
 
 **Output**
 
-Inline math: $E = mc^2$ and $\sqrt{x^2 + y^2}$.
+Inline math: $E = mc^2$ and $\sqrt{x^2 + y^2}$. Euler also happen to discover the identity $e^{i\pi} + 1 = 0$.
 
-Block math:
+Block math — Tupper's self-referential formula:
 
 $$
-\int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+\frac{1}{2} < \left\lfloor \mathrm{mod}\left( \left\lfloor \frac{y}{17} \right\rfloor 2^{-17 \lfloor x \rfloor - \mathrm{mod}(\lfloor y \rfloor, 17)}, 2 \right) \right\rfloor
 $$
+
+### Math formulas — Typst
+
+Typst math (MD-004) is an alternative to LaTeX and renders in the same IBM Plex
+Math typeface. A `::: typst` container holds a **block** of Typst math, and the
+`:typst[…]` form drops **inline** Typst math into a paragraph. The `$`/`$$`
+delimiters above always stay LaTeX — the two never collide. Typst math is
+compiled in the browser; malformed input shows a visible error rather than a
+blank, and the raw source stays readable with JavaScript off.
+
+**Input**
+
+```md
+Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2].
+
+Block Typst — Tupper's self-referential formula:
+
+::: typst
+1/2 < floor("mod"(floor(y/17) dot 2^(-17 floor(x) - "mod"(floor(y), 17)), 2))
+:::
+```
+
+**Output**
+
+Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2].
+
+Block Typst — Tupper's self-referential formula:
+
+::: typst
+1/2 < floor("mod"(floor(y/17) dot 2^(-17 floor(x) - "mod"(floor(y), 17)), 2))
+:::
 
 ## Callouts
 

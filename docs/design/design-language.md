@@ -478,6 +478,44 @@ Vendor stylesheets are pulled in through the theme's SCSS entry partials
 `styles/_lightbox.scss` / `styles/_swiper.scss`, which also carry the theme
 overrides (zoom-in cursor, theme-token backdrop/chrome, card-finish slides).
 
+**Rendered math (MD-001 / MD-004 / FONT-005)** — two math renderers, one typeface.
+Both render in **IBM Plex Math** (the font decision lives in
+`docs/design/typography-and-icons.md` §2a).
+
+- **LaTeX** stays on the `$…$` (inline) / `$$…$$` (display) delimiters (MD-001).
+  MathJax converts it to **MathML** at build time (SSR-clean) and the browser renders
+  the `<math>` natively — so `font-family: "IBM Plex Math"` applies (SVG output cannot
+  be re-fonted). Wrapped in `.ct-math--inline` / `.ct-math--block` (display math is
+  centered and horizontally scrollable). See `theme/markdown/math.ts`.
+- **Typst** is the alternative, with its own **unambiguous** syntax so it never
+  collides with the LaTeX delimiters (`$$…$$` is always LaTeX):
+
+  ```markdown
+  Inline: :typst[e^(i pi) + 1 = 0] sits in the line.
+
+  ::: typst
+  sum_(k=1)^n k = (n(n+1)) / 2
+  :::
+  ```
+
+  The `::: typst` container holds a block of Typst math and `:typst[…]` an inline
+  fragment. Both emit inert markup carrying the **raw source** (`.ct-typst__src`,
+  shown as the no-JS / pre-hydration fallback); the client composable `useTypst()`
+  compiles each to SVG with the [typst.ts](https://github.com/Myriad-Dreamin/typst.ts)
+  WASM compiler on mount and after navigation, then swaps the source for the render.
+  Black glyph **fills and rule strokes** (the fraction bar is a stroke) are
+  normalized to `currentColor`, so the math tracks the active color mode without
+  recompiling. **Malformed Typst fails gracefully** — a visible error
+  beside the kept source, never a blank — and nothing runs during SSR or at build
+  (no build crash possible). The compiler is fed the IBM Plex Math OTF and selects it
+  with `#show math.equation: set text(font: "IBM Plex Math")`. See
+  `theme/markdown/typst.ts` + `theme/composables/useTypst.ts`.
+
+**Dependency & license note:** `mathjax-full` (Apache-2.0) drives the LaTeX→MathML
+conversion; `@myriaddreamin/typst.ts` and its WASM compiler/renderer (Apache-2.0)
+drive Typst. Both are regular devDependencies (the no-npm rule covers only
+fonts/icons). The bundled IBM Plex Math OTF is SIL OFL 1.1 (redistributable).
+
 **Author & license system (CONF-002)** — the author identity and the content license
 are configured once, in `themeConfig`, and every consuming surface reads from that
 single source: the footer copyright and license icons (THEME-004), shell-prompt

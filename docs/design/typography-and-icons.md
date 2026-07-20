@@ -1,7 +1,7 @@
 # Typography & Icons
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-09.
+> Last updated: 2026-07-20.
 
 ## 1. Font families — IBM Plex only
 
@@ -40,6 +40,43 @@
   loading before querying the face. This avoids treating an early, pre-`@font-face`
   check as a permanent load failure while preserving the fallback when the stylesheet
   or font itself genuinely fails.
+
+## 2a. Math typeface — IBM Plex Math (FONT-005)
+
+Both math renderers use **IBM Plex Math** as the math typeface, instead of each
+renderer's own default math font (MathJax's TeX font / Typst's New Computer Modern
+Math):
+
+- **LaTeX** (`$…$` / `$$…$$`, the MD-001 path) and **Typst** (`::: typst` block and
+  the `:typst[…]` inline form, MD-004) both render their formulas in IBM Plex Math.
+- IBM Plex Math is a proper math font (it carries an OpenType `MATH` table), so it can
+  drive the math layout of both engines.
+- Fallback stack: `"IBM Plex Math", math, "IBM Plex Serif", serif` — `math` is the
+  generic CSS math family, so a page still renders sensibly if the webfont fails.
+
+**Why the LaTeX renderer emits MathML (FONT-005 decision).** MD-001's original wiring
+(`markdown-it-mathjax3`) produced **SVG**, in which every glyph is a baked-in vector
+path from MathJax's own font — CSS `font-family` cannot restyle it, and there is no IBM
+Plex Math build for MathJax. To honor the "IBM Plex Math for both renderers" rule, the
+LaTeX path now converts TeX to **MathML** (still MathJax — `mathjax-full`'s serialized
+MathML, produced at build time so SSR stays clean) and the browser renders the `<math>`
+elements natively, respecting `math { font-family: "IBM Plex Math" }`. Trade-off: native
+MathML is excellent in Chromium/Firefox and weaker in older Safari; the win is a
+consistent math typeface across both engines and lighter, script-free SSR output.
+
+Typst renders to SVG (glyphs are vector paths), so its IBM Plex Math cannot come from a
+stylesheet — the OTF is fed **to the Typst compiler** as font bytes and selected with
+`#show math.equation: set text(font: "IBM Plex Math")`.
+
+**Loading (FONT-005):** IBM Plex Math loads via a stylesheet `<link>` injected in
+`<head>` from the VitePress config (the FONT-001 rule) — the `@ibm/plex-math` CSS on
+jsDelivr, which declares `@font-face { font-family: "IBM Plex Math" }` (woff2). This
+covers the MathML/page side. The Typst **compiler** additionally needs the raw OTF
+(the `ttf-parser` it uses does not read woff2), so the theme ships
+`assets/fonts/IBMPlexMath-Regular.otf` (SIL OFL 1.1, redistributable — license kept
+beside it) and hands its bytes to the WASM compiler. That binary is a renderer
+internal, like the Typst WASM module itself, not a page font — no stylesheet can supply
+it, which is the documented reason it does not go through the `<head>` rule.
 
 ## 3. Loading rule (hard)
 

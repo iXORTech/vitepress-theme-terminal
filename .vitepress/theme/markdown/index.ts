@@ -2,15 +2,16 @@
 // markdown/index.ts — theme markdown pipeline setup (MD-001, MD-002)
 // =============================================================================
 // Node-side. Builds the `markdown.config` hook for `.vitepress/config.mts`:
-// the markdown-it plugin suite (MD-001) plus the callout containers (MD-002).
-// Math (markdown-it-mathjax3) is wired separately via VitePress's built-in
-// `markdown.math: true` option, and syntax-highlighting themes via
-// `markdown.theme` (theme/shiki/) — see config.mts.
+// the markdown-it plugin suite (MD-001) plus the callout containers (MD-002),
+// the LaTeX math pipeline (mathPlugin, MD-001/FONT-005), and the Typst math
+// syntax (typstPlugin, MD-004). Syntax-highlighting themes are wired separately
+// via `markdown.theme` (theme/shiki/) — see config.mts.
 //
-// markdown-it-mathjax3 must stay on ^4: v5 emits a per-formula inline <style>
-// inside the content, which is illegal in Vue client templates ("tags with
-// side effect") and crashes the dev transform. v4 emits one top-level style
-// block that VitePress hoists out of the template.
+// Math typeface (FONT-005): the LaTeX path emits MathML (not MathJax SVG) so it
+// can adopt IBM Plex Math via CSS; Typst renders client-side to SVG with the
+// same font. VitePress's built-in `markdown.math` option (which would wire
+// markdown-it-mathjax3's SVG output) is therefore NOT used — see
+// theme/markdown/math.ts and docs/design/typography-and-icons.md §2a.
 
 import abbr from 'markdown-it-abbr'
 import deflist from 'markdown-it-deflist'
@@ -24,7 +25,9 @@ import sup from 'markdown-it-sup'
 import { calloutsPlugin } from './callouts'
 import { codeBlockCardsPlugin } from './codeblock'
 import { localizedContentPlugin } from './localized-content'
+import { mathPlugin } from './math'
 import { swiperPlugin } from './swiper'
+import { typstPlugin } from './typst'
 
 /**
  * Build the `markdown.config` hook. `lang` is the site's default language —
@@ -33,8 +36,14 @@ import { swiperPlugin } from './swiper'
  */
 export function createMarkdownConfig(lang: string) {
   // Parameter typed loosely: markdown-it's types are not resolvable from the
-  // project root (transitive dependency), see callouts.ts.
-  return (md: Parameters<typeof calloutsPlugin>[0]): void => {
+  // project root (transitive dependency), see callouts.ts. The intersection
+  // covers the members each plugin touches (callouts' use/renderInline/renderer
+  // plus the math/typst rulers); the real markdown-it satisfies all of them.
+  return (
+    md: Parameters<typeof calloutsPlugin>[0] &
+      Parameters<typeof mathPlugin>[0] &
+      Parameters<typeof typstPlugin>[0],
+  ): void => {
     // MD-001 plugin suite (emoji :tada:, ~sub~, ^sup^, ++ins++, ==mark==,
     // footnotes, definition lists, abbreviations)
     md.use(emoji)
@@ -45,6 +54,14 @@ export function createMarkdownConfig(lang: string) {
       .use(footnote)
       .use(deflist)
       .use(abbr)
+
+    // MD-001 LaTeX math ($…$ / $$…$$) → MathML, styled in IBM Plex Math
+    // (FONT-005). Replaces VitePress's built-in mathjax3 SVG wiring.
+    mathPlugin(md)
+
+    // MD-004 Typst math — `::: typst` block + `:typst[…]` inline; inert markup
+    // compiled client-side by useTypst (never collides with the LaTeX `$`/`$$`)
+    typstPlugin(md)
 
     // MD-002 callouts (markdown-it-container based)
     calloutsPlugin(md, lang)

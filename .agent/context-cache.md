@@ -2,7 +2,48 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-19 (**THEME-021 +
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**FONT-005 + MD-004
+landed** — Typst math + IBM Plex Math for both renderers. MD-004: new
+`theme/markdown/typst.ts` — block container `::: typst … :::` (raw-source
+block rule, not markdown-parsed) + inline `:typst[…]` (bracket-balanced,
+distinct opener so `$$…$$` never routes to Typst); both emit inert SSR-safe
+markup with the raw source in `.ct-typst__src` (no-JS/pre-hydration fallback)
+beside empty `.ct-typst__view`. New `theme/composables/useTypst.ts` (called
+once from Layout like useSwipers) lazily loads the `@myriaddreamin/typst.ts`
+WASM compiler/renderer (bundled via Vite `?url`) + the IBM Plex Math OTF,
+compiles each `.ct-typst` → SVG on mount/`onContentUpdated`, normalizes glyph
+fills to `currentColor` (mode-adaptive without recompile), swaps source→render;
+malformed → visible `ct-typst--error` beside kept source (never blank); nothing
+runs in SSR/build (no crash). FONT-005: IBM Plex Math via `<head>` `<link>`
+(`@ibm/plex-math@1.1.0` jsDelivr, OFL) in `head.ts`; **LaTeX switched from
+mathjax3 SVG → MathML** (new `theme/markdown/math.ts`, `mathjax-full`
+serialized MathML at build, SSR-clean — SVG can't be re-fonted) so native
+`<math>` honors `math{font-family:"IBM Plex Math"}`; `markdown-it-mathjax3` +
+`math:true` removed. Typst gets IBM Plex Math via OTF fed to the compiler
+(`assets/fonts/IBMPlexMath-Regular.otf`, converted once from OFL woff2) +
+`#show math.equation: set text(font:"IBM Plex Math")`. Styles: new
+`styles/_math.scss` (LaTeX `.ct-math--inline/--block` + Typst; block centered
++ h-scroll; `:not([hidden])` guard so hidden source's `display` isn't
+out-specified). Both plugins wired in `markdown/index.ts`; demo LaTeX+Typst
+sections in `markdown-examples.md`. Deps: `mathjax-full` (Apache-2.0, direct
+devDep now) + `@myriaddreamin/typst.ts`/`-ts-web-compiler`/`-ts-renderer`
+(Apache-2.0). Docs: typography-and-icons.md §2a (math typeface + SVG→MathML
+rationale), design-language.md §4 (Rendered math note). Verified headless on
+the rendered site: MathML (3 `<math>`, IBM Plex Math font) + Typst block+inline
+compile to SVG, block source hidden post-render, malformed → error+source,
+no page errors, dark/light/paper (`currentColor` near-white/near-black), 360px
+no overflow. Gotcha: `AllPackages` minus `bussproofs` for MathML-only (it needs
+an output jax's getBBox and throws otherwise). Same-day follow-ups from user
+feedback: (a) Typst block too small / inline too large → block compile size
+16→20pt, inline CSS `1.1em→0.85em`; (b) the fraction bar rendered black on dark
+— it's a **stroke** (`stroke="#000"`, `fill="none"`), so `normalizeSvg` now
+maps black **strokes as well as fills** → `currentColor`; (c) demo uses
+**Tupper's self-referential formula** for both LaTeX and Typst blocks; (d)
+"Typst shows only its code" hardening — `vite.optimizeDeps.exclude` the
+`@myriaddreamin/typst*` WASM packages (avoids dep-optimization churn / stale
+lazy chunk; needs a dev-server restart) + `useTypst` now surfaces a renderer
+LOAD failure as a visible error on every block (not silent raw source) and
+clears the cached init for retry.) Earlier 2026-07-19 (**THEME-021 +
 THEME-022 landed**, same day as MOBILE-001, from user feedback on it.
 THEME-021 — concise explorer drawer: the mobile tree keeps the desktop-tight
 1.25rem chevron/icon columns (label at +44px again, not +68px); the chevron's
@@ -391,13 +432,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 - `package.json` — pnpm project; devDeps: `vitepress 2.0.0-alpha.18`, `vue ^3.5.39`,
   `sass ^1.101.0` (INFRA-001), the MD-001 markdown-it suite (emoji, sub, sup,
-  ins, mark, footnote, deflist, abbr, container; mathjax3 pinned ^4 — v5 emits
-  inline <style> per formula, which breaks Vue template compilation), and the
+  ins, mark, footnote, deflist, abbr, container), and the
   COMP-002 image libraries: `@fancyapps/ui` pinned `^5.0.36` (the last
   GPLv3/commercial dual-licensed line — v6 moved to commercial-only) +
   `swiper ^14`, the COMP-004 comment client `@waline/client ^3.15.2`
   (lazy-loaded client-side), and `js-yaml` + `@types/js-yaml` (POST-002 —
-  node-side `series.yml` parsing in `series.data.mts`). Scripts
+  node-side `series.yml` parsing in `series.data.mts`). Math (FONT-005/MD-004):
+  `mathjax-full 3.2.2` (direct devDep — LaTeX→MathML in `theme/markdown/math.ts`)
+  and `@myriaddreamin/typst.ts` + `-ts-web-compiler` + `-ts-renderer` `0.7.0`
+  (Apache-2.0 — the Typst WASM compiler/renderer, loaded client-side by
+  `useTypst`); `markdown-it-mathjax3` was **removed** (the LaTeX path no longer
+  uses SVG). Scripts
   `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
 - `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
@@ -481,7 +526,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   tap box via margin-overlay) and THEME-022 (right-side tool-bar overflow
   drawer behind `[⋮]`, measured collapse at any width, ≤640px CSS floor)
   done 2026-07-19 from user feedback on MOBILE-001.
-  Roadmap: DOC-002/004 documentation, FONT-005 + MD-004 Typst support,
+  FONT-005 + MD-004 (Typst math + IBM Plex Math for both renderers — LaTeX
+  switched to MathML, Typst via client-side typst.ts WASM) done 2026-07-20.
+  Roadmap: DOC-002/004 documentation,
   THEME-023 (heading anchor links — jump via URL hash, in-panel scroll),
   THEME-024 (right-side clickable/jumpable article TOC with scroll-spy), and
   THEME-025 (drag-adjustable explorer width with min/max, persisted).
@@ -648,7 +695,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `srcDir: "src"`; `vite.resolve.alias` maps `@` →
   `fileURLToPath(new URL("./theme", …))` so content `.md` files import authored
   views cleanly (`@/views/About.vue`, PAGE-002/003) — bare `@` only matches
-  `@`/`@/…`, scoped pkgs unaffected; title, description; **exported**
+  `@`/`@/…`, scoped pkgs unaffected; `vite.optimizeDeps.exclude` lists the three
+  `@myriaddreamin/typst*` WASM packages (MD-004) — WASM-glue with internal
+  dynamic imports + `?url` assets; excluding them from dep pre-bundling keeps
+  the WASM URLs resolving and avoids the re-optimization churn that can leave
+  the lazily imported chunk failing to load (which silently drops Typst math to
+  raw source — the fix for "Typst shows only its code"; a dev-server restart is
+  needed after adding these deps/this config); title, description; **exported**
   `themeConfig` const (the
   `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
   with commented option
@@ -686,8 +739,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   unconfigured → no comment card/counts); `lastUpdated: true` (git-derived
   per-page timestamp feeding the license card's "Updated" row, COMP-003);
   `transformPageData: createPageDataTransformer(lang)` (ARCH-003 — resolves
-  localized frontmatter maps for the SSR head); `markdown.math: true`
-  (mathjax3) + `markdown.config: createMarkdownConfig(lang)` (MD-001/002).
+  localized frontmatter maps for the SSR head); `markdown.config:
+  createMarkdownConfig(lang)` (MD-001/002/004 + FONT-005 — no `markdown.math`;
+  math is wired inside `config`, LaTeX as MathML + Typst, not mathjax3 SVG).
 - `theme/assets/generatedLinkData/` — git submodule (PAGE-004 demo):
   `iXORTech/blog-friend-links-data-generator-demo` `data` branch;
   `output/linksData.{json,mjs}` is generated friend-links data picked up by
@@ -707,7 +761,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   pre-paint script restoring `ct-mode` from localStorage onto `data-ct-mode` with
   dark default (STYLE-002) AND the font preferences `ct-font-family`/`ct-font-size`
   onto `data-ct-font-*` (THEME-007) — attributes set only for a non-default choice,
-  so no flash/reflow.
+  so no flash/reflow. FONT-005: also injects the **IBM Plex Math** stylesheet
+  `<link>` (`@ibm/plex-math@1.1.0` jsDelivr, family `"IBM Plex Math"`, OFL) —
+  the math typeface for both renderers.
 - `theme/pageData.ts` — node-side ARCH-003 `createPageDataTransformer(lang)`,
   wired as `transformPageData` in `config.mts`: resolves a localized
   frontmatter `description` map to the build language's string (VitePress
@@ -717,11 +773,28 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   client-side re-resolution.
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
-  sup, ins, mark, footnote, deflist, abbr) then `calloutsPlugin` and
-  `swiperPlugin` (COMP-002). Math goes through
-  VitePress's `markdown.math: true` (markdown-it-mathjax3) instead. Then
-  `localizedContentPlugin(md, lang)` (I18N-007) and `codeBlockCardsPlugin(md,
-  lang)` last (STYLE-004).
+  sup, ins, mark, footnote, deflist, abbr), then `mathPlugin` (LaTeX→MathML,
+  MD-001/FONT-005) and `typstPlugin` (Typst math, MD-004), then `calloutsPlugin`
+  and `swiperPlugin` (COMP-002), then `localizedContentPlugin(md, lang)`
+  (I18N-007) and `codeBlockCardsPlugin(md, lang)` last (STYLE-004). The `md`
+  param is typed as the intersection of the callout/math/typst plugin shapes
+  (markdown-it's own types aren't resolvable from the project root).
+- `theme/markdown/math.ts` — MD-001/FONT-005 LaTeX math: the `$…$`/`$$…$$`
+  tokenizer copied from markdown-it-mathjax3 (MIT), but the render step emits
+  **MathML** instead of SVG — `mathjax-full` TeX input jax + `SerializedMmlVisitor`
+  at build time (SSR-clean, no client MathJax) so native `<math>` honors
+  `font-family: "IBM Plex Math"`. Inline → `<span class="ct-math ct-math--inline">`,
+  block → `<div class="ct-math ct-math--block">`. Converter built once; a fresh
+  throwaway `mathjax.document` per formula. `AllPackages` minus `bussproofs` (it
+  needs an output jax's getBBox and throws in a MathML-only pipeline). Malformed
+  LaTeX → MathJax `<merror>` (visible, no throw).
+- `theme/markdown/typst.ts` — MD-004 Typst math: a raw-source **block** rule for
+  `::: typst … :::` (registered before `fence`; content captured verbatim, never
+  markdown-parsed) and an **inline** rule for `:typst[…]` (bracket-balanced;
+  distinct `:typst[` opener so it never collides with the LaTeX `$` rule). Both
+  emit inert `.ct-typst` (`--block`/`--inline`) markup holding the escaped raw
+  source in `.ct-typst__src` (no-JS/pre-hydration fallback) beside an empty
+  `hidden` `.ct-typst__view`; `useTypst` compiles them client-side.
 - `theme/markdown/localized-content.ts` — I18N-007 per-language content:
   registers a `::: lang <tag>` markdown-it-container → `<div class="ct-lang"
   data-ct-lang="<tag>">`. The block whose tag matches the build `lang`
@@ -890,6 +963,23 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`swiper.prev`/`swiper.next`) on init + language switch; prunes/destroys
   instances whose element left the DOM after navigation, destroys all on
   unmount. Client-only, no-op during SSR.
+- `theme/composables/useTypst.ts` — MD-004/FONT-005 Typst renderer: called once
+  from Layout. On mount + `onContentUpdated`, finds every unprocessed
+  `.ct-content .ct-typst`, lazily imports `@myriaddreamin/typst.ts` (configured
+  once — compiler/renderer WASM via bundled Vite `?url`, `loadFonts` the IBM Plex
+  Math OTF `?url` as the only font), builds a minimal Typst doc (`$…$` inline /
+  `$ … $` display, `#set page(fill: none)`, `#show math.equation: set
+  text(font: "IBM Plex Math")`, 20pt block / 11pt inline), compiles to SVG,
+  normalizes black `#000000`/`#000` **fills AND strokes** → `currentColor`
+  (mode-adaptive, no recompile — the fraction bar/rules are strokes, not fills,
+  so both must be caught), and injects into `.ct-typst__view` (hiding
+  `.ct-typst__src`). Compile failure →
+  visible message in the view + `ct-typst--error`, source kept (never blank).
+  If the renderer itself fails to LOAD (dynamic import / WASM init), every
+  pending block shows a visible "Typst renderer failed to load" (never silent
+  raw source) and the cached init promise is cleared so a later navigation
+  retries. Client-only; WASM/font load lazily on first Typst use; marks handled nodes
+  with `data-ct-typst-done`.
 - `theme/composables/useWaline.ts` — COMP-004 comments: called once from
   Layout. When comments are configured and an article's `.ct-comments__waline`
   is present, lazy-loads `@waline/client` (client-only) and `init()`s the
@@ -1077,7 +1167,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
   License/Comments) moved into HomePage/PostPage. Still calls
   `useCalloutTitles()` + `useCodeCopy()` + `useNerdFont()` + `useSearchShortcut()`
-  + `useLocalizedContent()` + `useLightbox()` / `useSwipers()` + `useWaline()`
+  + `useLocalizedContent()` + `useLightbox()` / `useSwipers()` + `useTypst()`
+  (MD-004) + `useWaline()`
   once (these are shell-wide, independent of page type).
 - `theme/utils/pageType.ts` — ARCH-001 page-type resolver (framework-free):
   `PageType` = home|normal|post|series|listing|notFound; `resolvePageType({
@@ -1535,6 +1626,21 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity); ≤640px the summary line becomes a centered flex
   row grown to `--ct-tap` (MOBILE-001).
+- `theme/styles/_math.scss` — MD-001/MD-004/FONT-005 rendered math, scoped under
+  `.ct-content`. Shared `$ct-math-font` = `"IBM Plex Math", math, "IBM Plex
+  Serif", serif`. **LaTeX/MathML:** `math` gets the font + neutral `--ct-text`;
+  `.ct-math--block` centered + `overflow-x: auto` (h-scroll, mobile-safe, 1.2em),
+  `.ct-math--inline` 1.05em. **Typst:** `.ct-typst` inherits `--ct-text` (SVG
+  fills are `currentColor`); `.ct-typst__src` dim mono fallback; block centered +
+  h-scroll with the source box in surface-2 (`:not([hidden])` so hiding it
+  after render isn't out-specified), block SVG `max-width: 100%`; inline SVG
+  `height: 0.85em; vertical-align: -0.14em`; `ct-typst--error` shows the message
+  in `--ct-error` beside the kept source.
+- `theme/assets/fonts/IBMPlexMath-Regular.otf` — FONT-005: IBM Plex Math OTF
+  (SIL OFL 1.1, `IBMPlexMath-LICENSE.txt` beside it), converted once from the
+  `@ibm/plex-math` OFL woff2 (the compiler's ttf-parser can't read woff2). Fed
+  to the Typst WASM compiler as font bytes by `useTypst` (a stylesheet can't
+  font a compiler); the MathML/page side uses the jsDelivr woff2 CSS instead.
 - `theme/utils/pagePath.ts` — framework-free page-path helpers: `formatPageLocation()`
   (maps `relativePath` to `~` or a home-relative path without the Markdown
   extension; status bar + card prompt defaults), and the active-link matchers
@@ -1729,7 +1835,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`<kbd>/<mark>/<sub>/<sup>`) + Font Awesome icons); **Code Blocks** (STYLE-004
   Shiki highlighting + a `[main.scss]` file-name title-bar card); **Markdown
   Extensions** (all MD-001 plugins — emoji, sub/sup, ins/mark, footnotes,
-  deflists, abbr, math); **Callouts** (all 8 MD-002 types + note/caution
+  deflists, abbr, and math — split 2026-07-20 into **LaTeX** `$…$`/`$$…$$` and
+  **Typst** `::: typst` block + `:typst[…]` inline sections, both rendering in
+  IBM Plex Math and both showing **Tupper's self-referential formula** as the
+  display block, MD-004/FONT-005); **Callouts** (all 8 MD-002 types + note/caution
   aliases + custom-title + nested); **Images and galleries** (COMP-002 lightbox
   image + a `:::: swiper` / `::: swiper-slide-no-shadow` three-card deck); and
   the **Card component** (DEMO-002 — defaulted, fully-overridden, prompt-off,

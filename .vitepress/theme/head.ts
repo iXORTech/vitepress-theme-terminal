@@ -27,6 +27,14 @@ const IBM_PLEX_CSS =
   '&family=IBM+Plex+Serif:ital,wght@0,400;0,600;0,700;1,400' +
   '&display=swap'
 
+// IBM Plex Math (FONT-005, typography-and-icons.md §2a): the math typeface for
+// both renderers — the MathML LaTeX output and Typst math. Loads via a
+// stylesheet like the other fonts (`@font-face { font-family: "IBM Plex Math" }`,
+// woff2). The Typst WASM compiler additionally needs the raw OTF, which it loads
+// itself (useTypst) — a stylesheet cannot feed a compiler.
+const IBM_PLEX_MATH_CSS =
+  'https://cdn.jsdelivr.net/npm/@ibm/plex-math@1.1.0/css/ibm-plex-math-all.min.css'
+
 // Icon stylesheets (FONT-002/004, typography-and-icons.md §2–3): Font Awesome
 // Free from cdnjs; the generated symbols-only Nerd Font stylesheet from the
 // latest Nerd Fonts master branch via jsDelivr (defines family
@@ -60,6 +68,8 @@ export function themeHead(user?: TerminalThemeConfig): HeadConfig[] {
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { rel: 'stylesheet', href: IBM_PLEX_CSS }],
+    // Math typeface (FONT-005)
+    ['link', { rel: 'stylesheet', href: IBM_PLEX_MATH_CSS }],
     // Icon loading (FONT-002)
     ['link', { rel: 'stylesheet', href: FONT_AWESOME_CSS }],
     ['link', { rel: 'stylesheet', href: NERD_FONT_CSS }],

@@ -188,7 +188,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the theme alias used by the CSS gate and TUI tokens; repeated browser loads
     show explorer icons consistently.*
 
-- [ ] **FONT-005** — IBM Plex Math for rendered math
+- [x] **FONT-005** — IBM Plex Math for rendered math
   - **Category:** Typography · **Deps:** FONT-001, MD-001, MD-004
   - **Acceptance criteria:** both math renderers use **IBM Plex Math** as the
     math typeface — LaTeX (the `$`/`$$` MathJax path from MD-001) and the Typst
@@ -200,6 +200,25 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     output; both LaTeX and Typst formulas render in IBM Plex Math across the
     three color modes and on mobile, verified on the rendered site; the math-font
     decision is recorded in `docs/design/typography-and-icons.md`.
+    *Landed 2026-07-20 (with MD-004): IBM Plex Math loads via a `<head>`
+    stylesheet `<link>` (`@ibm/plex-math@1.1.0` on jsDelivr, family
+    `"IBM Plex Math"`, SIL OFL 1.1) added in `theme/head.ts` — the FONT-001
+    rule, no npm font package. Fallback stack `"IBM Plex Math", math,
+    "IBM Plex Serif", serif` in `styles/_math.scss`. **LaTeX side:** SVG bakes
+    glyphs into vector paths (un-restylable) and MathJax has no IBM Plex Math
+    build, so the `$`/`$$` path was switched from mathjax3 SVG to **MathML**
+    (`theme/markdown/math.ts`, `mathjax-full` serialized MathML at build time,
+    SSR-clean) — the browser renders `<math>` natively and honors
+    `math { font-family: "IBM Plex Math" }`. `markdown-it-mathjax3` +
+    `math: true` removed. **Typst side:** renders to SVG, so IBM Plex Math is
+    fed to the WASM compiler as OTF bytes
+    (`assets/fonts/IBMPlexMath-Regular.otf`, converted once from the OFL woff2 —
+    a stylesheet cannot font a compiler) and selected via
+    `#show math.equation: set text(font: "IBM Plex Math")`. Decision +
+    both-sides rationale in typography-and-icons.md §2a. Verified headless on
+    the rendered site: MathML and Typst both render in IBM Plex Math in
+    dark/light/paper (`math` computed font-family + Typst SVG `currentColor`
+    → near-white on dark, near-black on light/paper), 360px no overflow.*
 
 ### Markdown
 
@@ -232,7 +251,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     extend the Nerd Font scope to callout chrome (currently tool bar / status bar /
     explorer only).
 
-- [ ] **MD-004** — Typst math container (block + inline)
+- [x] **MD-004** — Typst math container (block + inline)
   - **Category:** Markdown · **Deps:** MD-001
   - **Acceptance criteria:** authors can write **Typst** math and have it
     rendered, alongside the existing MathJax path — the `$`/`$$` delimiters stay
@@ -246,6 +265,27 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (`src/markdown-examples.md`, DEMO-001); any new dependency is a regular
     devDependency (the no-npm rule covers only fonts/icons) and its licence is
     noted. Math-font styling for both renderers is handled by FONT-005.
+    *Landed 2026-07-20: `theme/markdown/typst.ts` registers a **block**
+    container `::: typst … :::` (a raw-source block rule — Typst is not parsed
+    as markdown) and an **inline** form `:typst[…]` (bracket-balanced, distinct
+    opener — no overlap with the LaTeX `$` rule, so `$$…$$` never routes to
+    Typst). Both emit inert, SSR-safe markup carrying the raw source in
+    `.ct-typst__src` (the no-JS / pre-hydration fallback) beside an empty
+    `.ct-typst__view`. `theme/composables/useTypst.ts` (called once from Layout,
+    like useSwipers) lazily loads the `@myriaddreamin/typst.ts` WASM
+    compiler/renderer (bundled via Vite `?url`, no runtime CDN) + the IBM Plex
+    Math OTF, compiles each `.ct-typst` to SVG on mount and `onContentUpdated`,
+    normalizes glyph fills to `currentColor`, and swaps the source for the
+    render; a compile failure shows a visible error beside the kept source
+    (never blank), and nothing runs during SSR/build (no crash possible).
+    Styles in `styles/_math.scss` (block centered + h-scroll, inline scaled to
+    text, `:not([hidden])` guard so the hidden source's `display` isn't
+    out-specified). Demo: LaTeX and Typst math sections in
+    `src/markdown-examples.md` (Input/Output, block + inline). Deps:
+    `@myriaddreamin/typst.ts` + `-ts-web-compiler` + `-ts-renderer` (Apache-2.0)
+    devDeps. Verified headless: block + inline compile to SVG, block source
+    hidden post-render, malformed `:typst[…]` → `ct-typst--error` with visible
+    message + kept source, no page errors, dark/light/paper, 360px no overflow.*
 
 ### i18n
 

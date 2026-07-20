@@ -250,6 +250,19 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
         "@": fileURLToPath(new URL("./theme", import.meta.url)),
       },
     },
+    // The Typst renderer (MD-004, loaded lazily by useTypst) is a WASM-glue
+    // package with internal dynamic imports + `?url` WASM assets. Excluding it
+    // from Vite's dependency pre-bundling is the recommended handling for such
+    // packages: it keeps the WASM/asset URLs resolving correctly and avoids the
+    // re-optimization churn that can leave the dynamically imported chunk
+    // failing to load (which would silently drop Typst math back to raw source).
+    optimizeDeps: {
+      exclude: [
+        "@myriaddreamin/typst.ts",
+        "@myriaddreamin/typst-ts-web-compiler",
+        "@myriaddreamin/typst-ts-renderer",
+      ],
+    },
   },
 
   title: "VitePress Theme Terminal",
@@ -277,9 +290,10 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
 
   markdown: {
     theme: shikiThemes,
-    // Math formulas via VitePress's built-in markdown-it-mathjax3 wiring (MD-001)
-    math: true,
-    // Plugin suite (MD-001) + callout containers (MD-002)
+    // Math is wired in `config` below, NOT via VitePress's built-in `math: true`
+    // (which would use markdown-it-mathjax3's SVG output): the LaTeX path emits
+    // MathML for IBM Plex Math (FONT-005) and Typst has its own syntax (MD-004).
+    // Plugin suite (MD-001) + callouts (MD-002) + LaTeX MathML + Typst.
     config: createMarkdownConfig(lang),
   },
 });

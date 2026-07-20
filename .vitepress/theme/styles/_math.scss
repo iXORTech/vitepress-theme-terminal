@@ -1,0 +1,113 @@
+// ============================================================================
+// _math.scss — rendered math: LaTeX (MathML) + Typst (MD-001/MD-004/FONT-005)
+// ============================================================================
+// Two renderers, one typeface. LaTeX `$…$`/`$$…$$` becomes native MathML
+// (theme/markdown/math.ts) and Typst `::: typst` / `:typst[…]` becomes SVG
+// compiled client-side (useTypst). Both render in IBM Plex Math (FONT-005): the
+// MathML side via `font-family`, the Typst side baked into the SVG by the
+// compiler. Scoped under `.ct-content` so it only touches article body math.
+
+// The shared math typeface stack — IBM Plex Math first, then the generic `math`
+// family and a serif fallback so a missing webfont still reads (FONT-005,
+// typography-and-icons.md §2a).
+$ct-math-font: "IBM Plex Math", math, "IBM Plex Serif", serif;
+
+.ct-content {
+  // ------------------------------------------------------------------------
+  // LaTeX → MathML
+  // ------------------------------------------------------------------------
+  math {
+    font-family: $ct-math-font;
+    color: var(--ct-text); // neutral body color, never the accent (STYLE-006)
+  }
+
+  // Display math: centered, and horizontally scrollable so a wide formula
+  // never overflows the viewport panel (mobile-safe).
+  .ct-math--block {
+    margin: 1.15rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: center;
+
+    math {
+      font-size: 1.2em;
+    }
+  }
+
+  .ct-math--inline {
+    math {
+      font-size: 1.05em;
+    }
+  }
+
+  // ------------------------------------------------------------------------
+  // Typst
+  // ------------------------------------------------------------------------
+  .ct-typst {
+    // The rendered SVG tracks the mode's text color via `currentColor`
+    // (fills normalized in useTypst).
+    color: var(--ct-text);
+  }
+
+  // Raw-source fallback (no-JS / pre-hydration / render error) — a dim
+  // monospace echo of what the author wrote.
+  .ct-typst__src {
+    font-family: var(--ct-font-mono);
+    color: var(--ct-text-dim);
+  }
+
+  // Block Typst math: centered, horizontally scrollable like display MathML.
+  .ct-typst--block {
+    display: block;
+    margin: 1.15rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    text-align: center;
+
+    // `:not([hidden])` so this `display` never out-specifies the UA
+    // `[hidden] { display: none }` once useTypst hides the source after render.
+    .ct-typst__src:not([hidden]) {
+      display: block;
+      margin: 0;
+      padding: 0.6rem 0.75rem;
+      text-align: start;
+      white-space: pre;
+      background: var(--ct-surface-2);
+      border-radius: var(--ct-radius-small);
+    }
+
+    .ct-typst__view svg {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  // Inline Typst math: sits in the text line, scaled to the surrounding size.
+  .ct-typst--inline {
+    display: inline;
+
+    .ct-typst__view svg {
+      width: auto;
+      height: 0.85em;
+      vertical-align: -0.14em;
+    }
+  }
+
+  // Render error (malformed Typst): show the diagnostic beside the kept source
+  // in the semantic error color, so the failure is visible, never blank.
+  .ct-typst--error {
+    .ct-typst__view {
+      display: block;
+      margin-top: 0.4rem;
+      font-family: var(--ct-font-mono);
+      font-size: 0.85em;
+      color: var(--ct-error);
+      white-space: pre-wrap;
+    }
+
+    &.ct-typst--inline .ct-typst__view {
+      display: inline;
+      margin: 0 0 0 0.4em;
+    }
+  }
+}

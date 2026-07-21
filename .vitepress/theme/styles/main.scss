@@ -10,6 +10,7 @@
 @use "tokens";  // Carbon palette, main-color derivatives, fonts (STYLE-001/FONT-001)
 @use "modes";   // dark / light / paper semantic tokens (STYLE-002)
 @use "shell";   // TUI shell frame: floating panel arrangement (THEME-001)
+@use "site-mark"; // official favicon reused as the in-UI brand mark (THEME-032)
 @use "toolbar"; // top tool bar / tabline (THEME-001)
 @use "navdrawer"; // right-side tool-bar overflow drawer (THEME-022)
 @use "explorer"; // file-explorer navigation sidebar (THEME-002)

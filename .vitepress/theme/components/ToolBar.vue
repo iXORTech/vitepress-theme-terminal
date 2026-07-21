@@ -41,6 +41,7 @@ import { useSearch } from '../composables/useSearch'
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
+import SiteMark from './SiteMark.vue'
 
 const { page } = useData()
 
@@ -220,9 +221,10 @@ const href = (link: string): string =>
       <i class="fa-solid fa-bars" aria-hidden="true"></i>
     </button>
 
-    <!-- Brand: decorative TUI glyph + localized site title, links home -->
+    <!-- Brand: the official site mark (favicon, THEME-032) + localized site
+         title, links home -->
     <a class="ct-toolbar__brand" :href="withBase('/')">
-      <span class="ct-toolbar__glyph" aria-hidden="true"></span>
+      <SiteMark />
       <span class="ct-toolbar__title">{{ title }}</span>
     </a>
 

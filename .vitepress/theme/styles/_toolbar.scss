@@ -4,8 +4,8 @@
 // The editor-style top bar: brand + navigation tabs, a fixed floating panel
 // at the top of the shell frame (content scrolls inside the viewport panel,
 // never behind the chrome — THEME-008). TUI chrome is set in mono
-// (typography-and-icons.md §1); the brand glyph is a Nerd Font PUA glyph
-// gated behind html[data-ct-nerdfont] with a plain-text fallback (§2).
+// (typography-and-icons.md §1); the brand mark is the official favicon
+// (SiteMark.vue / `_site-mark.scss`, THEME-032).
 
 .ct-toolbar {
   display: flex;
@@ -40,18 +40,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   transition: color 0.15s ease;
-}
-
-// Brand glyph: plain `::` fallback, upgraded to the Nerd Font terminal glyph
-// once the symbols font is confirmed usable (FONT-002 tofu-safe gating)
-.ct-toolbar__glyph::before {
-  content: "::";
-  color: var(--ct-link);
-}
-
-html[data-ct-nerdfont] .ct-toolbar__glyph::before {
-  content: "\f120"; // nf-fa-terminal
-  font-family: var(--ct-font-nerd);
 }
 
 // Navigation as editor tabs; the active tab carries the accent

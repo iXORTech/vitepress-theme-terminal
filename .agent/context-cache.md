@@ -807,7 +807,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   localized `friends` group (working GitHub avatar entry + a no-avatar
   entry) and an unlabeled `group1` whose entry merges into the generated
   submodule group (inheriting its labels).
-- `theme/head.ts` — node-side `themeHead(themeConfig)`: IBM Plex Google-Fonts-CSS2
+- `theme/head.ts` — node-side `themeHead(themeConfig)`: official favicon `<link>`
+  (THEME-031: `rel="icon"` `type="image/svg+xml"` → `/favicon.svg`, first entry,
+  consumer-overridable), IBM Plex Google-Fonts-CSS2
   `<link>`s + preconnects (FONT-001), icon stylesheet `<link>`s (FONT-002/004:
   Font Awesome 6 `all.min.css` from cdnjs + generated Nerd Font CSS from
   jsDelivr's `ryanoasis/nerd-fonts@master`),
@@ -1230,10 +1232,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   extend-and-wrap pattern a consuming site uses. Registered as this demo site's
   Layout via `theme/index.ts`.
 - `theme/components/PreFooterDemo.vue` — temporary THEME-006 demo content:
-  left = Nerd-Font logo glyph (`.ct-prefooter-demo__logo`) + localized theme
-  name (`useSiteText`); right = a Font Awesome icon (`fa-palette`), a Nerd Font
-  icon (`.ct-prefooter-demo__nf`), and the localized `footer.demoCustom` label.
-  Demonstrates arbitrary content, both icon systems, and i18n inside the slot.
+  left = the official site mark `<SiteMark/>` (favicon, THEME-032) + localized
+  theme name (`useSiteText`); right = a Font Awesome icon (`fa-palette`), a Nerd
+  Font icon (`.ct-prefooter-demo__nf`), and the localized `footer.demoCustom`
+  label. Demonstrates arbitrary content, both icon systems, and i18n inside the slot.
+- `theme/components/SiteMark.vue` — the theme's official mark (THEME-032):
+  renders `/favicon.svg` (`withBase`) as a decorative inline `<img.ct-site-mark>`
+  (`alt=""`, `aria-hidden`, non-draggable). Reused wherever the UI needs the
+  brand icon — the tool-bar and pre-footer brand clusters. No webfont tofu (local
+  asset), so no gated fallback needed; sized/styled by `_site-mark.scss`.
 - `theme/Layout.vue` — the TUI shell (THEME-001/008 + ARCH-001 dispatch): `.ct-shell`
   composing `<ToolBar/>`, the `.ct-main` row — `<Explorer/>` when
   `useExplorer().available` (THEME-002: tree configured ∧ not paper mode)
@@ -1306,7 +1313,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010/020):
   the explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
-  (gated Nerd Font glyph + localized site title, links home via `withBase`), a
+  (the official site mark `<SiteMark/>` (favicon, THEME-032) + localized site
+  title, links home via `withBase`), a
   `<nav>` of editor tabs — the built-in `~/home` tab followed by the configurable
   `themeConfig.toolbar.nav` tabs (localized labels + optional FA icon, active when
   the link maps to the current page via the shared `linkRelativePath`, external =
@@ -1535,7 +1543,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-statusbar__clock` (`useClock`, `HH:MM:SS`) at the far right; replaces the
   I18N-002 placeholder controls.
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
-  (`_fonts.scss`), tokens/modes/shell/toolbar/**navdrawer** (THEME-022)/
+  (`_fonts.scss`), tokens/modes/shell/**site-mark** (THEME-032, before toolbar)/
+  toolbar/**navdrawer** (THEME-022)/
   explorer/**toc** (THEME-024, after explorer)/statusbar/window/
   settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
@@ -1546,9 +1555,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (box-sizing, body bg/color/font
   via semantic tokens, `::selection` from the derived highlight).
 - `theme/styles/_prefooter-demo.scss` — THEME-006 temporary pre-footer demo
-  styles: flex `space-between` row, mono TUI text, accent-colored FA + Nerd
-  Font glyphs; the logo/nf glyphs follow the NF gating convention (plain `::`/`*`
-  fallback upgraded to `\f120`/`\f005` under `html[data-ct-nerdfont]`).
+  styles: flex `space-between` row, mono TUI text; left brand = the favicon mark
+  (`_site-mark.scss`, THEME-032); accent-colored FA icon + Nerd Font `__nf` glyph,
+  the latter following the NF gating convention (plain `*` fallback upgraded to
+  `\f005` under `html[data-ct-nerdfont]`).
+- `theme/styles/_site-mark.scss` — THEME-032 official site mark image
+  (`.ct-site-mark`, SiteMark.vue): em-scaled via `--ct-site-mark-size` (default
+  `1.4em`), `flex:none`, `object-fit:contain`, 3px radius, non-selectable.
 - `theme/styles/_fonts.scss` — registers the current jsDelivr
   `SymbolsNerdFont-Regular.ttf` under `NerdFontsSymbols Nerd Font Terminal`,
   compensating for the generated CSS's missing legacy `/fonts/` source path
@@ -1758,8 +1771,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (THEME-004); print releases the fixed height, drops padding/border, and
   flattens `.ct-main` to a block so the full article prints.
 - `theme/styles/_toolbar.scss` — top tool bar: fixed floating panel, surface bg
-  + border/radius/shadow, mono; brand glyph `::` upgraded to nf-fa-terminal behind
-  `[data-ct-nerdfont]`; editor-tab links with accent hover/active (home + the
+  + border/radius/shadow, mono; brand = the favicon mark (`_site-mark.scss`,
+  THEME-032); editor-tab links with accent hover/active (home + the
   configurable THEME-005 nav tabs); THEME-020 nav submenus —
   `.ct-toolbar__navitem` relative wrapper anchoring an absolute
   `.ct-toolbar__submenu` dropdown (TUI floating panel: `--ct-border` frame,
@@ -1961,6 +1974,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   image demos: three 800×600 terminal-mock SVGs in the theme palette (session /
   split panes / paper mode), served from the VitePress public dir as
   `/images/…`.
+- `public/favicon.svg` — the project's official favicon (THEME-031): the theme's
+  TUI-window glyph (Carbon `#161616` window on a titlebar with the three prompt
+  dots, a `be95ff`/`78a9ff` shell chevron, and a `TERM` wordmark), served at
+  `/favicon.svg` and linked from `theme/head.ts`.
 - `api-examples.md` — VitePress starter demo of the runtime API (`useData`) with
   localized explorer title metadata.
 - `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —

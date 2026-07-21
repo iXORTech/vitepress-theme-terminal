@@ -1,0 +1,19 @@
+// ============================================================================
+// _site-mark.scss — the official site mark image (THEME-032)
+// ============================================================================
+// Styles the favicon reused as an inline brand icon (SiteMark.vue): the mark
+// scales with the surrounding text (`em`, overridable per context via
+// `--ct-site-mark-size`), is lightly rounded like the source glyph, and is
+// never selectable or draggable so it behaves like the icon-font marks it
+// replaces in the tool-bar and pre-footer brand clusters.
+
+.ct-site-mark {
+  --ct-site-mark-size: 1.4em;
+
+  flex: none; // never shrink inside the flex brand clusters
+  inline-size: var(--ct-site-mark-size);
+  block-size: var(--ct-site-mark-size);
+  border-radius: 3px;
+  object-fit: contain;
+  user-select: none;
+}

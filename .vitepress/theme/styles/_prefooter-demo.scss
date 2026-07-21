@@ -2,10 +2,11 @@
 // _prefooter-demo.scss — custom pre-footer demo content (THEME-006, temporary)
 // ============================================================================
 // Styles the shipped `pre-footer` slot example (PreFooterDemo.vue): a brand
-// cluster on the left and an icon + label cluster on the right, in the TUI
-// mono idiom. Nerd Font glyphs follow the theme's gating convention — a plain
-// fallback upgraded to the PUA glyph only under html[data-ct-nerdfont]
-// (FONT-002). Demo only: removed with the demo section.
+// cluster on the left (the official site mark + theme name, THEME-032) and an
+// icon + label cluster on the right, in the TUI mono idiom. The Nerd Font glyph
+// follows the theme's gating convention — a plain fallback upgraded to the PUA
+// glyph only under html[data-ct-nerdfont] (FONT-002). Demo only: removed with
+// the demo section.
 
 .ct-prefooter-demo {
   display: flex;
@@ -18,7 +19,7 @@
   font-size: 0.875rem;
   color: var(--ct-text);
 
-  // Left: logo glyph + theme name
+  // Left: site mark + theme name
   &__brand {
     display: inline-flex;
     align-items: center;
@@ -38,32 +39,21 @@
     color: var(--ct-text-neutral);
   }
 
-  // Both icon systems draw in the accent color so they read as marks
+  // The Font Awesome and Nerd Font icons draw in the accent color so they read
+  // as marks (the left brand mark is the favicon image — SiteMark.vue)
   .fa-solid,
-  &__logo::before,
   &__nf::before {
     color: var(--ct-main);
   }
 }
 
-// Nerd Font glyphs: plain fallbacks, upgraded to PUA glyphs once the symbols
+// Nerd Font glyph: plain fallback, upgraded to the PUA glyph once the symbols
 // font is confirmed usable (tofu-safe gating, FONT-002)
-.ct-prefooter-demo__logo::before {
-  content: "::"; // logo fallback
-}
-
 .ct-prefooter-demo__nf::before {
   content: "*"; // Nerd Font icon fallback
 }
 
-html[data-ct-nerdfont] {
-  .ct-prefooter-demo__logo::before {
-    content: "\f120"; // nf-fa-terminal
-    font-family: var(--ct-font-nerd);
-  }
-
-  .ct-prefooter-demo__nf::before {
-    content: "\f005"; // nf-fa-star
-    font-family: var(--ct-font-nerd);
-  }
+html[data-ct-nerdfont] .ct-prefooter-demo__nf::before {
+  content: "\f005"; // nf-fa-star
+  font-family: var(--ct-font-nerd);
 }

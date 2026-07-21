@@ -3,6 +3,8 @@
 // =============================================================================
 // Node-side helper (framework-free apart from VitePress types) used by
 // `.vitepress/config.mts`. Produces, in order:
+//   0. The official favicon <link> (THEME-031) — the theme's SVG glyph from
+//      `src/public/favicon.svg`; consumer sites may override it in their config.
 //   1. IBM Plex stylesheet <link>s (FONT-001) — fonts load via stylesheets
 //      injected in <head>, never via npm packages (typography-and-icons.md §3).
 //   2. Icon stylesheet <link>s (FONT-002): Font Awesome for general-purpose
@@ -64,6 +66,11 @@ const MODE_RESTORE_SCRIPT =
 export function themeHead(user?: TerminalThemeConfig): HeadConfig[] {
   const { mainColor } = resolveThemeConfig(user)
   return [
+    // Official favicon (THEME-031) — the theme's own TUI-window glyph, served
+    // from `src/public/favicon.svg`. SVG only: modern browsers honour a scalable
+    // icon and it stays crisp at every size / DPR. Consumer sites may override it
+    // with their own `head` entry.
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     // Font loading (FONT-001)
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],

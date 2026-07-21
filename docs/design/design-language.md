@@ -9,6 +9,14 @@
 - Project name: **VitePress Theme Terminal**.
 - A custom VitePress theme for blogs and personal websites that looks and feels like a
   modern terminal/TUI session.
+- **Favicon (THEME-031):** the official mark is the theme's own TUI-window glyph — a
+  Carbon-dark editor window (titlebar with the three prompt dots) framing the shell
+  chevron and a `TERM` wordmark, distilled from the theme's own chrome, not any
+  third-party tool (so it stays inside §3). It ships as `src/public/favicon.svg` and is
+  linked from `<head>` by `theme/head.ts` as an SVG-only `rel="icon"`; consumer sites
+  may override it with their own `head` entry. The same mark is reused inside the UI as
+  the brand icon (THEME-032) via `SiteMark.vue` — the tool-bar brand and the pre-footer
+  brand cluster — so the browser-tab mark and the in-page mark stay identical.
 
 ## 2. Core metaphor & inspiration
 

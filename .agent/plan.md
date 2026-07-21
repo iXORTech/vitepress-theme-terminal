@@ -985,6 +985,33 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the feature in the site configuration guide (`docs/configuration/clean-urls.md`)
     when implementing.
 
+- [x] **THEME-031** — Official favicon
+  - **Category:** Theme · **Deps:** THEME-001
+  - **Acceptance criteria:** the project's official favicon (the theme's TUI-window
+    glyph) ships as a static asset and is linked from the site `<head>`; it is served
+    at `/favicon.svg` and appears as `<link rel="icon" type="image/svg+xml">` on every
+    page; consumer sites can override it via their own `head` config.
+    *Landed 2026-07-20: `src/public/favicon.svg` (the TERM window glyph — Carbon
+    chrome, chevron shell prompt), linked as the first entry of `themeHead()` in
+    `theme/head.ts` (`rel="icon"`, `type="image/svg+xml"`, `/favicon.svg`). Verified
+    on the built + served site: asset returns HTTP 200 `image/svg+xml`, and the head
+    link is present in the served markup.*
+
+- [x] **THEME-032** — Reuse the favicon as the in-UI brand mark
+  - **Category:** Theme · **Deps:** THEME-031
+  - **Acceptance criteria:** the official favicon also stands in for the brand icon
+    inside the rendered UI — the tool-bar brand and the structurally identical
+    pre-footer brand cluster show the favicon (not the old Nerd-Font `::`/terminal
+    glyph); the mark is a single reusable component, scales with its surrounding
+    text, and stays correct under a deployed `base` path; verified headless that both
+    render the image.
+    *Landed 2026-07-20: `theme/components/SiteMark.vue` renders `/favicon.svg`
+    (`withBase`) as a decorative inline `<img>`, styled by `styles/_site-mark.scss`
+    (`.ct-site-mark`, em-scaled, rounded); replaces the `.ct-toolbar__glyph`
+    Nerd-Font glyph in `ToolBar.vue` and the `.ct-prefooter-demo__logo` glyph in
+    `PreFooterDemo.vue` (their glyph SCSS removed). Verified on the built + served
+    site: both brand clusters render `img.ct-site-mark` pointing at `/favicon.svg`.*
+
 ### Components
 
 - [x] **COMP-001** — Card component: TUI floating window + shell-prompt decoration

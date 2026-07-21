@@ -3,13 +3,15 @@
 // PreFooterDemo.vue — temporary demo for the custom pre-footer slot (THEME-006)
 // ============================================================================
 // Illustrates what a user-supplied `pre-footer` Vue file can render: a brand
-// cluster on the left (Nerd Font logo glyph + the localized theme name) and,
-// on the right, a Font Awesome icon, a Nerd Font icon, and a localized text
-// label — showing that arbitrary content, both icon systems, and localized
-// strings all work inside the slot. Demo only: a real site replaces this with
-// its own component (see the wiring note in design-language.md §4, footer).
+// cluster on the left (the official site mark + the localized theme name,
+// THEME-032) and, on the right, a Font Awesome icon, a Nerd Font icon, and a
+// localized text label — showing that arbitrary content, both icon systems, and
+// localized strings all work inside the slot. Demo only: a real site replaces
+// this with its own component (see the wiring note in design-language.md §4,
+// footer).
 import { useSiteText } from '../composables/useSiteText'
 import { useThemeLocale } from '../composables/useThemeLocale'
+import SiteMark from './SiteMark.vue'
 
 // Theme name = the localized site title (I18N-004)
 const { title } = useSiteText()
@@ -20,9 +22,9 @@ const { t } = useThemeLocale()
 
 <template>
   <div class="ct-prefooter-demo">
-    <!-- Left: logo glyph + theme name -->
+    <!-- Left: the official site mark (favicon, THEME-032) + theme name -->
     <span class="ct-prefooter-demo__brand">
-      <span class="ct-prefooter-demo__logo" aria-hidden="true"></span>
+      <SiteMark />
       <span class="ct-prefooter-demo__name">{{ title }}</span>
     </span>
 

@@ -39,23 +39,33 @@ type TypstSnippet = {
 let typstReady: Promise<TypstSnippet> | null = null
 
 /**
- * Resolve a bundled WASM URL to something the compiler/renderer init accepts.
- * In production the oversized compiler module ships gzipped as `.wasm.gz`
- * (Cloudflare Pages rejects files over 25 MiB — the build plugin
- * theme/vite/gzipWasm.ts re-emits it compressed, INFRA-002), so it is fetched
- * and piped through `DecompressionStream` here before init. The gzip magic
- * bytes are checked rather than trusting the extension, so a server that
- * transparently decodes `Content-Encoding: gzip` still works. Plain `.wasm`
- * URLs (dev, and the small renderer module) pass through untouched.
+ * Resolve the compiler's `getModule` value from a bundled WASM URL.
+ *
+ * typst.ts fetches the module itself only when `getModule` returns a *bare
+ * string* URL (its init does `typeof r == "string" && (r = fetch(r))`); a
+ * Promise that resolves to a string slips past that check and is handed
+ * straight to `WebAssembly.instantiate` as a string — which throws. So:
+ *
+ * - Plain `.wasm` (dev, and the small renderer): return the URL string as-is
+ *   and let typst.ts fetch + stream-compile it.
+ * - `.wasm.gz` (production build): the oversized compiler module ships gzipped
+ *   because Cloudflare Pages rejects files over 25 MiB (the build plugin
+ *   theme/vite/gzipWasm.ts re-emits it compressed, INFRA-002). Fetch it,
+ *   decompress via `DecompressionStream`, and return the raw bytes as an
+ *   `ArrayBuffer` (a valid `WebAssembly.instantiate` source). The gzip magic
+ *   bytes are checked rather than trusting the extension, so a server that
+ *   transparently decodes `Content-Encoding: gzip` still works.
  */
-async function fetchWasmModule(url: string): Promise<string | ArrayBuffer> {
-  if (!url.endsWith('.gz')) return url // raw wasm — let the init fetch it
-  const compressed = await (await fetch(url)).arrayBuffer()
-  const head = new Uint8Array(compressed, 0, 2)
-  if (head[0] !== 0x1f || head[1] !== 0x8b) return compressed // already decoded
-  const stream = new Response(compressed)
-    .body!.pipeThrough(new DecompressionStream('gzip'))
-  return await new Response(stream).arrayBuffer()
+function resolveWasmModule(url: string): string | Promise<ArrayBuffer> {
+  if (!url.endsWith('.gz')) return url // raw wasm — let typst.ts fetch it
+  return (async () => {
+    const compressed = await (await fetch(url)).arrayBuffer()
+    const head = new Uint8Array(compressed, 0, 2)
+    if (head[0] !== 0x1f || head[1] !== 0x8b) return compressed // already decoded
+    const stream = new Response(compressed)
+      .body!.pipeThrough(new DecompressionStream('gzip'))
+    return await new Response(stream).arrayBuffer()
+  })()
 }
 
 /** Lazily import and configure typst.ts (WASM modules + IBM Plex Math font). */
@@ -69,7 +79,7 @@ function getTypst(): Promise<TypstSnippet> {
     // and it forces the FONT-005 typeface (loadFonts replaces the default font
     // set, so nothing else is fetched).
     $typst.setCompilerInitOptions({
-      getModule: () => fetchWasmModule(compilerWasmUrl as string),
+      getModule: () => resolveWasmModule(compilerWasmUrl as string),
       beforeBuild: [mod.loadFonts([mathFontUrl as string])],
     })
     $typst.setRendererInitOptions({ getModule: () => rendererWasmUrl })

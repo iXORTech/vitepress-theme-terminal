@@ -82,6 +82,25 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `apply: "build"`). Verified: dist has no file ≥ 25 MiB; headless on the
     built site, block + inline Typst compile to SVG with no page errors.*
 
+- [x] **INFRA-003** — Fix dev-mode Typst WASM instantiation regression
+  - **Category:** Infrastructure · **Deps:** INFRA-002
+  - **Acceptance criteria:** `pnpm run dev` renders Typst math without the
+    `WebAssembly.instantiate(): Argument 0 must be a buffer source or a
+    WebAssembly.Module object` error; the production `.gz` decompression path
+    is preserved; verified headless against the dev server (block + inline
+    Typst compile to SVG, no page errors).
+    *Landed 2026-07-20: INFRA-002 routed the compiler `getModule` through an
+    `async fetchWasmModule()`, so the dev path returned a `Promise<string>`
+    (the raw `.wasm` URL). typst.ts's init only auto-`fetch`es a value that is
+    literally a string (`typeof r == "string"`); the Promise slipped that check
+    and its resolved URL string was passed straight to `WebAssembly.instantiate`
+    → crash. Fix (`theme/composables/useTypst.ts`): renamed to
+    `resolveWasmModule()` and made it return the dev URL as a **bare string**
+    (non-Promise, like the renderer's `getModule`) so typst.ts fetches +
+    stream-compiles it; only the `.gz` build asset returns a
+    `Promise<ArrayBuffer>`. Verified headless on the dev server: all 3
+    `.ct-typst` blocks reached `withSvg`, 0 errored, no WASM error.*
+
 ### Configuration
 
 - [x] **CONF-001** — Theme configuration surface

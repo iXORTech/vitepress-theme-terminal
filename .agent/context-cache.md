@@ -12,8 +12,10 @@ Typst compiler WASM is 28.3 MB. New build-only Vite plugin
 new `bundle[key]` in `generateBundle` is silently ignored — the replacement
 asset must go through `this.emitFile({ type: "asset", fileName, source })`
 (deleting the old key and mutating `chunk.code` both work). `useTypst`'s
-compiler `getModule` now goes through `fetchWasmModule()`: a non-`.gz` URL
-passes through (dev — the plugin is `apply: "build"`); a `.gz` URL is fetched
+compiler `getModule` now goes through `resolveWasmModule()`: a non-`.gz` URL
+passes through **as a bare string** (dev — the plugin is `apply: "build"`; a
+Promise-wrapped string would crash typst.ts's init, so it must not be `async`
+on this path); a `.gz` URL is fetched
 and, when the bytes carry the gzip magic `1f 8b` (content check, so a server
 that transparently decodes `Content-Encoding` still works), piped through
 `DecompressionStream('gzip')` → `ArrayBuffer` (a valid `BufferSource` module
@@ -1046,10 +1048,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-content .ct-typst`, lazily imports `@myriaddreamin/typst.ts` (configured
   once — compiler/renderer WASM via bundled Vite `?url`, `loadFonts` the IBM Plex
   Math OTF `?url` as the only font; the compiler URL goes through
-  `fetchWasmModule()` (INFRA-002): a `.gz` build asset (see
+  `resolveWasmModule()` (INFRA-002): a `.gz` build asset (see
   `theme/vite/gzipWasm.ts`) is fetched and, if it carries the gzip magic bytes,
-  decompressed via `DecompressionStream` into an `ArrayBuffer` module ref —
-  non-`.gz` dev URLs pass through), builds a minimal Typst doc (`$…$` inline /
+  decompressed via `DecompressionStream` into an `ArrayBuffer` module ref;
+  a non-`.gz` dev URL is returned as a **bare string** — NOT a Promise —
+  because typst.ts's init only auto-`fetch`es a string value (a
+  `Promise<string>` slips its `typeof r == "string"` check and is handed to
+  `WebAssembly.instantiate` as a URL string → "Argument 0 must be a buffer
+  source…" crash; this was the dev-mode Typst breakage)), builds a minimal
+  Typst doc (`$…$` inline /
   `$ … $` display, `#set page(fill: none)`, `#show math.equation: set
   text(font: "IBM Plex Math")`, 20pt block / 11pt inline), compiles to SVG,
   normalizes black `#000000`/`#000` **fills AND strokes** → `currentColor`

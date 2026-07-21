@@ -446,28 +446,37 @@ Math typeface. A `::: typst` container holds a **block** of Typst math, and the
 `:typst[…]` form drops **inline** Typst math into a paragraph. The `$`/`$$`
 delimiters above always stay LaTeX — the two never collide. Typst math is
 compiled in the browser; malformed input shows a visible error rather than a
-blank, and the raw source stays readable with JavaScript off.
+blank, and the raw source stays readable with JavaScript off, which gives Typst
+an inherently better theme integration than LaTeX.
 
 **Input**
 
 ```md
-Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2].
+Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2]. However, :typst[E = mc^2] does not parse, because Typst requires a space between the `m` and `c`.
 
 Block Typst — Tupper's self-referential formula:
 
 ::: typst
 1/2 < floor("mod"(floor(y/17) dot 2^(-17 floor(x) - "mod"(floor(y), 17)), 2))
 :::
+
+::: typst
+E = mc^2 should not parse, because Typst requires a space between the `m` and `c`.
+:::
 ```
 
 **Output**
 
-Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2].
+Inline Typst: :typst[e^(i pi) + 1 = 0] closes the loop. Also, :typst[E = m c^2]. However, :typst[E = mc^2] does not parse, because Typst requires a space between the `m` and `c`.
 
 Block Typst — Tupper's self-referential formula:
 
 ::: typst
 1/2 < floor("mod"(floor(y/17) dot 2^(-17 floor(x) - "mod"(floor(y), 17)), 2))
+:::
+
+::: typst
+E = mc^2 should not parse, because Typst requires a space between the `m` and `c`.
 :::
 
 ## Callouts

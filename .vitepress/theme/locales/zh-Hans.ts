@@ -30,6 +30,8 @@ export const zhHans: ThemeLocaleStrings = {
   'explorer.label': '资源管理器',
   'explorer.toggle': '切换资源管理器',
   'explorer.close': '关闭资源管理器',
+  // Explorer width drag handle (THEME-025)
+  'explorer.resize': '调整资源管理器宽度',
 
   // Floating utility window
   'window.close': '关闭窗口',
@@ -72,6 +74,10 @@ export const zhHans: ThemeLocaleStrings = {
 
   // Article table of contents (THEME-024)
   'toc.title': '本页目录',
+  // TOC width drag handle (THEME-026) + desktop retract controls (THEME-027)
+  'toc.resize': '调整目录宽度',
+  'toc.collapse': '隐藏本页目录',
+  'toc.expand': '显示本页目录',
 
   // Image containers (COMP-002) — card deck arrows
   'swiper.prev': '上一张',

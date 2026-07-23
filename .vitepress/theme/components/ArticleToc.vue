@@ -18,6 +18,7 @@ import { onContentUpdated, useData } from 'vitepress'
 import { useColorMode } from '../composables/useColorMode'
 import { useThemeConfig } from '../composables/useThemeConfig'
 import { useThemeLocale } from '../composables/useThemeLocale'
+import { useToc } from '../composables/useToc'
 import { resolvePageType } from '../utils/pageType'
 
 interface TocHeading {
@@ -92,6 +93,12 @@ const visible = computed(
     isArticle.value &&
     headings.value.length >= toc.value.minHeadings,
 )
+
+// Retract state (THEME-027) + share whether the outline is on screen so Layout
+// can gate the resize handle (THEME-026).
+const { collapsed, setVisible, toggle: toggleCollapsed } = useToc()
+watch(visible, setVisible, { immediate: true })
+onUnmounted(() => setVisible(false))
 
 // ---------------------------------------------------------------------------
 // Scroll-spy: highlight the section currently at the top of the panel
@@ -168,8 +175,23 @@ watch(strings, collect)
 </script>
 
 <template>
-  <nav v-if="visible" class="ct-toc" :aria-label="t('toc.title')">
-    <p class="ct-toc__title">{{ t('toc.title') }}</p>
+  <!-- Expanded outline -->
+  <nav
+    v-if="visible && !collapsed"
+    class="ct-toc"
+    :aria-label="t('toc.title')"
+  >
+    <div class="ct-toc__header">
+      <p class="ct-toc__title">{{ t('toc.title') }}</p>
+      <!-- Retract control (THEME-027): collapses the panel to its reopen rail -->
+      <button
+        class="ct-toc__collapse"
+        :title="t('toc.collapse')"
+        :aria-label="t('toc.collapse')"
+        aria-expanded="true"
+        @click="toggleCollapsed"
+      >«</button>
+    </div>
     <ul class="ct-toc__list">
       <li
         v-for="heading in headings"
@@ -189,4 +211,16 @@ watch(strings, collect)
       </li>
     </ul>
   </nav>
+
+  <!-- Collapsed: a slim rail on the reading column's right edge reopens it -->
+  <button
+    v-else-if="visible && collapsed"
+    class="ct-toc-rail"
+    :title="t('toc.expand')"
+    :aria-label="t('toc.expand')"
+    aria-expanded="false"
+    @click="toggleCollapsed"
+  >
+    <span class="ct-toc-rail__label">{{ t('toc.title') }}</span>
+  </button>
 </template>

@@ -30,6 +30,8 @@ export const en = {
   'explorer.label': 'Explorer',
   'explorer.toggle': 'Toggle explorer',
   'explorer.close': 'Close explorer',
+  // Explorer width drag handle (THEME-025) — accessible name for the separator
+  'explorer.resize': 'Resize explorer',
 
   // Floating utility window (THEME-003) — the shared window's own chrome.
   'window.close': 'Close window',
@@ -77,6 +79,10 @@ export const en = {
 
   // Article table of contents (THEME-024) — the right-side "on this page" panel.
   'toc.title': 'On this page',
+  // TOC width drag handle (THEME-026) + desktop retract controls (THEME-027).
+  'toc.resize': 'Resize table of contents',
+  'toc.collapse': 'Hide table of contents',
+  'toc.expand': 'Show table of contents',
 
   // Image containers (COMP-002) — the card deck's arrow controls. (The
   // lightbox chrome localizes through Fancybox's own shipped l10n tables —

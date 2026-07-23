@@ -1,0 +1,90 @@
+// ============================================================================
+// _resize.scss — sidebar width drag handles (THEME-025/026)
+// ============================================================================
+// The grabbers on the explorer's and TOC's inner edges. Each handle is a flex
+// item of `.ct-main`, placed in the gap between a sidebar and the viewport. It
+// carries ZERO layout width so the panels keep their sizes; a negative inline
+// margin cancels the extra flex `gap` its presence would otherwise add (an
+// empty flex item introduces a gap on BOTH sides = 2×`--ct-gap`, so
+// `-0.5 × --ct-gap` on each side restores the single gap). The visible line and
+// the wider pointer/hit target are painted by pseudo-elements straddling that
+// gap — `.ct-main` doesn't clip, so nothing is cut off.
+//
+// Handles are desktop-only: the explorer becomes an off-canvas drawer at ≤640px
+// and the TOC drops out of the reading column at ≤1023px (Layout renders each
+// handle only while its panel is docked, and these media rules are the CSS
+// floor). Never printed.
+
+.ct-resize-handle {
+  position: relative;
+  z-index: 5;
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 0;
+  // Cancel the doubled flex gap this zero-width item would introduce.
+  margin-inline: calc(var(--ct-gap) * -0.5);
+  cursor: col-resize;
+  touch-action: none; // a pointer drag must not scroll the page
+
+  // Wide, invisible hit target centered on the gap so the thin handle is easy
+  // to grab (and covers the panel's rounded border edge).
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(var(--ct-gap) + 6px);
+  }
+
+  // The visible affordance: a slim rail, lit with the derived accent only on
+  // hover / keyboard focus so it stays quiet at rest.
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    border-radius: 1px;
+    background: transparent;
+    transition: background 0.15s ease;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    background: var(--ct-main-border);
+  }
+
+  // The rail itself carries the focus indication; suppress the default ring.
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+// While a drag is in progress the whole document shows the resize cursor and
+// text selection is suppressed (composable toggles `.ct-resizing` on <body>).
+body.ct-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+// Desktop-only: hide the explorer handle once the explorer is a drawer.
+@media (max-width: 640px) {
+  .ct-resize-handle--explorer {
+    display: none;
+  }
+}
+
+// Hide the TOC handle wherever the TOC itself is hidden (below wide desktop).
+@media (max-width: 1023px) {
+  .ct-resize-handle--toc {
+    display: none;
+  }
+}
+
+@media print {
+  .ct-resize-handle {
+    display: none;
+  }
+}

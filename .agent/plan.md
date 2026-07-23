@@ -944,7 +944,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     scroll-spy active updates on scroll, deep-link scroll, zh-Hans "本页目录",
     absent in paper mode / at 900px / on the home page, 360px no overflow.*
 
-- [ ] **THEME-025** — Adjustable explorer width (drag handle, min/max, persisted)
+- [x] **THEME-025** — Adjustable explorer width (drag handle, min/max, persisted)
   - **Category:** Theme · **Deps:** THEME-002, THEME-011
   - **Acceptance criteria:** on desktop the file-explorer sidebar's width can be
     adjusted by dragging a handle on its inner edge; the width is clamped between a
@@ -956,8 +956,22 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     the mobile ≤640px off-canvas drawer behavior and the not-rendered-in-paper-mode
     rule are unaffected; styles live in dedicated SCSS and the feature is recorded
     in the explorer spec (`design-language.md` §4).
+    *Landed 2026-07-23: a shared drag handle (`components/ResizeHandle.vue` +
+    `composables/useResizableSidebar.ts`, styles `styles/_resize.scss`) placed
+    by Layout on the explorer's inner (right) edge widens it on drag-right,
+    clamped **180–420px** (default 15rem/240px). The width persists as
+    `ct-explorer-width` (px int) and applies pre-paint via the `head.ts` restore
+    script setting `--ct-explorer-width` on `<html>` (read by `_explorer.scss`
+    with a rem fallback). Handle is an ARIA `separator` (localized
+    `explorer.resize`, `aria-valuemin/max/now`, `←`/`→`/`Home`/`End`
+    keyboard). Bounds shared via `utils/sidebarWidth.ts` (imported by both the
+    composable and head script). The handle is a zero-width `.ct-main` flex item
+    with a negative inline margin to cancel the extra flex gap; hidden ≤640px and
+    in print; only rendered while the explorer is docked and extended. Verified
+    headless 22/22 (drag widen, persist, pre-paint restore, clamp over-max→420,
+    keyboard widen + aria, hidden @360, no overflow).*
 
-- [ ] **THEME-026** — Adjustable TOC width (drag handle, min/max, persisted)
+- [x] **THEME-026** — Adjustable TOC width (drag handle, min/max, persisted)
   - **Category:** Theme · **Deps:** THEME-024
   - **Acceptance criteria:** on desktop the article table-of-contents sidebar's
     width can be adjusted by dragging a handle on its inner edge; the width is
@@ -969,8 +983,17 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     behavior and the not-rendered-in-paper-mode rule are unaffected; styles live in
     dedicated SCSS and the feature is recorded in the TOC spec (`design-language.md`
     §4).
+    *Landed 2026-07-23: reuses the THEME-025 handle machinery on the TOC's inner
+    (left) edge with the opposite drag sign (drag-left widens), clamped
+    **160–400px** (default 14rem/224px), persisted `ct-toc-width` and applied
+    pre-paint as `--ct-toc-width` on `<html>` (read by `_toc.scss`). Localized
+    `toc.resize`, keyboard-operable, hidden ≤1023px + print. Layout renders the
+    handle only while the outline is docked (visible and not retracted), for
+    which `ArticleToc` shares its on-screen state via the new
+    `composables/useToc.ts`. Verified headless: drag-left widen (224→274),
+    persist, hidden @900.*
 
-- [ ] **THEME-027** — Retractable TOC on Desktop (toggle button, persisted, pre-paint)
+- [x] **THEME-027** — Retractable TOC on Desktop (toggle button, persisted, pre-paint)
   - **Category:** Theme · **Deps:** THEME-024
   - **Acceptance criteria:** on desktop the article table-of-contents sidebar can be
     retracted via a toggle button; the retracted state persists across reloads and
@@ -979,6 +1002,17 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     is unchanged until the user toggles; the mobile ≤640px off-canvas drawer behavior
     and the not-rendered-in-paper-mode rule are unaffected; styles live in dedicated
     SCSS and the feature is recorded in the TOC spec (`design-language.md` §4).
+    *Landed 2026-07-23: a `[«]` control in the TOC header (`ArticleToc.vue`)
+    collapses the outline to a slim vertical **reopen rail** (`.ct-toc-rail`,
+    "on this page" caption) on the reading column's right edge; clicking the rail
+    restores it. State persists in `localStorage` (`ct-toc`) and is mirrored
+    pre-paint by the head script as `<html data-ct-toc="closed">`; `useToc` seeds
+    its ref from that attribute synchronously, so a retracted outline paints as
+    the rail with no expanded flash (TOC is client-rendered — no SSR mismatch).
+    Controls localized (`toc.collapse`/`toc.expand`), keyboard-operable; rail
+    hidden ≤1023px + print. Verified headless: collapse→rail, persist=closed,
+    reload paints rail (no flash) with `data-ct-toc` set pre-paint, rail
+    reopens=open.*
 
 - [ ] **THEME-028** — Link anchor copy: copy the full URL of a heading anchor to the clipboard
   - **Category:** Theme · **Deps:** THEME-023

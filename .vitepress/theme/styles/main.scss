@@ -15,6 +15,7 @@
 @use "navdrawer"; // right-side tool-bar overflow drawer (THEME-022)
 @use "explorer"; // file-explorer navigation sidebar (THEME-002)
 @use "toc";     // right-side article table of contents (THEME-024)
+@use "resize";  // sidebar width drag handles (THEME-025/026)
 @use "statusbar"; // bottom status bar / statusline (THEME-001)
 @use "window";  // shared floating utility window (THEME-003)
 @use "search";  // find palette (SEARCH-002)

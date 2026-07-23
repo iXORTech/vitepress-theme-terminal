@@ -164,6 +164,22 @@ non-interactive icon column and the label's leading edge (an intentional,
 small ambiguity strip — a tap that close to the chevron reads as an expand
 gesture).
 
+*Adjustable width (THEME-025, 2026-07-23):* on desktop a drag handle on the
+explorer's **inner (right) edge** resizes the panel — dragging right widens it —
+clamped to a documented **180px–420px** (default 15rem / 240px). The width
+persists in `localStorage` (`ct-explorer-width`, a pixel integer) and is applied
+**pre-paint** by the head restore script as a `--ct-explorer-width` CSS custom
+property on `<html>` (the panel SCSS reads it with the rem default as fallback),
+so a resized panel never flashes its default width. The handle is a focusable
+ARIA `separator` (localized `explorer.resize` name, `aria-valuemin/max/now`) —
+`←`/`→` step it, `Home`/`End` jump to the bounds. It is desktop-only (hidden at
+≤640px, where the explorer is a drawer) and never printed. Shared with the TOC
+handle: `components/ResizeHandle.vue` + `composables/useResizableSidebar.ts` +
+`styles/_resize.scss`; the bounds live in `utils/sidebarWidth.ts` (imported by
+both the composable and the head script so they agree). The handle is a
+zero-width flex item of `.ct-main` whose negative inline margin cancels the extra
+flex `gap` it would otherwise introduce.
+
 *Auto-discovery (THEME-012 / I18N-006 / THEME-013):* `themeConfig.explorer` may be set to
 `"auto"` to derive the tree from every Markdown file below the site's `src/`
 source directory. Directories become folders, `index.md` is the folder's
@@ -622,6 +638,27 @@ or overflowing the content (§8). The "on this page" label is localized
 (`toc.title`). *Implemented:* `components/ArticleToc.vue` (placed in the
 `.ct-main` row after the viewport, in Layout) + `styles/_toc.scss`; the TOC
 hides ≤1023px via CSS.
+
+*Adjustable width (THEME-026, 2026-07-23):* a drag handle on the TOC's **inner
+(left) edge** resizes it — dragging left widens it — clamped to a documented
+**160px–400px** (default 14rem / 224px), persisted (`ct-toc-width`) and applied
+pre-paint as `--ct-toc-width` on `<html>`. It reuses the explorer's handle
+machinery (`ResizeHandle` / `useResizableSidebar` / `_resize.scss`,
+`utils/sidebarWidth.ts`), with the opposite drag sign; localized name
+`toc.resize`, keyboard-operable, hidden ≤1023px and in print. Layout renders it
+only while the outline is actually docked (visible and not retracted), for which
+`ArticleToc` shares its on-screen state through `composables/useToc.ts`.
+
+*Retractable on desktop (THEME-027, 2026-07-23):* a `[«]` control in the panel
+header collapses the outline to a slim **reopen rail** on the reading column's
+right edge (a vertical "on this page" caption); clicking the rail restores it.
+The choice persists (`localStorage` `ct-toc`) and is mirrored **pre-paint** by
+the head script as `<html data-ct-toc="closed">`, and `useToc` seeds its state
+from that attribute synchronously — so a retracted outline renders as the rail on
+first paint with no expanded flash (the TOC is client-rendered, so there is no
+SSR markup to mismatch). Controls are localized (`toc.collapse` / `toc.expand`)
+and keyboard-operable; the rail follows the panel's desktop-only visibility
+(hidden ≤1023px and in print).
 
 *Implemented (COMP-003/004):* `ArticleLicense.vue` (title · release + last-updated
 dates · author · permalink, license statement + CC icons, and a `.ct-license__watermark`

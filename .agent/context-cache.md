@@ -2,7 +2,42 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-20 (**INFRA-002 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-23 (**THEME-025/026/027
+landed** — resizable + retractable sidebars. Shared machinery:
+`utils/sidebarWidth.ts` (vue-free bounds/keys — `EXPLORER_WIDTH` 180–420px,
+`TOC_WIDTH` 160–400px, `TOC_COLLAPSE_KEY='ct-toc'` — imported by both the
+composable and the node-side `head.ts` so they agree); `ResizeHandle.vue` +
+`useResizableSidebar.ts` (a focusable ARIA `separator`; pointer drag with
+`setPointerCapture` + `←/→/Home/End` keys; a `sign` maps cursor-X / arrow
+direction to widen vs narrow — explorer `+1` right-widens, TOC `-1`
+left-widens; live-applies the width to a `--ct-*-width` CSS var on `<html>` +
+persists px int). Layout places each handle as a **zero-width flex item of
+`.ct-main`** with `margin-inline: calc(var(--ct-gap) * -0.5)` to cancel the
+doubled flex gap; visible line + hit target are pseudo-elements straddling the
+gap (`.ct-main` doesn't clip). Explorer handle rendered only when
+`explorerAvailable && desktopOpen` (hidden ≤640px = drawer mode); TOC handle
+only when `tocVisible && !tocCollapsed` (hidden ≤1023px). Panel SCSS now reads
+`width: var(--ct-explorer-width, 15rem)` / `var(--ct-toc-width, 14rem)`.
+Pre-paint: new `PANEL_RESTORE_SCRIPT` in `head.ts` (second inline script) clamps
+the persisted widths and sets the CSS vars, and sets `data-ct-toc="closed"` —
+no flash of default width / expanded TOC. THEME-027 retract: `[«]` header
+control in `ArticleToc.vue` collapses to a vertical **reopen rail**
+(`.ct-toc-rail`, "on this page" caption); `useToc.ts` singleton holds
+`visible` (pushed in by ArticleToc, read by Layout to gate the TOC handle) +
+`collapsed` (seeded synchronously from the `data-ct-toc` attribute/localStorage
+so the client's first render is correct — TOC is client-rendered, no SSR
+mismatch). New locale keys `explorer.resize`, `toc.resize/collapse/expand`
+(en + zh-Hans). Files added: `components/ResizeHandle.vue`,
+`composables/useResizableSidebar.ts`, `composables/useToc.ts`,
+`utils/sidebarWidth.ts`, `styles/_resize.scss` (`@use "resize"` in main.scss).
+Docs: design-language.md §4 (three new notes under explorer + TOC). Verified
+headless 22/22 — TOC + both handles @1400, explorer drag-right widen
+(240→300) + persist + pre-paint restore, TOC drag-left widen (224→274) +
+persist, collapse→rail + persist=closed + reload paints rail with
+`data-ct-toc` pre-paint (no flash) + rail reopens, keyboard ArrowRight widen +
+aria-valuenow/label, over-max stored width clamped→420px, handles hidden
+@900/@360 + no overflow, paper mode = no toc/rail/handle.) Earlier 2026-07-20
+(**INFRA-002 landed**
 — Cloudflare Pages deploy fix: Pages rejects files > 25 MiB and the bundled
 Typst compiler WASM is 28.3 MB. New build-only Vite plugin
 `theme/vite/gzipWasm.ts` (wired in config.mts `vite.plugins`): in
@@ -582,8 +617,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   aria-label via useHeadingAnchors, in-panel hash scroll) + THEME-024
   (right-side "on this page" TOC panel — DOM-read headings, scroll-spy,
   `themeConfig.toc`, article-only, hidden ≤1023px/paper) done 2026-07-20.
-  Roadmap: DOC-002/004 documentation and
-  THEME-025 (drag-adjustable explorer width with min/max, persisted).
+  THEME-025/026/027 (done 2026-07-23): resizable + retractable sidebars —
+  drag handles on the explorer's inner (right) edge and the TOC's inner (left)
+  edge adjust their widths (clamped 180–420px / 160–400px, persisted
+  `ct-explorer-width`/`ct-toc-width`, applied pre-paint as `--ct-explorer-width`/
+  `--ct-toc-width` CSS vars on `<html>` by the head script), and the TOC gains a
+  desktop retract to a reopen rail (persisted `ct-toc`, pre-paint
+  `data-ct-toc="closed"`). New: `components/ResizeHandle.vue`,
+  `composables/useResizableSidebar.ts`, `composables/useToc.ts`,
+  `utils/sidebarWidth.ts`, `styles/_resize.scss`.
+  Roadmap: DOC-002/004 documentation.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -821,7 +864,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   onto `data-ct-font-*` (THEME-007) — attributes set only for a non-default choice,
   so no flash/reflow. FONT-005: also injects the **IBM Plex Math** stylesheet
   `<link>` (`@ibm/plex-math@1.1.0` jsDelivr, family `"IBM Plex Math"`, OFL) —
-  the math typeface for both renderers.
+  the math typeface for both renderers. THEME-025/026/027: also injects a
+  second pre-paint inline script (`PANEL_RESTORE_SCRIPT`) that clamps the
+  persisted explorer/TOC widths (`ct-explorer-width`/`ct-toc-width`) to the
+  `utils/sidebarWidth.ts` bounds and applies them as `--ct-explorer-width`/
+  `--ct-toc-width` on `<html>`, and sets `data-ct-toc="closed"` when the TOC is
+  retracted — no flash of default width / expanded TOC.
+- `theme/utils/sidebarWidth.ts` — THEME-025/026/027 vue-free constants shared by
+  `useResizableSidebar` (live clamp) and `head.ts` (pre-paint clamp):
+  `EXPLORER_WIDTH` (key `ct-explorer-width`, var `--ct-explorer-width`,
+  180–420px), `TOC_WIDTH` (`ct-toc-width`, `--ct-toc-width`, 160–400px),
+  `TOC_COLLAPSE_KEY='ct-toc'` (retract; pre-paint mirror `data-ct-toc="closed"`).
 - `theme/pageData.ts` — node-side ARCH-003 `createPageDataTransformer(lang)`,
   wired as `transformPageData` in `config.mts`: resolves a localized
   frontmatter `description` map to the build language's string (VitePress
@@ -1093,6 +1146,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `NerdFontsSymbols Nerd Font Terminal` alias (`fonts.ready` → `fonts.load()`); then
   flags `<html data-ct-nerdfont>`. Gates all PUA glyphs so a failed asset degrades
   tofu-free (FONT-002/003/004, MD-003); called once from the layout.
+- `theme/composables/useResizableSidebar.ts` — THEME-025/026 width control for
+  `ResizeHandle`. Live-applies a clamped px width to the panel's `--ct-*-width`
+  CSS var on `<html>` + persists it; `sign` maps cursor-X drag / arrow-key
+  direction to widen-vs-narrow (explorer +1, TOC -1). Pointer drag uses
+  `setPointerCapture` + a `body.ct-resizing` cursor/no-select flag;
+  `onKeydown` handles `←/→` (step 16px) and `Home/End` (bounds). Re-reads +
+  clamps the persisted value on mount so `aria-valuenow`/keyboard start correct.
+- `theme/composables/useToc.ts` — THEME-027 shared TOC state singleton:
+  `visible` (pushed in by `ArticleToc`, read by Layout to gate the TOC resize
+  handle) and `collapsed` (retract, persisted `ct-toc`). `collapsed` is seeded
+  synchronously from the pre-paint `<html data-ct-toc>` attribute / localStorage
+  (TOC is client-rendered — no SSR mismatch, no expanded-then-collapse flash);
+  `toggle()` persists and keeps the `data-ct-toc` mirror current.
 - `theme/composables/useExplorer.ts` — explorer state singleton (THEME-002/011/012/013/014):
   `available` (explicit or auto-discovered tree ∧ mode ≠ paper), `items`
   (a deterministic recursive tree built from `src/**/*.md` via VitePress
@@ -1257,7 +1323,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   frontmatter)` → the matching `pages/*Page.vue` — then the `.ct-footer-region`
   (THEME-004/006) with the optional `.ct-prefooter` slot above
   `<SiteFooter :divided/>`) followed by `<ArticleToc/>` (THEME-024 right-side
-  TOC panel, self-gating) still inside `.ct-main` — `<StatusBar/>`, the
+  TOC panel, self-gating) still inside `.ct-main` — plus two `<ResizeHandle/>`s
+  (THEME-025/026): one after `<Explorer/>` (`--explorer`, sign +1, gated on
+  `explorerAvailable && desktopOpen`) and one before `<ArticleToc/>` (`--toc`,
+  sign -1, gated on `useToc().visible && !collapsed`) — `<StatusBar/>`, the
   right-side `<NavDrawer/>` (THEME-022), and the shared `<FloatingWindow/>`
   (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
   License/Comments) moved into HomePage/PostPage. Still calls
@@ -1426,6 +1495,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   window scroll). `v-if` gated: `toc.enabled` ∧ mode ≠ paper ∧ page type ∈
   {post,series,normal} (via `resolvePageType`) ∧ `headings ≥ minHeadings`.
   Title localized `toc.title`; hidden ≤1023px + print via `_toc.scss`.
+  THEME-026/027: shares its on-screen state through `useToc()` (Layout gates the
+  TOC resize handle on it), reads `collapsed` from it, and adds a `[«]` header
+  control (`toc.collapse`) that retracts the panel to the `.ct-toc-rail` reopen
+  button (`toc.expand`, "on this page" vertical caption); rendered via
+  `v-if`/`v-else-if` on `visible` × `collapsed`.
+- `theme/components/ResizeHandle.vue` — THEME-025/026 shared width drag handle.
+  A focusable ARIA `separator` (`role`, `tabindex`, `aria-orientation=vertical`,
+  localized `aria-label`, `aria-valuemin/max/now`) driven by
+  `useResizableSidebar`. Props: `spec` (`SidebarWidthSpec`), `defaultWidth`,
+  `sign` (+1 explorer / -1 TOC), `label`. Placed by Layout as a `.ct-main` flex
+  item with modifier class `--explorer`/`--toc` (via merged `class`).
 - `theme/components/PostTaxonomy.vue` — POST-001 categories/tags as links
   (shared by PostPage byline + PostList cards): categories → `/categories/<slug>`,
   tags → `/tags/<slug>` (`slugify`, `withBase`); localized `post.categories`/
@@ -1552,7 +1632,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/**site-mark** (THEME-032, before toolbar)/
   toolbar/**navdrawer** (THEME-022)/
-  explorer/**toc** (THEME-024, after explorer)/statusbar/window/
+  explorer/**toc** (THEME-024, after explorer)/**resize** (THEME-025/026, after toc)/statusbar/window/
   settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
   callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
@@ -1808,8 +1888,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   thin rule; `__link` rows (link or button) in the tabline accent language
   with `min-height: var(--ct-tap)`, `--active` accent, `--child` 2rem indent
   (THEME-020 children), fixed 1.25rem `__icon` column; print-hidden.
+- `theme/styles/_resize.scss` — THEME-025/026 sidebar width drag handles.
+  `.ct-resize-handle` is a zero-width `.ct-main` flex item with
+  `margin-inline: calc(var(--ct-gap) * -0.5)` (cancels the doubled flex gap an
+  empty item adds); `::before` = wide invisible hit target straddling the gap,
+  `::after` = slim rail lit `--ct-main-border` on hover/`:focus-visible`
+  (outline suppressed). `body.ct-resizing` = global col-resize cursor +
+  no-select during a drag. Modifier `--explorer` hidden ≤640px, `--toc` hidden
+  ≤1023px; all handles print-hidden.
 - `theme/styles/_explorer.scss` — THEME-002/011 file-explorer sidebar: desktop
-  15rem surface panel with own scroll (`--closed` = display:none, instant
+  `width: var(--ct-explorer-width, 15rem)` surface panel with own scroll
+  (THEME-025 drag width; `--closed` = display:none, instant
   editor-tree retract, ≥641px only); mono TUI chrome. Rows nvim-tree style
   behind `[data-ct-nerdfont]`: NF chevron `\f054` (rotates open), icon column
   (`__icon--folder \f07b` / `--folder-open \f07c` accent-tinted, `--file
@@ -1829,12 +1918,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   0.35rem start padding; desktop rows stay dense; hidden in print. The
   drawer breakpoint must match useExplorer's `DRAWER_QUERY`.
 - `theme/styles/_toc.scss` — THEME-024 right-side article TOC (`.ct-toc`),
-  mirroring `_explorer.scss`: `flex-shrink: 0`, 14rem, own scroll, surface bg
-  + border/radius + subtle shadow, mono. `__title` = uppercase drawer-style
-  header; `__list`/`__item`/`__link` rows indent by depth
-  (`--h3`…`--h6` `padding-inline-start` steps) with a transparent left rail;
-  `--active > __link` lights the rail `--ct-main-border` + text `--ct-link`.
-  Hidden ≤1023px (collapses out of the reading column, §8) and in `@media print`.
+  mirroring `_explorer.scss`: `flex-shrink: 0`, `width: var(--ct-toc-width,
+  14rem)` (THEME-026 drag width), own scroll, surface bg + border/radius +
+  subtle shadow, mono. `__header` = flex row with the uppercase `__title` +
+  THEME-027 `__collapse` `[«]` accent control; `__list`/`__item`/`__link` rows
+  indent by depth (`--h3`…`--h6` `padding-inline-start` steps) with a
+  transparent left rail; `--active > __link` lights the rail `--ct-main-border`
+  + text `--ct-link`. THEME-027 `.ct-toc-rail` = 1.75rem vertical reopen button
+  (`writing-mode: vertical-rl` caption) shown when retracted. Panel + rail
+  hidden ≤1023px (collapses out of the reading column, §8) and in `@media print`.
 - `theme/styles/_window.scss` — THEME-003/016/017 shared floating window:
   backdrop z-40 (above the explorer drawer's z-30) + invisible window
   container z-50 (centered top 14vh, `min(40rem, …)` wide, 70vh max) stacking

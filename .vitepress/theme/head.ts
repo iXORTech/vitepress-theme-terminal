@@ -19,6 +19,11 @@
 import type { HeadConfig } from 'vitepress'
 import { resolveThemeConfig } from './config'
 import type { TerminalThemeConfig } from './config'
+import {
+  EXPLORER_WIDTH,
+  TOC_COLLAPSE_KEY,
+  TOC_WIDTH,
+} from './utils/sidebarWidth'
 
 // IBM Plex Sans / Serif / Mono via the Google Fonts CSS2 API
 // (typography-and-icons.md §3 names this as an approved source).
@@ -62,6 +67,21 @@ const MODE_RESTORE_SCRIPT =
   "if(fs==='small'||fs==='large'){d.setAttribute('data-ct-font-size',fs)}" +
   "}catch(e){}})()"
 
+// Restores the resizable-sidebar state before first paint (THEME-025/026/027):
+// the explorer and TOC widths as CSS custom properties on <html> (clamped to
+// the shared bounds so a stale/out-of-range value can't misdraw), and the TOC
+// desktop retract choice as the `data-ct-toc="closed"` attribute. Only a valid
+// persisted value is applied — an un-resized/expanded default leaves <html>
+// clean and the SCSS fallbacks win (no flash, no reflow).
+const PANEL_RESTORE_SCRIPT =
+  "(function(){var d=document.documentElement;" +
+  "function w(k,p,mn,mx){try{var v=parseInt(localStorage.getItem(k),10);" +
+  "if(!isNaN(v)){v=Math.max(mn,Math.min(mx,v));d.style.setProperty(p,v+'px')}}catch(e){}}" +
+  `w('${EXPLORER_WIDTH.key}','${EXPLORER_WIDTH.cssVar}',${EXPLORER_WIDTH.min},${EXPLORER_WIDTH.max});` +
+  `w('${TOC_WIDTH.key}','${TOC_WIDTH.cssVar}',${TOC_WIDTH.min},${TOC_WIDTH.max});` +
+  `try{if(localStorage.getItem('${TOC_COLLAPSE_KEY}')==='closed'){d.setAttribute('data-ct-toc','closed')}}catch(e){}` +
+  "})()"
+
 /** Build the theme's `<head>` entries from the user `themeConfig`. */
 export function themeHead(user?: TerminalThemeConfig): HeadConfig[] {
   const { mainColor } = resolveThemeConfig(user)
@@ -84,5 +104,7 @@ export function themeHead(user?: TerminalThemeConfig): HeadConfig[] {
     ['style', {}, `:root{--ct-main:${mainColor};}`],
     // Color-mode restore (STYLE-002) + font-preference restore (THEME-007)
     ['script', {}, MODE_RESTORE_SCRIPT],
+    // Sidebar width + TOC retract restore (THEME-025/026/027)
+    ['script', {}, PANEL_RESTORE_SCRIPT],
   ]
 }

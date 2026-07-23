@@ -15,7 +15,9 @@
 
 .ct-explorer {
   flex-shrink: 0;
-  width: 15rem;
+  // Default 15rem; a user-dragged width (THEME-025) overrides via the CSS
+  // custom property set on <html> (pre-paint in head.ts, live by the handle).
+  width: var(--ct-explorer-width, 15rem);
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain; // don't chain scrolling to the page

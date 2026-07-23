@@ -11,7 +11,9 @@
 
 .ct-toc {
   flex-shrink: 0;
-  width: 14rem;
+  // Default 14rem; a user-dragged width (THEME-026) overrides via the CSS
+  // custom property set on <html> (pre-paint in head.ts, live by the handle).
+  width: var(--ct-toc-width, 14rem);
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain; // don't chain scrolling to the page
@@ -24,15 +26,94 @@
   font-size: 0.8125rem;
 }
 
-// Panel heading — "On this page", styled like the explorer's drawer title.
-.ct-toc__title {
-  margin: 0 0 0.5rem;
+// Panel heading row — the "On this page" caption plus the retract control
+// (THEME-027), styled like the explorer's drawer header.
+.ct-toc__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
   padding: 0 0.25rem 0.5rem;
   border-bottom: 1px solid var(--ct-border);
+}
+
+.ct-toc__title {
+  margin: 0;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ct-text-neutral);
+}
+
+// Retract button — a text `[«]` control (THEME-027), accent like the tool-bar
+// actions, collapsing the panel to its reopen rail.
+.ct-toc__collapse {
+  flex-shrink: 0;
+  padding: 0.1rem 0.35rem;
+  border: none;
+  border-radius: var(--ct-radius-small);
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Collapsed reopen rail (THEME-027)
+// ----------------------------------------------------------------------------
+// When the outline is retracted the panel is replaced by this slim vertical
+// button on the reading column's right edge; clicking it restores the TOC. Its
+// vertical caption reuses the panel's TUI chrome.
+.ct-toc-rail {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  padding: 0.5rem 0;
+  border: 1px solid var(--ct-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  color: var(--ct-text-neutral);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  // Vertical caption reading bottom-to-top, like an editor tab label.
+  &__label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  &:hover {
+    background: var(--ct-main-subtle);
+    color: var(--ct-link-hover);
+  }
+}
+
+// The rail follows the same desktop-only visibility as the panel itself.
+@media (max-width: 1023px) {
+  .ct-toc-rail {
+    display: none;
+  }
+}
+
+@media print {
+  .ct-toc-rail {
+    display: none;
+  }
 }
 
 .ct-toc__list {

@@ -1,0 +1,118 @@
+// ============================================================================
+// _notifications.scss — transient status notifications (THEME-029)
+// ============================================================================
+// The toast stack lives in the shell's bottom-right corner, just above the
+// status bar, in the same floating TUI idiom as the utility window: a small
+// bordered surface box with a text `[x]` control and a subtle drop shadow.
+//
+// Placement: `NotificationStack` is a ZERO-HEIGHT flex item of `.ct-shell`,
+// rendered between the `.ct-main` row and the status bar. The shell's flex
+// `gap` would otherwise add a second `--ct-gap` for it, so the row cancels that
+// with a negative top margin — the same trick the resize handles use in
+// _resize.scss. The stack then positions itself `bottom: 0` inside that
+// zero-height box, i.e. flush with the viewport row's bottom edge, one gap
+// above the status bar, and grows upward over the content.
+
+.ct-notifications {
+  position: relative;
+  z-index: 35; // above the explorer drawer (30), below the window layer (40/50)
+  height: 0;
+  margin-top: calc(-1 * var(--ct-gap)); // cancel the extra shell flex gap
+}
+
+.ct-notifications__stack {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none; // the empty region must never block the content below
+}
+
+// One notification box — TUI chrome, so mono, with the accent border that marks
+// theme-generated surfaces (color-system.md §3: derived main color only).
+.ct-notification {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(24rem, calc(100vw - 2 * var(--ct-gap)));
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ct-main-border);
+  border-radius: var(--ct-radius);
+  background: var(--ct-surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 28%);
+  font-family: var(--ct-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ct-text);
+}
+
+.ct-notification__close {
+  flex: none;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ct-link);
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--ct-link-hover);
+  }
+}
+
+// Enter/leave: a short rise + fade, matching the window's 0.15s finish (§5)
+.ct-notification-enter-active,
+.ct-notification-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.ct-notification-enter-from,
+.ct-notification-leave-to {
+  opacity: 0;
+  transform: translateY(0.5rem);
+}
+
+// Mobile (≤640px): span the shell's width instead of hugging the right edge,
+// and grow the dismiss control to a ≥44px tap box (design-language.md §8).
+@media (max-width: 640px) {
+  .ct-notifications__stack {
+    left: 0;
+    align-items: stretch;
+  }
+
+  .ct-notification {
+    max-width: none;
+  }
+
+  .ct-notification__close {
+    padding: calc((var(--ct-tap) - 1.2em) / 2) 0.75rem;
+    margin: calc((1.2em - var(--ct-tap)) / 2) -0.25rem;
+  }
+}
+
+// Readers who ask for less motion get the boxes without the rise
+@media (prefers-reduced-motion: reduce) {
+  .ct-notification-enter-active,
+  .ct-notification-leave-active {
+    transition: opacity 0.15s ease;
+  }
+
+  .ct-notification-enter-from,
+  .ct-notification-leave-to {
+    transform: none;
+  }
+}
+
+// On-screen chrome only — never printed
+@media print {
+  .ct-notifications {
+    display: none;
+  }
+}

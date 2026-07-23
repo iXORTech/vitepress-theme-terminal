@@ -619,6 +619,38 @@ mobile the control stays visible (no hover) and presents a ≥44px tap target
 (§8). *Implemented:* styles in `styles/_anchors.scss`; label localization in
 `composables/useHeadingAnchors.ts` (called once from Layout).
 
+*Link copy (THEME-028, 2026-07-23):* activating a `#` control also copies that
+heading's **full** URL — origin, path and `#slug` — to the clipboard, so sharing
+a section is one click rather than a select-the-address-bar exercise. The copy is
+purely additive: the link keeps its normal behavior (the hash still lands in the
+URL and the panel still scrolls), it is never a `preventDefault`. The URL comes
+from the anchor element's resolved `href`, so it stays correct under a deployed
+`base` and under either URL style (clean or `.html`, THEME-030). The copy is
+confirmed by a transient notification (below); when the clipboard is
+unavailable — an insecure context, or permission denied — nothing is copied and
+**no** notification appears, so the reader is never told a copy succeeded that
+did not. *Implemented:* one delegated click listener in
+`composables/useHeadingAnchors.ts`, beside the label localization.
+
+**Transient notifications (THEME-029)** — the theme's one place for short
+"that worked" feedback about an action with no visible result of its own. Small
+TUI boxes (mono, surface background, derived accent border, subtle drop shadow)
+stack in the shell's **bottom-right corner, just above the status bar**, and
+grow upward over the content; on mobile they span the shell's width (§8). Each
+box carries the message and a text `[x]` dismiss control in the floating
+window's idiom (THEME-017); it disappears on its own after ~3s or immediately
+when dismissed. Repeating the same action replaces the message on screen rather
+than stacking an identical copy, and at most three are shown at once. The stack
+is a persistent `role="status"` / `aria-live="polite"` region — always in the
+DOM, empty or not — so appended messages are announced; message text and the
+dismiss label are localized like all UI text (§9), with the *caller* supplying
+the already-localized message. It is on-screen chrome only (never printed) and
+its enter/leave motion respects `prefers-reduced-motion`. *Implemented:*
+`composables/useNotifications.ts` (the shared queue and timing) +
+`components/NotificationStack.vue` (rendered once by Layout as a zero-height
+shell row between the viewport row and the status bar) + `styles/_notifications.scss`.
+Its first consumer is the heading-anchor link copy (THEME-028).
+
 **Article table of contents (THEME-024)** — article pages show an "on this page"
 panel to the **right** of the viewport, mirroring the explorer sidebar on the
 left: a fixed TUI panel (mono type, its own scroll, rounded/floating finish)

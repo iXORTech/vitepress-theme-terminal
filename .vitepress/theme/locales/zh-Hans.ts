@@ -69,8 +69,12 @@ export const zhHans: ThemeLocaleStrings = {
   'code.copy': '复制',
   'code.copied': '已复制',
 
-  // Heading anchor permalinks (THEME-023)
+  // Heading anchor permalinks (THEME-023) + link copy (THEME-028)
   'anchor.permalink': '链接到 {title}',
+  'anchor.copied': '已复制标题链接',
+
+  // Transient status notifications (THEME-029)
+  'notification.dismiss': '关闭通知',
 
   // Article table of contents (THEME-024)
   'toc.title': '本页目录',

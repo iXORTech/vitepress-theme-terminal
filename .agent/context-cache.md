@@ -2,7 +2,51 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-23 (**THEME-025/026/027
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-23 (**THEME-028/029/030
+landed** — heading-link copy, transient notifications, clean URLs. THEME-029 is
+the general toast surface, not an anchor-only affordance:
+`composables/useNotifications.ts` is a module-singleton queue
+(`notify(alreadyLocalizedMessage)` / `dismiss(id)`; 3s auto-dismiss, max 3
+visible, a repeat of the same message replaces the visible one with a fresh id
+so it re-enters animated) rendered once by `components/NotificationStack.vue`,
+which Layout places as a **zero-height shell row between `.ct-main` and
+`StatusBar`** — `margin-top: calc(-1 * var(--ct-gap))` cancels the extra flex
+gap (the `_resize.scss` trick), so the stack anchors bottom-right one gap above
+the status bar and grows upward over the content without changing the fixed
+frame. Boxes are TUI surfaces with a `--ct-main-border` accent frame + text
+`[x]` control (THEME-017 idiom); the container is a persistent `role="status"`
+/ `aria-live="polite"` region, empty during SSR (nothing to mismatch).
+`styles/_notifications.scss`: z-35 (above the explorer drawer 30, below the
+window 40/50), `pointer-events:none` on the stack / `auto` on each box so the
+empty region never blocks content, ≤640px full-width with a ≥44px dismiss tap
+box, reduced-motion + print handled. THEME-028: `useHeadingAnchors.ts` gained a
+delegated document click on `.ct-content .header-anchor` that copies the anchor
+element's resolved `href` (origin + path + query + `#slug`; correct under `base`
+and either URL style) and raises the localized `anchor.copied` toast — purely
+additive, no `preventDefault`, and a clipboard failure shows nothing (never a
+false confirmation). THEME-030: `cleanUrls: true` in `config.mts` — no theme
+code change needed (its links are already extensionless and `linkRelativePath()`
+strips `.html` when matching); `.html` files are still written, so old links
+resolve directly while suffix-free ones use the host's extension fallback.
+**THEME-033** (same day): arriving on a `.html` URL rewrites the address bar to
+the clean form in place — `composables/useCleanUrls.ts`, `history.replaceState`
+on mount + `onContentUpdated` (no navigation, no extra history entry, `search` +
+`hash` + `base` preserved, `…/index.html` → folder form), gated on
+`site.cleanUrls` so it is inert when the `.html` form is canonical. New
+locale keys `anchor.copied`, `notification.dismiss` (en + zh-Hans). Files added:
+`composables/useNotifications.ts`, `components/NotificationStack.vue`,
+`composables/useCleanUrls.ts`,
+`styles/_notifications.scss` (`@use "notifications"` in main.scss),
+`docs/configuration/clean-urls.md` (indexed from `docs/README.md`). Docs:
+design-language.md §4 — heading-anchor "Link copy" note + a new "Transient
+notifications" note. Verified headless 21/21 — clipboard holds the exact
+absolute `…#slug` URL + hash still set + second anchor copies its own URL,
+toast above the status bar bottom-right with localized text, manual `[x]` +
+~3s auto-dismiss, zh-Hans strings, live region empty at rest, frame still
+non-scrollable, 360px 44px tap box + no overflow, `display:none` in print, no
+page errors; dist links carry no `.html` (34 checked) and both
+`/guide/getting-started` and `….html` return 200 on preview **and** dev.)
+Earlier 2026-07-23 (**THEME-025/026/027
 landed** — resizable + retractable sidebars. Shared machinery:
 `utils/sidebarWidth.ts` (vue-free bounds/keys — `EXPLORER_WIDTH` 180–420px,
 `TOC_WIDTH` 160–400px, `TOC_COLLAPSE_KEY='ct-toc'` — imported by both the
@@ -626,14 +670,32 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `data-ct-toc="closed"`). New: `components/ResizeHandle.vue`,
   `composables/useResizableSidebar.ts`, `composables/useToc.ts`,
   `utils/sidebarWidth.ts`, `styles/_resize.scss`.
+  THEME-028/029/030 (done 2026-07-23): clicking a heading `#` control copies
+  that heading's absolute URL, confirmed by the new general transient-toast
+  surface (bottom-right above the status bar, 3s auto-dismiss + `[x]`,
+  `role="status"`); `cleanUrls: true` drops the `.html` suffix from generated
+  links while old `.html` links keep resolving, and THEME-033 rewrites a
+  `.html` address bar to the clean form in place. New:
+  `composables/useNotifications.ts`, `components/NotificationStack.vue`,
+  `composables/useCleanUrls.ts`, `styles/_notifications.scss`,
+  `docs/configuration/clean-urls.md`.
   Roadmap: DOC-002/004 documentation.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
 ## docs/
 
-- `README.md` — documentation index (design docs, process files) plus documentation
-  rules; clarifies `docs/` is repo documentation, not site content.
+- `README.md` — documentation index (design docs, **site configuration**, process
+  files) plus documentation rules; clarifies `docs/` is repo documentation, not
+  site content.
+- `configuration/clean-urls.md` — THEME-030: what `cleanUrls: true` changes
+  (link generation only — `<page>.html` files are still written), why the theme
+  needed no adjustment (`linkRelativePath()` already strips `.html` when
+  matching), and the host table showing both `/page` and `/page.html` resolving
+  everywhere the theme deploys; plus the THEME-033 section — arriving on a
+  `.html` URL rewrites the address bar in place (no navigation / history entry,
+  query + hash + `base` preserved, `…/index.html` → folder form), gated on the
+  `cleanUrls` option itself.
 - `design/design-language.md` — binding: identity, NeoVim/LazyVim-inspired TUI design
   language, hard no-branding rule, iconic components table (tool bar, status bar,
   explorer, floating windows), tool-bar spec (§4, THEME-001/005/010/020:
@@ -708,7 +770,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   time) + §8 tool-bar bullet updated; §4 explorer **concise drawer rows**
   note (THEME-021: drawer keeps desktop-tight 1.25rem columns, rows grow in
   height only, chevron tap box via the §8 padding/negative-margin pattern
-  with a small intentional overlay strip).
+  with a small intentional overlay strip); §4 heading-anchor **link copy** note
+  (THEME-028: activating a `#` control also copies the heading's absolute URL —
+  additive, never a `preventDefault`; a clipboard failure shows nothing rather
+  than a false confirmation) and the §4 **transient notifications** note
+  (THEME-029: the theme's one toast surface — bottom-right above the status
+  bar, mono TUI boxes with a derived-accent frame and a text `[x]`, ~3s
+  auto-dismiss, repeats replace rather than stack, max 3, persistent
+  `role="status"` live region, caller supplies the localized message,
+  print-hidden, reduced-motion honored).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
   modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
@@ -787,7 +857,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 ## .vitepress/
 
 - `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
-  `srcDir: "src"`; `vite.resolve.alias` maps `@` →
+  `srcDir: "src"`; `cleanUrls: true` (THEME-030 — generated links drop `.html`;
+  `<page>.html` files are still written so old links resolve, see
+  `docs/configuration/clean-urls.md`); `vite.resolve.alias` maps `@` →
   `fileURLToPath(new URL("./theme", …))` so content `.md` files import authored
   views cleanly (`@/views/About.vue`, PAGE-002/003) — bare `@` only matches
   `@`/`@/…`, scoped pkgs unaffected; `vite.optimizeDeps.exclude` lists the three
@@ -1012,7 +1084,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
   fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
   `code.copy`/`code.copied` (STYLE-004),
-  `anchor.permalink` (`{title}` — THEME-023 heading permalink label),
+  `anchor.permalink` (`{title}` — THEME-023 heading permalink label) +
+  `anchor.copied` (THEME-028 link-copy confirmation),
+  `notification.dismiss` (THEME-029 toast `[x]` control),
   `toc.title` (THEME-024 "on this page"),
   `license.*` — author/published/updated/permalink/statement (COMP-003),
   `comments.title`/`comments.views` (COMP-004),
@@ -1073,12 +1147,31 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (`--copied` class, WeakSet guards the flash); `[data-ct-code-copy-label]` +
   aria/title re-localized on mount, `onContentUpdated`, and language switch.
 - `theme/composables/useHeadingAnchors.ts` — THEME-023 heading permalink label
-  localization; called once from the layout. Re-writes every `.ct-content
-  .header-anchor` `aria-label`/`title` from the `anchor.permalink` locale string
-  (`{title}` = the heading text minus the anchor's zero-width space) on mount,
-  `onContentUpdated`, and language switch (the useCodeCopy pattern). The `#`
+  localization **+ THEME-028 link copy**; called once from the layout. Re-writes
+  every `.ct-content .header-anchor` `aria-label`/`title` from the
+  `anchor.permalink` locale string (`{title}` = the heading text minus the
+  anchor's zero-width space) on mount, `onContentUpdated`, and language switch
+  (the useCodeCopy pattern). One delegated document click on
+  `.ct-content .header-anchor` copies that anchor's resolved `href` (absolute:
+  origin + path + query + `#slug`) via `navigator.clipboard` and raises the
+  localized `anchor.copied` toast (`useNotifications`) — additive, never a
+  `preventDefault`; a clipboard failure copies and shows nothing. The `#`
   glyph, hover/focus reveal, and in-panel hash scroll are handled elsewhere
   (`_anchors.scss` + `useViewportScroll`).
+- `theme/composables/useCleanUrls.ts` — THEME-033 address-bar normalization;
+  called once from the layout. Exports the framework-free `cleanPathname()`
+  (clean form of a pathname or `null`; `…/index.html` → the folder form) and
+  `useCleanUrls()`, which `history.replaceState`s the current entry to
+  `cleaned + search + hash` on mount and `onContentUpdated` (the latter catches
+  an in-content link written explicitly as `./page.html` — VitePress leaves
+  those alone). Reuses the existing `history.state`, so no navigation, no
+  reload, and no extra history entry. Inert unless `useData().site.cleanUrls`.
+- `theme/composables/useNotifications.ts` — THEME-029 transient-notification
+  ("toast") queue: a module singleton exposing `notifications` (readonly),
+  `notify(message)` and `dismiss(id)`. Callers pass an **already localized**
+  string (the locale tables stay the string source). Each entry auto-dismisses
+  after `NOTIFICATION_MS` (3s), re-notifying the same message replaces the
+  visible one with a fresh id (re-enters animated), and the queue caps at 3.
 - `theme/composables/useLightbox.ts` — COMP-002 enlarge-on-click gallery:
   marks every `.ct-content img` (skipping linked / `data-no-lightbox` images)
   with `data-fancybox="ct-gallery"` on mount + `onContentUpdated`, lazy-loads
@@ -1326,10 +1419,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   TOC panel, self-gating) still inside `.ct-main` — plus two `<ResizeHandle/>`s
   (THEME-025/026): one after `<Explorer/>` (`--explorer`, sign +1, gated on
   `explorerAvailable && desktopOpen`) and one before `<ArticleToc/>` (`--toc`,
-  sign -1, gated on `useToc().visible && !collapsed`) — `<StatusBar/>`, the
+  sign -1, gated on `useToc().visible && !collapsed`) — `<NotificationStack/>`
+  (THEME-029, the zero-height toast row between the viewport row and the
+  status bar), `<StatusBar/>`, the
   right-side `<NavDrawer/>` (THEME-022), and the shared `<FloatingWindow/>`
   (THEME-003). The old home placeholder + `isArticle` branching (ArticleMeta/
   License/Comments) moved into HomePage/PostPage. Still calls
+  `useCleanUrls()` (THEME-033) +
   `useCalloutTitles()` + `useCodeCopy()` + `useHeadingAnchors()` (THEME-023) +
   `useNerdFont()` + `useSearchShortcut()`
   + `useLocalizedContent()` + `useLightbox()` / `useSwipers()` + `useTypst()`
@@ -1425,6 +1521,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   Switch-color-mode row (cycles immediately, drawer stays open). Dismissed
   via close control, backdrop tap, `Esc`, or navigation; auto-closes when
   `collapsed` flips false (the expander trigger disappears on re-expansion).
+- `theme/components/NotificationStack.vue` — THEME-029 toast stack, rendered
+  once by Layout. A zero-height wrapper (`.ct-notifications`) holding a
+  persistent `role="status"` / `aria-live="polite"` stack of
+  `useNotifications()` entries; each box shows the message plus a text `[x]`
+  dismiss control (localized `notification.dismiss`), animated in/out by a
+  `TransitionGroup` keyed on the entry id. Empty during SSR.
 - `theme/composables/useNavDrawer.ts` — THEME-022 module singleton:
   `collapsed` (written by ToolBar's measurement; read by the CSS class +
   NavDrawer's auto-close watch) and `drawerOpen` with
@@ -1632,7 +1734,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/styles/main.scss` — SCSS entry: `@use`s the working Nerd Font face
   (`_fonts.scss`), tokens/modes/shell/**site-mark** (THEME-032, before toolbar)/
   toolbar/**navdrawer** (THEME-022)/
-  explorer/**toc** (THEME-024, after explorer)/**resize** (THEME-025/026, after toc)/statusbar/window/
+  explorer/**toc** (THEME-024, after explorer)/**resize** (THEME-025/026, after toc)/statusbar/
+  **notifications** (THEME-029, after statusbar)/window/
   settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
   callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
@@ -1693,6 +1796,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `--ct-link`/`--ct-link-hover` only; headings get `position: relative`). ≤640px
   keeps it visible and grows a ≥44px tap box via the §8 padding + negative
   `margin-block` pattern (`--ct-tap`); `@media print` hides it.
+- `theme/styles/_notifications.scss` — THEME-029 toast stack. `.ct-notifications`
+  is a zero-height shell row with `margin-top: calc(-1 * var(--ct-gap))`
+  cancelling the extra flex gap (the `_resize.scss` trick) and `z-index: 35`
+  (above the explorer drawer 30, below the window 40/50);
+  `.ct-notifications__stack` positions `right/bottom: 0` inside it, column,
+  `pointer-events: none` (boxes re-enable it) so the empty region never blocks
+  content. `.ct-notification` = surface + `--ct-main-border` frame + radius +
+  drop shadow, mono; `.ct-notification__close` is the text `[x]` in
+  `--ct-link`. `.ct-notification-enter/leave` = 0.15s fade + 0.5rem rise;
+  ≤640px the stack spans full width and the close control grows a ≥44px tap
+  box; reduced-motion drops the rise; `@media print` hides the row.
 - `theme/styles/_friends.scss` — PAGE-004 friends-page styles, scoped under
   `.ct-content`: `[⇄ random]` mono text-button (derived-accent hover), group
   headers (dim mono count + dim desc), `repeat(auto-fill, minmax(15rem,1fr))`

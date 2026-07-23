@@ -17,6 +17,7 @@
 @use "toc";     // right-side article table of contents (THEME-024)
 @use "resize";  // sidebar width drag handles (THEME-025/026)
 @use "statusbar"; // bottom status bar / statusline (THEME-001)
+@use "notifications"; // transient status notifications / toasts (THEME-029)
 @use "window";  // shared floating utility window (THEME-003)
 @use "search";  // find palette (SEARCH-002)
 @use "settings"; // settings panel + content font preferences (THEME-007)

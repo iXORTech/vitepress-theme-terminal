@@ -1014,29 +1014,114 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     reload paints rail (no flash) with `data-ct-toc` set pre-paint, rail
     reopens=open.*
 
-- [ ] **THEME-028** — Link anchor copy: copy the full URL of a heading anchor to the clipboard
+- [x] **THEME-028** — Link anchor copy: copy the full URL of a heading anchor to the clipboard
   - **Category:** Theme · **Deps:** THEME-023
   - **Acceptance criteria:** when a heading anchor is clicked, the full URL of that
     heading (including the `#slug`) is copied to the clipboard; a temporary
     notification appears confirming the copy action; the notification is accessible
     and localized; styles live in dedicated SCSS and the feature is recorded in the
     anchor link spec (`design-language.md` §4).
+    *Landed 2026-07-23: `composables/useHeadingAnchors.ts` (already the anchors'
+    label localizer) gained one **delegated** document click listener matching
+    `.ct-content .header-anchor`; it copies the anchor element's resolved
+    `href` — the fragment-only attribute resolved against the document, so
+    origin + path + query + `#slug`, correct under `base` and either URL style
+    (THEME-030) — via `navigator.clipboard`, then raises the localized
+    `anchor.copied` notification through the THEME-029 queue. The copy is purely
+    additive (no `preventDefault`): the hash still lands in the URL and
+    `useViewportScroll` still scrolls the panel. A clipboard failure (insecure
+    context / denied) copies nothing and shows nothing — never a false
+    confirmation. New string `anchor.copied` (en + zh-Hans); spec in
+    design-language.md §4 (heading anchors → link copy). Verified headless:
+    clipboard holds the exact absolute `…#slug` URL, hash still set, second
+    anchor copies its own URL, zh-Hans message.*
 
-- [ ] **THEME-029** — Link anchor copy feedback: show a temporary notification when a heading anchor is copied
+- [x] **THEME-029** — Link anchor copy feedback: show a temporary notification when a heading anchor is copied
   - **Category:** Theme · **Deps:** THEME-028
   - **Acceptance criteria:** when a heading anchor is clicked and the URL is copied
     to the clipboard, a temporary notification appears confirming the copy action;
     the notification is accessible and localized; it disappears after a short
     duration or can be dismissed by the user; styles live in dedicated SCSS and the
     feature is recorded in the anchor link spec (`design-language.md` §4).
+    *Landed 2026-07-23: built as the theme's general transient-notification
+    ("toast") surface rather than an anchor-only affordance, so later silent
+    actions can reuse it. `composables/useNotifications.ts` is a module-singleton
+    queue (`notify(localizedMessage)` / `dismiss(id)`, 3s auto-dismiss, max 3
+    visible, a repeated message replacing the visible one with a fresh id so it
+    re-enters with its animation); `components/NotificationStack.vue` renders it
+    once — Layout places it as a **zero-height shell row** between `.ct-main` and
+    the status bar (negative top margin cancelling the extra flex gap, the
+    `_resize.scss` trick), so the stack anchors bottom-right one gap above the
+    status bar and grows upward over the content without changing the fixed
+    frame's layout. Each box is a TUI surface with a derived-accent border and a
+    text `[x]` control (the THEME-017 idiom). The stack container is a persistent
+    `role="status"` / `aria-live="polite"` region (present and empty during SSR —
+    nothing to mismatch on hydration). Styles `styles/_notifications.scss`
+    (z-35 between the explorer drawer and the window layer, ≤640px full-width
+    with a ≥44px dismiss tap box, print-hidden, reduced-motion honored). New
+    string `notification.dismiss` (en + zh-Hans); spec in design-language.md §4.
+    Verified headless 21/21 with THEME-028/030 (live region empty at rest, toast
+    above the status bar bottom-right, manual dismiss, ~3s auto-dismiss, zh-Hans
+    strings, frame still non-scrollable, 360px 44px tap box + no overflow,
+    `display:none` in print, no page errors).*
 
-- [ ] **THEME-030** — No `.html` suffix in URLs: configure the site to generate clean URLs without the `.html` suffix
+- [x] **THEME-030** — No `.html` suffix in URLs: configure the site to generate clean URLs without the `.html` suffix
   - **Category:** Theme · **Deps:** THEME-001
   - **Acceptance criteria:** the site is configured to generate clean URLs without the
     `.html` suffix; all internal links are updated accordingly; external links to
     the site should still work with or without the `.html` suffix; document
     the feature in the site configuration guide (`docs/configuration/clean-urls.md`)
     when implementing.
+    *Landed 2026-07-23: `cleanUrls: true` in `.vitepress/config.mts`. The theme
+    needed no code change — its own surfaces (tool-bar `nav`, explorer tree,
+    `PostsIndex` pagination) already emit extensionless links, active-page
+    matching goes through `linkRelativePath()` (`utils/pagePath.ts`), which
+    strips `.html` before comparing, and the content-loader URLs the post/series
+    data build on follow the option automatically. `.html` files are still
+    written to `dist`, so old `/page.html` links resolve directly while `/page`
+    resolves through the host's standard extension fallback (Cloudflare Pages /
+    Netlify / Vercel / GitHub Pages, `pnpm preview`'s sirv, and `pnpm dev`).
+    Documented in the new `docs/configuration/clean-urls.md`, indexed from
+    `docs/README.md`. Verified: dist links carry no `.html` (34 checked on a
+    rendered page), and both `/guide/getting-started` and
+    `/guide/getting-started.html` return 200 on the preview server **and** the
+    dev server.*
+
+- [x] **THEME-033** — Strip a `.html` suffix from the address bar automatically
+  - **Category:** Theme · **Deps:** THEME-030
+  - **Acceptance criteria:** when a reader arrives on a URL that still carries the
+    `.html` suffix (an old external link, a bookmark, a hand-written
+    `./page.html` markdown link), the address bar is rewritten to the clean form
+    with **no navigation and no extra history entry** — the page already
+    rendered is the right one, only its URL is normalized; the query string and
+    the `#hash` are preserved (so a THEME-028 copy from such a page yields the
+    clean URL and a `#slug` deep link still lands); `…/index.html` normalizes to
+    the folder form (`/guide/index.html` → `/guide/`, `/index.html` → `/`); the
+    deployed `base` path is untouched; it also applies after client-side
+    navigation, not just on first load; the rewrite happens **only** when the
+    site is configured with `cleanUrls` (with `cleanUrls: false` the `.html`
+    form is the canonical one and must be left alone), so it is safe on hosts
+    without extension fallback; documented in
+    `docs/configuration/clean-urls.md`.
+    *Landed 2026-07-23: new `composables/useCleanUrls.ts`, called once from
+    Layout. `cleanPathname()` (exported, framework-free) returns the clean form
+    of a pathname or `null` when there is nothing to strip, mapping
+    `…/index.html` to the folder form; the composable applies it via
+    `history.replaceState(history.state, '', cleaned + search + hash)` on
+    `onMounted` **and** `onContentUpdated` — the latter catches an in-content
+    link written explicitly as `./page.html`, which VitePress's link normalizer
+    leaves alone. Reusing the existing `history.state` keeps the router's
+    bookkeeping intact. Guarded by `useData().site.cleanUrls`, so the whole
+    behavior is inert when the `.html` form is canonical. Documented in
+    `docs/configuration/clean-urls.md` (new section). Verified headless 14/14:
+    `/guide/getting-started.html` → clean URL with the right page rendered;
+    `?query` + `#hash` preserved and the deep link still scrolls the panel; a
+    THEME-028 copy from such an arrival yields the clean URL;
+    `/guide/index.html` → `/guide/` and `/index.html` → `/`; an injected
+    `.html` link click normalizes after navigation, adds exactly one history
+    entry, and Back still returns to the previous page; already-clean URLs
+    untouched; no page errors. The gate was verified by temporarily building
+    with `cleanUrls: false` — `/about.html` is then left as-is.*
 
 - [x] **THEME-031** — Official favicon
   - **Category:** Theme · **Deps:** THEME-001

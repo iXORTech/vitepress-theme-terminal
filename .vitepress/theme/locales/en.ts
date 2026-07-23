@@ -75,7 +75,14 @@ export const en = {
 
   // Heading anchor permalinks (THEME-023) — the hover/focus `#` control's
   // accessible name; `{title}` is interpolated with the heading text.
+  // Activating the control also copies that heading's full URL (THEME-028),
+  // confirmed by the transient notification below.
   'anchor.permalink': 'Permalink to {title}',
+  'anchor.copied': 'Heading link copied to clipboard',
+
+  // Transient status notifications (THEME-029) — the toast stack above the
+  // status bar; each box's text `[x]` control carries this name.
+  'notification.dismiss': 'Dismiss notification',
 
   // Article table of contents (THEME-024) — the right-side "on this page" panel.
   'toc.title': 'On this page',

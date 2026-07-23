@@ -17,6 +17,12 @@ site's pages live in `src/`, the VitePress `srcDir`).
 | [`design/content-architecture.md`](design/content-architecture.md) | `src/` directory layout (normal pages flat in `src/`, `posts/`, `series/`, listing & dynamic-route pages, `public/`) and the per-page-type Vue component dispatch; modeled on `vitepress-theme-arch` |
 | [`design/friend-links.md`](design/friend-links.md) | Friends page (PAGE-004): external `linksData.mjs` data format (generator + git-submodule sync), data discovery/merging, i18n decisions, TUI page composition, `themeConfig.friends` |
 
+### Site configuration — `configuration/`
+
+| Document | Contents |
+| --- | --- |
+| [`configuration/clean-urls.md`](configuration/clean-urls.md) | `cleanUrls` (THEME-030): suffix-free page URLs, what the option does and does not change, and why old `.html` links keep working |
+
 ### Process & agent files (outside `docs/`)
 
 | File | Contents |

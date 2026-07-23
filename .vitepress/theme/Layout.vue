@@ -19,6 +19,7 @@ import ArticleToc from './components/ArticleToc.vue'
 import Explorer from './components/Explorer.vue'
 import FloatingWindow from './components/FloatingWindow.vue'
 import NavDrawer from './components/NavDrawer.vue'
+import NotificationStack from './components/NotificationStack.vue'
 import ResizeHandle from './components/ResizeHandle.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import StatusBar from './components/StatusBar.vue'
@@ -30,6 +31,7 @@ import NotFoundPage from './pages/NotFoundPage.vue'
 import PostPage from './pages/PostPage.vue'
 import SeriesArticlePage from './pages/SeriesArticlePage.vue'
 import { useCalloutTitles } from './composables/useCalloutTitles'
+import { useCleanUrls } from './composables/useCleanUrls'
 import { useCodeCopy } from './composables/useCodeCopy'
 import { useHeadingAnchors } from './composables/useHeadingAnchors'
 import { useExplorer } from './composables/useExplorer'
@@ -85,6 +87,9 @@ const pageComponent = computed(
 // (THEME-008); this wires the router-facing scroll behaviors onto it.
 const viewport = ref<HTMLElement | null>(null)
 useViewportScroll(viewport)
+
+// Strip a legacy `.html` suffix from the address bar in place (THEME-033)
+useCleanUrls()
 
 // Re-localize callout default titles on language switch (MD-002)
 useCalloutTitles()
@@ -185,6 +190,11 @@ useWaline()
            reopen rail (THEME-027). -->
       <ArticleToc />
     </div>
+
+    <!-- Transient status notifications (THEME-029) — a zero-height shell row
+         holding the toast stack in the bottom-right corner, just above the
+         status bar; empty until a feature calls `notify()` -->
+    <NotificationStack />
 
     <!-- Bottom status bar / statusline -->
     <StatusBar />

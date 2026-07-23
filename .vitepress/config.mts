@@ -247,6 +247,12 @@ const shikiThemes = {
 export default defineConfigWithTheme<TerminalThemeConfig>({
   srcDir: "src",
 
+  // Clean URLs (THEME-030): every generated link drops the `.html` suffix, so
+  // pages are addressed as `/guide/getting-started`. The build still writes
+  // `<page>.html` files, so an old `/guide/getting-started.html` link keeps
+  // working — see docs/configuration/clean-urls.md for the hosting contract.
+  cleanUrls: true,
+
   // `@` → the theme root, so content pages can import authored view components
   // cleanly (e.g. `@/views/About.vue` in `src/about.md`). The bare `@` alias
   // only matches `@` and `@/…`, so scoped packages like `@waline/client` are

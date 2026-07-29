@@ -439,6 +439,38 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `Promise<ArrayBuffer>`. Verified headless on the dev server: all 3
     `.ct-typst` blocks reached `withSvg`, 0 errored, no WASM error.*
 
+- [x] **INFRA-004** — Vercel deployment configuration
+  - **Category:** Infrastructure · **Deps:** THEME-030
+  - **Acceptance criteria:** a Vercel deploy of a clean checkout finds the
+    build output — Vercel's VitePress framework preset points at
+    `docs/.vitepress/dist` (it assumes the `docs/`-as-site layout), which this
+    repository never produces, so a preset-driven deploy fails *after* a green
+    build; a committed `vercel.json` pins the real output directory plus the
+    pnpm install/build commands, and its URL shape matches the site's
+    `cleanUrls: true` (THEME-030) rather than serving each page at two
+    addresses; the arrangement — including the submodule and git-history
+    caveats that differ from the documented GitHub Actions job — is written up
+    in the deployment guide in both languages.
+    *Landed 2026-07-28, from a deploy report. Vercel's preset (verified in
+    `vercel/vercel`'s framework list) is `buildCommand: "vitepress build docs"`
+    / `outputDirectory: "docs/.vitepress/dist"`. Because this repository has a
+    `build` script, Vercel runs `pnpm build` and the build itself succeeds —
+    the failure lands after it, on the output-directory lookup, which is why
+    the build log ends with nothing but the (separate) chunk-size warning.
+    `vercel.json` sets `framework: "vitepress"`, `outputDirectory:
+    ".vitepress/dist"`, `installCommand: "pnpm install --frozen-lockfile"`,
+    `buildCommand: "pnpm build"`, and Vercel's own `cleanUrls: true` (the
+    `.html` → suffix-free redirect, matching THEME-030/033). `trailingSlash` is
+    deliberately left unset: folder pages are `/docs/` in this theme's URLs,
+    and Vercel's default serves both forms without forcing a redirect either
+    way. New "Vercel" section in `docs/guide/deployment.md` (en + zh-Hans) with
+    the failure message, the file, and the two Vercel-specific caveats
+    (enable Git submodules for friend-link data; the shallow default clone
+    empties the git-derived "Updated" dates). The file overrides the
+    dashboard's Build & Development Settings, which is also documented. **The
+    deploy itself is the maintainer's to confirm — this task ships the
+    configuration, not a verified deployment.**
+
 ### Configuration
 
 - [x] **CONF-001** — Theme configuration surface
@@ -2216,3 +2248,44 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     8.4–42.9), no shrunk cells, no bar/document overflow, all controls
     44×44; desktop unchanged (34.2px bar, five 13.59px dividers, indicator
     visible); full-site audit re-run 33/33 green.*
+
+### Performance
+
+- [x] **PERF-001** — Shared theme chunk: stop shipping the whole site to every page
+  - **Category:** Performance · **Deps:** THEME-012, ARCH-001, ARCH-002,
+    ARCH-004, I18N-006
+  - **Acceptance criteria:** the chunk every page loads no longer carries the
+    rendered HTML of the entire site — the Rolldown ">500 kB after
+    minification" warning disappears from `pnpm build` because the chunk is
+    genuinely small, **not** because `chunkSizeWarningLimit` was raised or the
+    warning silenced; the explorer keeps every documented behavior it had
+    (auto-discovery, localized `explorerTitle`/`title` labels with the heading
+    and URL fallbacks, `explorer.json` metadata, `order`, hidden pages and
+    subtrees, dynamic-route templates excluded) and adding/renaming a page or
+    editing its frontmatter still updates the tree in `pnpm dev`; proven by a
+    before/after comparison of the rendered explorer markup, which must be
+    identical.
+    *Landed 2026-07-28, from a Vercel build log. Cause: `useExplorer.ts`
+    discovered the source tree with
+    `import.meta.glob('../../../src/**/*.md', { eager: true, import:
+    '__pageData' })`. Asking for the single `__pageData` export does not stop
+    the bundler from keeping the rest of each page module, so the shared
+    `chunks/theme.*.js` grew to **947 kB** — measurably the rendered HTML of
+    every page in the site (a grep for `shiki` inside the chunk hit 13,566
+    times, all of it Shiki-highlighted page markup), downloaded on the first
+    page view. Replaced by **`theme/explorer.data.mts`**, a VitePress data
+    loader in the established `posts.data.mts`/`series.data.mts` shape: it
+    reads each `src/**/*.md` in Node, parses the frontmatter with js-yaml, and
+    emits only `{ relativePath, label?, title, order? }` — `label` being the
+    `explorerTitle` → `title` chain already validated through
+    `asLocalizableText`, `title` the first `#` heading (fenced code skipped,
+    inline markdown and `{#id}` suffixes stripped) as VitePress's own title
+    fallback. The ARCH-001/002 exclusions (dynamic-route `[…]` templates, the
+    404 page, `showInExplorer: false`) moved into the loader, so hidden pages
+    are not even serialized; `useExplorer` kept the tree building, the
+    `explorer.json` glob (small JSON, no page modules behind it), and every
+    ordering rule. Result: `chunks/theme.*.js` **947 kB → 94 kB** and no
+    chunk-size warning; the metadata JSON costs ~4 kB. Verified by diffing the
+    server-rendered `.ct-explorer` markup of 8 built pages (home, `/docs/`,
+    `/demo/`, `/posts`, markdown demo, a deep nested page, `/friends`, a docs
+    guide page) before and after — **identical**.*

@@ -728,6 +728,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `.gitmodules` — git submodules (PAGE-004): `.vitepress/theme/assets/generatedLinkData`
   → `iXORTech/blog-friend-links-data-generator-demo`, branch `data` (the demo
   friend-links data consumed by the friends page).
+- `vercel.json` — Vercel deploy configuration (INFRA-004). Needed because
+  Vercel's VitePress preset assumes a `docs/`-as-site layout and looks for
+  `docs/.vitepress/dist`, so a preset-driven deploy fails *after* a green
+  build; this pins `outputDirectory: ".vitepress/dist"` plus the pnpm
+  install/build commands and Vercel's own `cleanUrls` (matching THEME-030).
+  `trailingSlash` intentionally unset — folder pages are `/docs/` here.
+  Overrides the dashboard's Build & Development Settings.
 - `docs/` — the documentation home (DOC-009): a real directory holding the
   index, `guide/`, `configuration/` and the `design/` records. Its own section
   is below. The site's copy under `src/docs/` is generated and git-ignored —
@@ -951,7 +958,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   auto-gzipped Typst compiler WASM (24 MiB threshold, `.wasm.gz`, dev
   unaffected), CI needing `fetch-depth: 0` (git "Updated" dates) + recursive
   submodules with a sample GitHub Actions job, Algolia/Waline setup order, and
-  a pre-launch checklist.
+  a pre-launch checklist. INFRA-004 added a **Vercel** section: why the
+  framework preset's `docs/.vitepress/dist` breaks a deploy here, the
+  `vercel.json` that fixes it, and the submodule / shallow-clone caveats.
+  Both languages.
 - `configuration/theme-config.md` — DOC-002: the complete `themeConfig`
   reference — where the object lives and why it is exported (the `.paths.mjs`
   loaders import it), the `LocalizableText` contract, a quick-reference table of
@@ -1577,8 +1587,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `toggle()` persists and keeps the `data-ct-toc` mirror current.
 - `theme/composables/useExplorer.ts` — explorer state singleton (THEME-002/011/012/013/014):
   `available` (explicit or auto-discovered tree ∧ mode ≠ paper), `items`
-  (a deterministic recursive tree built from `src/**/*.md` via VitePress
-  `__pageData`, including folder-index links), and source-local
+  (a deterministic recursive tree built from the `explorer.data.mts` page
+  metadata, including folder-index links), and source-local
   `explorer.json` metadata for localized folder labels; `desktopOpen` (persisted
   to `ct-explorer`, restored post-mount), and
   transient `drawerOpen`. Auto page labels use `explorerTitle`/localized
@@ -1594,7 +1604,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   loses just its link; visible children keep the folder alive) and prunes any
   subtree whose `explorer.json` sets `showInExplorer: false` (branches left
   with no page and no visible children vanish; root `/` config honored).
-  `asLocalizableText` now imported from `../locales` (ARCH-003). ARCH-004:
+  PERF-001: discovery no longer globs the Markdown modules — `sourcePages` is
+  the `explorer.data.mts` array, `pageLabel()` is now just
+  `label ?? (title || url)`, `branchOrder()` reads `data.order`, and the
+  ARCH-001/002 exclusion filter moved into the loader (see that file for what
+  the glob cost). ARCH-004:
   each sibling level sorts through `siblingComparator(directorySegments)` —
   `order` first, then the folders-first-then-natural-name fallback
   (`compareBranchNames`, ex-`compareBranches`). `branchOrder()` resolves a
@@ -1706,6 +1720,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   articles are included tagged with their slug (landing pages dropped) and
   filtered per surface by the consumers — the loader stays toggle-agnostic so
   series landings and general listings share one dataset.
+- `theme/explorer.data.mts` — PERF-001 explorer source-tree loader:
+  `defineLoader` watching `src/**/*.md` (glob relative to the loader file),
+  reading each file in Node and emitting the minimal
+  `ExplorerPageEntry { relativePath, label?, title, order? }` — `label` is the
+  `explorerTitle` → `title` frontmatter chain through `asLocalizableText`,
+  `title` the first `#` heading (fenced code skipped, inline markdown and
+  `{#id}` stripped) as the fallback, `order` a finite frontmatter number.
+  Dynamic-route `[…]` templates, `404.md`, and `showInExplorer: false` pages
+  are dropped here (ARCH-001/002); entries come out sorted by source path.
+  Exists because `import.meta.glob`-ing the Markdown modules dragged every
+  page's rendered HTML into the shared theme chunk (947 kB → 94 kB).
+  Frontmatter is parsed with js-yaml; a YAML error degrades that one page to
+  its heading label instead of failing the build.
 - `theme/series.data.mts` — POST-002 series-metadata loader: `defineLoader`
   watching `src/series/*/series.yml` (globs relative to the loader file),
   parses each with js-yaml (a bad file degrades to defaults, never breaks the

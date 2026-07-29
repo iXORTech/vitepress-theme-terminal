@@ -121,6 +121,42 @@ jobs:
       # → upload .vitepress/dist to your host
 ```
 
+## Vercel
+
+Vercel's built-in VitePress preset assumes the *other* common layout — a project
+whose site lives in a `docs/` folder — so it builds with `vitepress build docs`
+and then looks for the output in `docs/.vitepress/dist`. This theme keeps its
+config at the repository root and its content in `src/`, so the build writes
+`.vitepress/dist` instead, and a preset-driven deploy fails **after** a green
+build with *"No Output Directory named `docs/.vitepress/dist` found"*.
+
+The repository therefore ships a `vercel.json` that pins the real values:
+
+```json
+{
+  "framework": "vitepress",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".vitepress/dist",
+  "cleanUrls": true
+}
+```
+
+`cleanUrls` there is Vercel's own setting, and it mirrors the site's
+`cleanUrls: true`: `/docs/guide/getting-started.html` redirects to the
+suffix-free URL rather than being served at both addresses.
+
+Two more things worth knowing about Vercel specifically:
+
+- Enable **Git submodules** in the project settings if your friend-link data
+  comes from a generator repository — the build succeeds without them, it just
+  finds no generated links.
+- The git-derived "Updated" dates need full history. Vercel clones shallowly by
+  default; without deeper history those timestamps come out empty.
+
+`vercel.json` wins over the dashboard's Build & Development Settings, so keep
+changes in the file rather than the UI.
+
 ## Services to set up separately
 
 Two features depend on infrastructure outside the site:
@@ -260,6 +296,39 @@ jobs:
       - run: pnpm build
       # → 把 .vitepress/dist 上传到你的托管方
 ```
+
+## Vercel
+
+Vercel 内置的 VitePress 预设假定的是*另一种*常见布局——站点放在 `docs/` 目录下的
+项目，因此它以 `vitepress build docs` 构建，并到 `docs/.vitepress/dist` 里找产物。
+本主题的配置在仓库根目录、内容在 `src/`，构建产物写在 `.vitepress/dist`，于是由
+预设驱动的部署会在构建**成功之后**失败，报
+*「No Output Directory named `docs/.vitepress/dist` found」*。
+
+因此仓库自带一个 `vercel.json`，把真实取值固定下来：
+
+```json
+{
+  "framework": "vitepress",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".vitepress/dist",
+  "cleanUrls": true
+}
+```
+
+其中的 `cleanUrls` 是 Vercel 自己的选项，与站点的 `cleanUrls: true` 对应：
+`/docs/guide/getting-started.html` 会重定向到无后缀的 URL，而不是两个地址同时可用。
+
+关于 Vercel 还有两点值得注意：
+
+- 如果你的友链数据来自生成器仓库，请在项目设置中启用 **Git 子模块**——不启用也能
+  构建成功，只是找不到生成的友链数据。
+- 由 git 推导的「更新时间」需要完整历史。Vercel 默认使用浅克隆，历史深度不够时这些
+  时间戳会是空的。
+
+`vercel.json` 的优先级高于面板中的 Build & Development Settings，因此请在文件里
+改动，而不是在界面上改。
 
 ## 需要单独准备的服务
 

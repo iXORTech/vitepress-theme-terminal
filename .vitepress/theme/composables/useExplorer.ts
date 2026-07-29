@@ -12,8 +12,8 @@
 
 import { computed, onMounted, readonly, ref } from 'vue'
 import type { ComputedRef, DeepReadonly, Ref } from 'vue'
-import type { PageData } from 'vitepress'
-import { asLocalizableText } from '../locales'
+import { data as sourcePages } from '../explorer.data.mts'
+import type { ExplorerPageEntry } from '../explorer.data.mts'
 import type { LocalizableText } from '../locales'
 import type { TerminalExplorerItem } from '../config'
 import { useColorMode } from './useColorMode'
@@ -25,14 +25,10 @@ const NODES_KEY = 'ct-explorer-nodes'
 // Must match the drawer breakpoint in styles/_explorer.scss.
 const DRAWER_QUERY = '(max-width: 640px)'
 
-// VitePress page modules expose their build-time metadata as `__pageData`.
-// Importing only that named export keeps the explorer independent from the
-// current route while still making the complete source tree available during
-// SSR and client builds.
-const sourcePages = import.meta.glob<PageData>('../../../src/**/*.md', {
-  eager: true,
-  import: '__pageData',
-})
+// The source tree comes from the `explorer.data.mts` loader: page metadata
+// gathered in Node at build time and inlined as JSON, so the tree is available
+// during SSR and on the client without the page modules themselves reaching
+// the bundle (PERF-001 — see that file for what globbing them cost).
 
 // Folder metadata is source content metadata, not theme/site configuration.
 // Keeping it beside the Markdown it describes lets an index-less folder still
@@ -46,7 +42,7 @@ const sourceExplorerConfigs = import.meta.glob<ExplorerJsonConfig>(
 )
 
 interface ExplorerPage {
-  data: PageData
+  data: ExplorerPageEntry
   url: string
 }
 
@@ -107,17 +103,11 @@ for (const [sourcePath, config] of Object.entries(sourceExplorerConfigs)) {
   explorerConfigs.set(explorerConfigUrl(sourcePath), config)
 }
 
+// `label` is the loader-resolved `explorerTitle` → `title` frontmatter chain
+// (validated LocalizableText); an unannotated page falls back to its first
+// heading, then to its URL.
 function pageLabel(page: ExplorerPage): LocalizableText {
-  const frontmatter = page.data.frontmatter ?? {}
-  const frontmatterExplorerTitle = asLocalizableText(
-    frontmatter.explorerTitle,
-  )
-  if (frontmatterExplorerTitle !== undefined) return frontmatterExplorerTitle
-
-  const frontmatterTitle = asLocalizableText(frontmatter.title)
-  if (frontmatterTitle !== undefined) return frontmatterTitle
-
-  return page.data.title || page.url
+  return page.data.label ?? (page.data.title || page.url)
 }
 
 // The URL used to look a branch up in the source-local `explorer.json` map:
@@ -145,7 +135,7 @@ function branchOrder(
   const configOrder = toFiniteOrder(config?.order)
   if (configOrder !== undefined) return configOrder
 
-  const frontmatterOrder = toFiniteOrder(branch.page?.data.frontmatter?.order)
+  const frontmatterOrder = toFiniteOrder(branch.page?.data.order)
   if (frontmatterOrder !== undefined) return frontmatterOrder
 
   return 0
@@ -226,23 +216,10 @@ function toExplorerItem(
 
 function discoverExplorer(): TerminalExplorerItem[] {
   const root: ExplorerBranch = { name: '', children: new Map() }
-  const pages = Object.values(sourcePages)
-    .filter(
-      (page) =>
-        page.relativePath.endsWith('.md') &&
-        !page.isNotFound &&
-        // Skip dynamic-route source templates (e.g. `tags/[name].md`,
-        // `page/[num].md`) — only their generated pages are real routes, and
-        // those are listing routes, not file-tree entries (POST-001).
-        !page.relativePath.includes('[') &&
-        // A page can opt itself out of the tree (ARCH-002). Hiding a folder's
-        // `index.md` drops just the folder's link — visible children keep the
-        // folder itself alive, now link-less.
-        page.frontmatter?.showInExplorer !== false,
-    )
-    .sort((left, right) => left.relativePath.localeCompare(right.relativePath))
-
-  for (const data of pages) {
+  // Dynamic-route templates, the not-found page, and pages that opted out with
+  // `showInExplorer: false` (ARCH-001/002) are already dropped by the loader,
+  // which also sorts the entries by source path.
+  for (const data of sourcePages) {
     const segments = sourceSegments(data.relativePath)
     const page = { data, url: pageUrl(data.relativePath) }
     branchFor(root, segments).page = page

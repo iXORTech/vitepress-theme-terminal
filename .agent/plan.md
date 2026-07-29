@@ -764,7 +764,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     headless (marks empty-content, only the two corner borders set on each,
     14×20 box, bold text, per-mode color, geometry kept at 360px, no overflow).*
 
-- [ ] **MD-006** — Timeline container (`::: timeline <label>`)
+- [x] **MD-006** — Timeline container (`::: timeline <label>`)
   - **Category:** Markdown · **Deps:** MD-001, MD-002, STYLE-001, STYLE-005
   - **Acceptance criteria:** a `::: timeline <label> … :::` container renders one
     entry of a vertical timeline — the label (a date, a version, any short
@@ -778,6 +778,23 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     correctly in all three color modes, in print, and on mobile (the rail
     stays legible at ≤640px); documented in `docs/design/design-language.md`
     §4 and in the user guide (both languages).
+    *Landed 2026-07-29. `theme/markdown/timeline.ts` registers the container;
+    everything after the container name is the entry label, rendered with
+    `renderInline` (emphasis/links work). The structural decision worth
+    remembering: **the rail is a `border-left` on the ENTRY, not on a wrapper**
+    — adjacent entries stack borders with no gap, so a run of independent
+    `:::` blocks reads as one unbroken rail and there is no outer container to
+    author. `:last-of-type` swaps the border for a `border-image` gradient so
+    the rail fades out rather than ending on a hard cut. Color follows the
+    callout division of labor: the rail is the neutral `--ct-border` and only
+    the node + label take the main color (`--ct-main` dark, `--ct-main-deep`
+    light/paper/print). The node is an empty `aria-hidden` span, absolutely
+    positioned at `left: -(node + rail)/2` (centered ON the border) with a 3px
+    `--ct-bg` ring. The label is deliberately NOT localizable — unlike a
+    callout title there is no default to translate, so a bilingual page uses
+    one `::: lang` block per language. Verified headless: 12 entries, one x
+    position, zero inter-entry gaps, node absent from a text selection,
+    per-mode color, 14px clearance at 360px with no overflow.*
 
 ### i18n
 
@@ -1996,7 +2013,7 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     re-localization, chip suppressed with prefix, posts index still
     series-free, landing untouched, tag counts include the part).*
 
-- [ ] **POST-004** — Pinned posts
+- [x] **POST-004** — Pinned posts
   - **Category:** Content · **Deps:** POST-001, POST-002
   - **Acceptance criteria:** a post declares `pinned: true` in its frontmatter
     and is then sorted above every unpinned post on the date-sorted listing
@@ -2012,8 +2029,22 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (not a bare glyph); the flag is inert on non-post pages; documented in
     `docs/configuration/frontmatter.md` and the blogging guide (both
     languages).
+    *Landed 2026-07-29. `PostEntry.pinned` + a single sort in
+    `normalizePosts` (`pinned desc, timestamp desc`). **One sort serves every
+    surface**, which is the whole trick: the flat listings get pinned posts at
+    the very top, while ArchivesList re-groups that same list by year and
+    sorts the YEARS descending — so the archives stay chronological and a
+    pinned post only leads its own year. Because the order lives in the shared
+    data module, the `.paths.mjs` route loaders and the components agree, so
+    pagination cannot drop or duplicate a post. Indicator: a
+    `.ct-postcard__pin` / `.ct-archives__pin` thumbtack chip with a localized
+    `post.pinned` label (en + zh-Hans) — the glyph is `aria-hidden`, the label
+    is what AT reads; colored with `--ct-link`, i.e. the main color already
+    made contrast-safe per mode, not a new constant. Verified headless: the
+    pinned post leads `/posts`, exactly one chip, accent color tracking all
+    three modes.*
 
-- [ ] **COMP-006** — Per-article license override
+- [x] **COMP-006** — Per-article license override
   - **Category:** Components · **Deps:** COMP-003, CONF-002
   - **Acceptance criteria:** an article can declare its own content license in
     frontmatter — `license:` accepting either the existing boolean (`false`
@@ -2027,6 +2058,19 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     license); pages without the field are byte-identical to before; documented
     in `docs/configuration/frontmatter.md` and cross-referenced from
     `docs/configuration/theme-config.md` (both languages).
+    *Landed 2026-07-29. `ArticleLicense.vue` reads a frontmatter `license`
+    OBJECT and uses it in place of `config.license`; `name` resolves as
+    LocalizableText (ARCH-003), `url`/`icons` default to none. The object
+    **replaces the site license as a whole** — same rule CONF-002 applies to a
+    custom site license, and here it is the point: a repost under someone
+    else's terms must not keep this site's license branding by accident. An
+    override whose name resolves empty falls back to the site license, and
+    `license: false` never reaches the component (PostPage drops the card), so
+    the boolean and object forms cannot conflict. `isCreativeCommons` already
+    read the same computed, so the CC watermark follows the effective license
+    for free. Verified headless: a repost shows CC BY-SA 4.0 with the by-sa
+    deed and exactly three by-sa icons, an ordinary post still shows CC
+    BY-NC-SA 4.0, and the footer keeps the SITE license on both.*
 
 - [x] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001

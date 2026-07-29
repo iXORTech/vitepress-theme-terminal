@@ -1,3 +1,9 @@
+---
+title:
+  en: "Friend Links"
+  zh-Hans: "友链设计"
+order: 6
+---
 # Friend Links — data format & friends page (PAGE-004)
 
 > **Binding design document.** Specifies the friends page (`src/friends.md`): the

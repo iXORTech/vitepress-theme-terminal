@@ -1,3 +1,9 @@
+---
+title:
+  en: "Typography & Icons"
+  zh-Hans: "字体与图标"
+order: 3
+---
 # Typography & Icons
 
 > **Status: binding.** To change a decision, update this document first, then the code.

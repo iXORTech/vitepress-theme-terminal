@@ -1,3 +1,9 @@
+---
+title:
+  en: "Color System"
+  zh-Hans: "色彩系统"
+order: 2
+---
 # Color System
 
 > **Status: binding.** To change a decision, update this document first, then the code.

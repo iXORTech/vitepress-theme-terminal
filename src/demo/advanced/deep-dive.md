@@ -8,7 +8,7 @@ title:
 
 # Deep Dive
 
-A leaf page two folders deep (`guide/advanced/deep-dive`) — the deepest node
+A leaf page two folders deep (`demo/advanced/deep-dive`) — the deepest node
 of the explorer demo tree.
 
 This page's **body switches with the site language** (I18N-007): the text you
@@ -30,7 +30,7 @@ Worth noticing here:
 
 # 深入
 
-一个位于两层文件夹深处的叶子页面（`guide/advanced/deep-dive`）——浏览器演示树中最深的节点。
+一个位于两层文件夹深处的叶子页面（`demo/advanced/deep-dive`）——浏览器演示树中最深的节点。
 
 这个页面的**正文会随站点语言切换**（I18N-007）：你正在阅读的文字位于一个
 `::: lang zh-Hans` 块中，而另一个 `::: lang en` 块保存着英文版本。在状态栏切换语言，

@@ -15,4 +15,4 @@ opened this page and expanded the folder in one go) or via its chevron.
 Your expand/collapse toggles are persisted: leave this folder open, reload the
 page, and it stays open.
 
-Next: [deep dive](/guide/advanced/deep-dive).
+Next: [deep dive](/demo/advanced/deep-dive).

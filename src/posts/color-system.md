@@ -1,11 +1,15 @@
 ---
-title: One Color, Many Derivatives
+title:
+  en: "One Color, Many Derivatives"
+  zh-Hans: "一种主色，万千派生"
 date: 2024-11-05
 categories: Design
 tags:
   - color
   - theme
-description: The single configurable main color and how every hover, border, and selection tone is derived from it.
+description:
+  en: "The single configurable main color and how every hover, border, and selection tone is derived from it."
+  zh-Hans: "唯一可配置的主色，以及每一种悬停、边框与选区色调如何由它派生而来。"
 ---
 
 # One Color, Many Derivatives

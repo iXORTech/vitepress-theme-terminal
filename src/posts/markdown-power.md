@@ -1,10 +1,14 @@
 ---
-title: Markdown, Powered Up
+title:
+  en: "Markdown, Powered Up"
+  zh-Hans: "Markdown 的加强版"
 date: 2024-08-19
 categories: Guides
 tags:
   - markdown
-description: The markdown-it plugin suite, callouts, code-block cards, and localized page content the theme ships with.
+description:
+  en: "The markdown-it plugin suite, callouts, code-block cards, and localized page content the theme ships with."
+  zh-Hans: "主题自带的 markdown-it 插件套件、提示框、代码块卡片与分语言页面内容。"
 ---
 
 # Markdown, Powered Up

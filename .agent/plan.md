@@ -18,10 +18,29 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `.agent/context-cache.md` exist and are usable; `docs/design/` records all design
     decisions known so far; `docs/README.md` indexes everything.
 
-- [ ] **DOC-002** — User-facing configuration documentation
+- [x] **DOC-002** — User-facing configuration documentation
   - **Category:** Documentation · **Deps:** CONF-001
   - **Acceptance criteria:** every `themeConfig` option is documented with type,
     default, and an example.
+    *Landed 2026-07-28: `docs/configuration/theme-config.md` — the complete
+    `themeConfig` surface. Opens with where the object lives (and why it is
+    exported: the `.paths.mjs` loaders import it), the `LocalizableText`
+    contract with its fallback chain, and a quick-reference table of all 17
+    top-level options with type + default. Then one section per option with
+    type, default, a field table for every nested interface
+    (`author`/`license`/`toolbar.nav`+`.actions`+`TerminalNavChild`/`explorer`
+    items/`toc`/`footer`+`TerminalSocialLink`/`taxonomy`/`series`/`home`+
+    `TerminalPageLink`/`friends`/`search`/`comments`), a runnable example, and
+    the resolution behavior a user can trip over (custom `license.name` does
+    NOT inherit the CC url/icons; partial Algolia credentials or a blank Waline
+    `serverURL` count as unconfigured; TOC levels clamped 1–6 with a reversed
+    pair swapped; `siteName` trimmed; blank values fall back). Closes with the
+    three documented non-`themeConfig` surfaces (frontmatter/`explorer.json`,
+    `series.yml`, `linksData.mjs`) and why each lives with the content —
+    satisfying the CONF-001 "no user-configurable value outside the config
+    without a documented reason" clause. Companion reference
+    `docs/configuration/frontmatter.md` covers the per-page half. Indexed from
+    `docs/README.md`.*
 
 - [x] **DOC-003** — UI design sketch
   - **Category:** Documentation · **Deps:** DOC-001
@@ -30,10 +49,286 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     explorer drawer, and paper mode; regions map to their design docs and build tasks;
     linked from `docs/README.md` and `docs/design/design-language.md`.
 
-- [ ] **DOC-004** — User Documentation
+- [x] **DOC-004** — User Documentation
   - **Category:** Documentation · **Deps:** ALL-TASKS
   - **Acceptance criteria:** a full documentations set for users, including a
     getting-started guide, configuration reference, etc.
+    *Landed 2026-07-28 (all other tasks complete, so the ALL-TASKS dependency
+    was satisfied). Task-oriented guide set in `docs/guide/`:
+    **getting-started** (requirements, clone with `--recurse-submodules`,
+    `pnpm dev/build/preview`, repo layout, the five config edits that make the
+    demo yours, first page + first post, a demo-removal checklist, and a
+    where-next table); **writing-content** (page-type table, everyday
+    frontmatter, heading anchors, code-block cards + `[file]` info-string,
+    the eight callouts, the MD-001 extension table, LaTeX vs Typst math,
+    lightbox + `data-no-lightbox` + swiper decks, `::: lang`, Vue in markdown
+    via the `@` alias + `Card` + the globally registered listing components);
+    **blogging** (post frontmatter, taxonomy authored-name/display-label
+    split, the listing pages ↔ component table + the three generated route
+    families, series folder/`series.yml`/`<SeriesArticles/>`/order + the
+    `series` inclusion toggles, covers, license & comment cards, drafts
+    convention); **navigation** (toolbar nav/submenus/actions + measured
+    overflow drawer, explorer auto vs explicit with the source-local metadata
+    table and expansion/persistence/resize/drawer behavior, TOC + anchor copy,
+    find palette, status-bar segment order, settings window, keyboard table,
+    and the `ct-*` localStorage table); **internationalization** (client-side
+    language model, canonical tag rule, the one fallback chain, `::: lang`,
+    taxonomy labels, `localeStrings` overrides + adding a language via
+    `lang.label` with English backfill, SSR-language consequences);
+    **customization** (main color + derivation rule, the three modes, the
+    stylesheet-loaded font/icon table in `head.ts`, the three styling rules,
+    authored views + `@` alias + `.ct-cardgrid` span modifiers, the
+    `pre-footer` slot wrapper, `linksData.mjs` merge model, favicon +
+    no-branding rule); **deployment** (build/preview + the preview-restart
+    caveat, hosting requirements, cleanUrls, `base` subpath deploys, the
+    auto-gzipped Typst WASM, CI needing `fetch-depth: 0` + recursive
+    submodules with a sample workflow, Algolia/Waline setup order, pre-launch
+    checklist). Reference half: `docs/configuration/theme-config.md` (DOC-002)
+    and `docs/configuration/frontmatter.md` (every frontmatter field plus the
+    `explorer.json` and `series.yml` schemas). All indexed from
+    `docs/README.md` (new "User guide" section; `configuration/` retitled
+    "Configuration reference"); `AGENTS.md` §8 repo map gained `docs/guide/`
+    and `docs/configuration/`. Doc-only change — no code touched.*
+
+- [x] **DOC-007** — Publish the documentation on the site
+  - **Category:** Documentation · **Deps:** DOC-002, DOC-004
+  - **Acceptance criteria:** the `docs/` tree is served as site content under
+    `/docs/` without duplicating a single file — `src/docs` is a **symlink** to
+    `../docs`, so the repository documentation and the published documentation
+    are the same files; `/docs/` itself resolves to the documentation index
+    (the index file is named so that VitePress treats it as the folder index,
+    and every existing reference to it is updated); every relative link
+    *between* documentation files resolves on the site as well as in the
+    repository; links to repo-only files outside `src/` (`AGENTS.md`,
+    `.agent/*`) are explicitly allowed to be site-dead rather than rewritten,
+    and the build does not fail on them; the docs appear in the auto-discovered
+    explorer and are reachable from the tool bar; `docs/index.md` no longer
+    claims `docs/` is not site content; build is green and the rendered pages
+    are verified (index, a guide page, a configuration page, a design page).
+    *Landed 2026-07-28. **The symlink points root → src, not src → root.** The
+    obvious direction (`src/docs` → `../docs`) builds but is wrong: Vite
+    resolves symlinks to their real path, so every doc page's `relativePath`
+    came out as `../docs/…` — VitePress emitted the right output paths, but
+    link rewriting produced `href="/../docs/design/design-language"` and the
+    auto-explorer grew a `/../docs/` row (84 dead links, verified in the
+    build). So the files were moved to **`src/docs/`** (`git mv docs
+    src/docs`, real files inside `srcDir`) and the repo root got a tracked
+    `docs` → `src/docs` symlink (mode 120000), which keeps every `docs/…`
+    path in AGENTS.md, the task board, the design docs, and the plan history
+    resolving. `docs/README.md` → `src/docs/index.md` so VitePress serves the
+    index at `/docs/` and the explorer gives the folder a link. The 6 links to
+    repo files outside `srcDir` (`AGENTS.md`, `.agent/*`) stay relative to the
+    real location (depth +1) and are skipped by
+    `ignoreDeadLinks: [/(^|\/)AGENTS(\.md)?$/, /(^|\/)\.agent\//]` — note the
+    optional extension: the checker strips `.md` before matching. Tool-bar
+    "Docs" tab (Getting Started · Configuration · Markdown Demo · Explorer
+    Demo) replaces the old Guide tab; home CTA → `/docs/`. Each doc subfolder
+    got an `explorer.json` (localized label + order) so the tree reads
+    Documentation → User Guide · Configuration · Design. Docs updated for the
+    arrangement: `src/docs/index.md` intro, `guide/getting-started.md` layout
+    +demo-removal, AGENTS.md §1/§8, and content-architecture.md §2 (which now
+    records the direction rule). Verified headless on the built site 16/17 —
+    the one FAIL was a bad assertion (it looked for `advanced-2` while its
+    parent folder was collapsed; checked separately at
+    `/demo/advanced/advanced-2/deep-dive`, where the label, the route-aware
+    ancestor expansion, and the active row are all correct).*
+
+- [x] **CONTENT-001** — `src/` content cleanup
+  - **Category:** Content · **Deps:** DOC-004, DOC-007
+  - **Acceptance criteria:** no VitePress scaffold leftovers remain in `src/`
+    (`api-examples.md` removed); no page duplicates what the published
+    documentation now covers — the demo `guide/getting-started.md`
+    documentation prose is removed rather than left to drift; the remaining
+    demo tree is renamed to say what it is (`src/guide/` → `src/demo/`, an
+    explorer/feature playground) with every internal link, prose reference,
+    tool-bar entry, and home call-to-action updated to the new paths; the
+    regression fixtures those pages provide are **preserved** — folder index +
+    nested folder (THEME-011), index-less folder via `explorer.json`
+    (THEME-013), hidden page and hidden folder (ARCH-002), a negative `order`
+    pinned above an unnumbered sibling (ARCH-004), and the `::: lang` localized
+    body (I18N-007); the demo pages point readers at the real documentation
+    instead of re-explaining it; build green and the explorer/tool-bar/home
+    links verified on the rendered site.
+    *Landed 2026-07-28. Removed: `src/api-examples.md` (VitePress scaffold —
+    it dumped `useData()` JSON) and `src/guide/getting-started.md` (its
+    explorer/i18n/posts prose is now `src/docs/guide/*`, so keeping it would
+    have been a second, drifting copy). Renamed `src/guide/` → **`src/demo/`**
+    — the folder was never a guide, it is the explorer playground, and
+    "guide" now belongs to the documentation. **Earlier task notes that cite
+    `src/guide/...` paths refer to these files at their new `src/demo/...`
+    location.** `src/demo/index.md` rewritten: it says what it is, links to
+    `/docs/`, and carries a table mapping each demo page to the behavior it
+    exercises. New `src/demo/pinned-page.md` replaces the deleted page as the
+    ARCH-004 fixture (`order: -1` pinning a file above the unnumbered
+    `advanced/` folder) — every other fixture kept: folder-with-index +
+    nested folder (THEME-011), `advanced-2` index-less folder via
+    `explorer.json` (THEME-013, still `order: 1` below its file sibling),
+    `hidden-page.md` + `drafts/` (ARCH-002), `deep-dive.md`'s `::: lang`
+    bodies (I18N-007). Link/reference updates: demo page bodies, the two
+    `markdown-examples.md` internal links, the tool-bar tab set, the home CTA
+    and body copy (en + zh-Hans), and the `cleanUrls` comment example in
+    `config.mts`. Verified on the built site: `/demo/*` and `/docs/*` all 200,
+    old `/guide/*` and `/api-examples` 404, explorer order Demo → Pinned Page
+    → Advanced, hidden page absent from the tree but served, single visible
+    `::: lang` block.
+
+- [x] **DOC-008** — Simplified Chinese user documentation
+  - **Category:** Documentation · **Deps:** DOC-004, DOC-007
+  - **Acceptance criteria:** every **user-facing** documentation page — the
+    `/docs/` index, all seven `guide/` pages, and all three `configuration/`
+    pages — carries a complete `zh-Hans` version beside its English one
+    (`docs/design/` stays English: those are internal decision records, not
+    user documentation); the translation uses the theme's own per-language
+    content mechanism (`::: lang` blocks, I18N-007) rather than a second URL or
+    a second file, so one page keeps one URL and switches with the reader's UI
+    language; each page's explorer label and browser-tab title localize too
+    (localized `title` frontmatter, ARCH-003/I18N-006); the Chinese text is a
+    faithful full translation, not a summary — every section, table row, and
+    example is present; intra-page anchor links resolve **within** the reader's
+    own language (the reference pages' quick-reference tables must not jump
+    into the hidden English block); the build stays green (no duplicate
+    explicit heading ids, which fail the VitePress build) and the result is
+    verified on the rendered site in both languages.
+    *Landed 2026-07-28. All 11 user-facing pages (index + 7 `guide/` + 3
+    `configuration/`) now hold an English body and a full `zh-Hans` body in
+    `::: lang` blocks — ~2,000 translated lines, every section, table row and
+    example carried over. `design/` stays English (internal decision records).
+    Each file also gained localized `title` frontmatter (so the explorer label
+    and tab title switch too) plus an `order`, which puts the guide in reading
+    order — 快速开始 · 撰写内容 · 文章、分类与系列 · 导航与外壳界面 · 国际化 ·
+    自定义 · 构建与部署 — instead of alphabetically.
+    **Gotcha, and the reason the wrappers use five colons:**
+    markdown-it-container matches its closing marker line by line and does
+    **not** skip fenced code. The first `::::` wrapper attempt was closed early
+    by a `::::` line inside `writing-content.md`'s swiper example, which left
+    the tail of the English body outside the block; because the two `.ct-lang`
+    divs were then no longer adjacent siblings, `useLocalizedContent` treated
+    them as two groups and revealed BOTH (a literal `<p>::::</p>` in the output
+    was the tell). Wrappers are now `::::: lang en` / `::::: lang zh-Hans` with
+    `:::::` closers — longer than any sample inside — and the rule is documented
+    in `guide/internationalization.md` (both languages). Anchor handling: the
+    two reference pages link heavily within the page, so every Chinese heading
+    carries an explicit `{#…-zh}` id and the Chinese quick-reference tables
+    point at those — no duplicate ids (which would fail the build) and no jumps
+    into the hidden English block; verified by scanning the built HTML (23/23
+    and 17/17 zh links resolve to zh headings, zero duplicate ids site-wide).
+    Verified headless 22/22 after fixing two bad assertions of my own: `innerText`
+    on a `display:none` block returns its textContent (so H1 checks must be
+    scoped to `.ct-lang:not([hidden])`), and a collapsed explorer subtree has no
+    rows to assert on. Both languages checked on all 11 pages (single visible
+    block, Chinese H1, Chinese TOC entries, Chinese tab title, in-page anchor
+    landing on a visible Chinese heading, switch back to English in place, 360px
+    no overflow, no page errors).*
+
+- [x] **I18N-009** — Fully localized explorer labels
+  - **Category:** i18n · **Deps:** I18N-006, DOC-008
+  - **Acceptance criteria:** switching the UI language to `zh-Hans` leaves **no**
+    English row in the explorer tree — every page the tree can show carries a
+    localized `title` (or `explorerTitle`) map, including the listing pages
+    (`posts`, `archives`, `categories`, `tags`, `series`), the demo posts, the
+    series landing page and its parts, and the `docs/design/` records (whose
+    *labels* localize even though those documents stay English by the DOC-008
+    scoping decision — a tree row is navigation UI, not documentation content);
+    the design records also get a reading `order` so the folder lists like the
+    documentation index rather than alphabetically; a post's `description` is
+    localized wherever its title is, so post cards and listings do not end up
+    half-translated; slugs, URLs, dates, and taxonomy terms are untouched
+    (display-only change); build green and the full tree verified row by row on
+    the rendered site in both languages.
+    *Landed 2026-07-28, from user feedback on DOC-008 ("explorer not fully
+    i18ned"): after that task the tree mixed Chinese documentation rows with
+    English demo/listing rows. Localized `title` maps added to the five listing
+    pages (文章 · 归档 · 分类 · 标签 · 系列), the four remaining demo posts, the
+    series landing page and both parts, and the six `docs/design/` records —
+    the design records also got `order: 1…6` so the folder lists like the
+    documentation index (设计语言 · 色彩系统 · 字体与图标 · 界面草图 · 内容架构 ·
+    友链设计). Design **bodies** stay English per the DOC-008 scoping; only
+    their labels localize, since a tree row is navigation UI. Post
+    `description`s were localized alongside their titles so post cards,
+    archives rows, and meta descriptions don't come out half-translated.
+    Worth remembering about the listing nodes: `src/posts.md` and the
+    `src/posts/` folder merge into ONE explorer branch (`sourceSegments` gives
+    both the `posts` segment), so the FILE's frontmatter title is what labels
+    the folder — same for `series`. One collision: in Chinese `friends.md` and
+    the friend-links design record both wanted 友链, so the record is labeled
+    友链设计. Verified on the rendered site by walking eight routes per language
+    to force every subtree open: 44 rows in English, 44 in Chinese, zero
+    untranslated rows (the only ASCII left is deliberate — `themeConfig`,
+    `Frontmatter`, `Markdown`, `advanced-2`), plus post cards/excerpts,
+    archives, series index and tab titles localized while URLs/slugs stay put
+    (`/posts/color-system`, `/tags/color`, `/categories/design`). The two page
+    errors on post pages are the demo's placeholder `waline.example.com`
+    failing to resolve — identical in English, unrelated to this change.*
+
+- [x] **DOC-009** — Root `docs/` is the documentation home; the site publishes a generated subset
+  - **Category:** Documentation · **Deps:** DOC-007, DOC-008, I18N-009
+  - **Acceptance criteria:** `docs/` at the repository root is a **real
+    directory** holding every document (no symlink, no split across two
+    locations) — it is the single place a reader or an agent goes for
+    documentation, and every `docs/…` path in `AGENTS.md`, the task board, and
+    the design records resolves to it directly; the site still serves the user
+    documentation at `/docs/` **without a second hand-maintained copy**: the
+    published tree under `src/docs/` is generated from `docs/` at config load
+    (so it exists before VitePress discovers pages, in dev and build alike),
+    re-synced on change while `pnpm dev` runs, and git-ignored; documentation
+    links stay repository-relative in the source and are rewritten in the
+    generated copy so nothing on the site points at a file that is not
+    published; the arrangement is recorded in the content-architecture design
+    doc and the user guide (both languages); build green, `/docs/` and its pages
+    verified on the rendered site.
+    *Landed 2026-07-28, reversing the DOC-007 arrangement on request. `docs/` is
+    a real directory again (`git mv src/docs docs`, root symlink removed) and
+    every out-of-tree link inside it went back one level (`../../../AGENTS.md`
+    → `../../AGENTS.md`, etc.). The site's copy is generated: new
+    `theme/vite/publishDocs.ts` exports `publishDocs()` — called at module scope
+    from `config.mts`, so it runs before VitePress discovers pages in BOTH dev
+    and build — plus `docsPublishPlugin()`, a `serve`-only Vite plugin that adds
+    `docs/` to the dev watcher and re-mirrors on change (verified live: editing
+    a source doc updates the copy within ~3s; adding/removing a page still needs
+    a restart, since routes resolve at startup). The mirror writes only changed
+    files, deletes stale ones, and inserts a "GENERATED FILE — do not edit"
+    marker after each file's frontmatter; `/src/docs/` is git-ignored. Why a
+    copy and not a symlink: `src/docs` → `../docs` builds but Vite resolves
+    symlinks to their real path, so every doc page gets a `../docs/…`
+    relativePath — broken routes, a `/../docs/` explorer row, ~84 false dead
+    links (measured under DOC-007); a copy also makes a PARTIAL publish possible
+    at all, which DOC-010 needs. Docs updated for the new arrangement:
+    `docs/index.md` intro + `guide/getting-started.md` layout (both languages),
+    `design/content-architecture.md` §2 (tree + a rewritten note recording both
+    decisions), AGENTS.md §1 and the §8 repo map.*
+
+- [x] **DOC-010** — Agent-facing documents excluded from the deployed site
+  - **Category:** Documentation · **Deps:** DOC-009
+  - **Acceptance criteria:** the built site contains **no** page for the
+    agent-facing documents — `docs/design/**` (binding decision records) is not
+    published, and neither are `AGENTS.md` or `.agent/*` (they never were); the
+    explorer, the tool bar, and the sitemap of built pages show only the user
+    documentation (index · guide · configuration); references to the excluded
+    documents from published pages resolve for the reader instead of 404ing
+    (rewritten to the repository), so no dead links are introduced and the
+    dead-link check can run without blanket ignores; the excluded documents
+    remain fully available in the repository and unchanged in content.
+    *Landed 2026-07-28 with DOC-009. The published set is
+    `index.md` + `guide/` + `configuration/` (`PUBLISHED_ENTRIES` in
+    `publishDocs.ts`); `docs/design/**` is never mirrored, so the build emits
+    11 documentation pages and no design page — `/docs/design/color-system`
+    404s on the built site, and the explorer shows only 使用指南/配置 under
+    文档. The link problem this creates is solved at publish time, not in the
+    sources: `rewriteLinks()` resolves every relative markdown link against the
+    file's location in `docs/` and, when the target falls outside the published
+    set, rewrites it to
+    `https://github.com/iXORTech/vitepress-theme-terminal/blob/main/<path>` —
+    so the guide's ~15 "see the design record" pointers, plus its `AGENTS.md`,
+    `.agent/*` and `.vitepress/**` references, land on the real file for a site
+    reader while staying plain relative paths in the repository. Code fences and
+    inline code spans are skipped, so documented sample links (`[x](./other.md)`
+    in clean-urls.md) survive verbatim. With no dead links left, `config.mts`
+    dropped its `ignoreDeadLinks` list entirely — the checker now runs
+    unmuzzled. `docs/index.md` gained a line in both languages telling readers
+    the design records are repository-only. Verified 16/18 headless in both
+    languages (the 2 "failures" were the selector catching a heading's own
+    `#…-design` permalink; all six design links are GitHub URLs), plus
+    404/200 checks on the built site.*
 
 - [x] **DOC-005** — Footer design documentation
   - **Category:** Documentation · **Deps:** DOC-001, DOC-003

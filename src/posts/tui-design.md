@@ -1,12 +1,16 @@
 ---
-title: Designing a TUI on the Web
+title:
+  en: "Designing a TUI on the Web"
+  zh-Hans: "在网页上设计 TUI"
 date: 2025-01-28
 cover: /images/demo-terminal-2.svg
 categories: Design
 tags:
   - tui
   - terminal
-description: How the theme borrows the language of terminal user interfaces — panels, status bars, and a fixed shell frame.
+description:
+  en: "How the theme borrows the language of terminal user interfaces — panels, status bars, and a fixed shell frame."
+  zh-Hans: "主题如何借鉴终端用户界面的语言——面板、状态栏，以及固定的外壳框架。"
 ---
 
 # Designing a TUI on the Web

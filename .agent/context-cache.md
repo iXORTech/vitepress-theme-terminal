@@ -2,7 +2,116 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-23 (**THEME-028/029/030
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**DOC-009 + DOC-010
+landed** — the documentation home moved back to the repository root and the
+agent-facing records left the deployment. **Paths again: every document lives in
+`docs/` at the root — a REAL directory, no symlink** (DOC-007's `src/docs` +
+root-symlink arrangement is gone; `git mv src/docs docs`, out-of-tree links
+inside the docs went back one level). The site publishes only
+`index.md` + `guide/` + `configuration/`, from a GENERATED copy at `src/docs/`
+(git-ignored, "GENERATED FILE — do not edit" marker after each frontmatter) —
+never edit it, edit `docs/`. New `theme/vite/publishDocs.ts`: `publishDocs()` is
+called at module scope in `config.mts` (must run before VitePress discovers
+pages — that is why it is not a plugin hook), and `docsPublishPlugin()` is a
+`serve`-only plugin that watches `docs/` and re-mirrors on change (page
+add/remove still needs a dev restart). `docs/design/**` is NOT mirrored
+(DOC-010), so the build emits 11 doc pages and `/docs/design/*` 404s. Links:
+sources stay repository-relative; the mirror's `rewriteLinks()` rewrites any
+target outside the published set to
+`https://github.com/iXORTech/vitepress-theme-terminal/blob/main/<path>`,
+skipping fenced/inline code so sample links survive — with that, `config.mts`
+no longer needs `ignoreDeadLinks` at all. Reminder for future work: a symlink
+cannot replace this copy (Vite realpaths symlinks → `../docs/…` relativePaths,
+broken routes + a `/../docs/` explorer row + ~84 false dead links), and a copy
+is what makes a partial publish possible.) Earlier same day (**I18N-009 landed**
+— the explorer tree is now fully localized, from user feedback on DOC-008
+("explorer not fully i18ned"): documentation rows were Chinese while the demo
+posts, listing pages, series, and design records stayed English. Localized
+`title` maps added to `posts/archives/categories/tags/series.md` (文章 · 归档 ·
+分类 · 标签 · 系列), the four remaining demo posts, the series landing +
+part-1/2, and all six `docs/design/*` records (which also got `order: 1…6`, so
+that folder lists like the documentation index instead of alphabetically).
+Design **bodies** stay English by the DOC-008 scoping — only their labels
+localize, a tree row being navigation UI. Post `description`s were localized
+with their titles so cards/archives/meta aren't half-translated.
+**Two things to know here:** `src/posts.md` and the `src/posts/` folder merge
+into ONE explorer branch (`sourceSegments` yields the `posts` segment for
+both), so the FILE's frontmatter title labels the folder — same for `series`;
+and 友链 collided between `friends.md` and the friend-links design record, so
+the record is labeled 友链设计. Verified by walking 8 routes per language to
+force every subtree open: 44 rows en / 44 zh, zero untranslated (remaining
+ASCII is deliberate: `themeConfig`, `Frontmatter`, `Markdown`, `advanced-2`);
+URLs and taxonomy slugs unchanged. Pre-existing, unrelated: post pages log two
+`Failed to fetch` errors from the demo's placeholder `waline.example.com`.)
+Earlier same day (**DOC-008 landed**
+— every **user-facing** doc page is now bilingual. All 11 pages
+(`src/docs/index.md`, the 7 `guide/` pages, the 3 `configuration/` pages) carry
+an English body and a full Simplified-Chinese body inside `::: lang` blocks
+(I18N-007) — one URL, switches with the reader's UI language. `design/` stays
+English on purpose (internal decision records, not user documentation). Each of
+the 11 files also gained localized `title` frontmatter (explorer label + tab
+title follow the language) and an `order`, so the guide lists in reading order
+rather than alphabetically. **Two things to remember before touching these
+files:** (1) the wrappers are `::::: lang en` / `::::: lang zh-Hans` with
+`:::::` closers, NOT `:::`/`::::` — markdown-it-container matches its closing
+marker line by line and does **not** skip fenced code, so a `::::` inside
+`writing-content.md`'s swiper sample closed the block early, pushed the body
+tail outside it, and (the two `.ct-lang` divs no longer being adjacent siblings)
+made `useLocalizedContent` reveal BOTH blocks; a literal `<p>::::</p>` in the
+built HTML is the symptom. A wrapper must always out-colon every sample inside
+it; documented in `guide/internationalization.md`. (2) On the two reference
+pages every Chinese heading carries an explicit `{#…-zh}` id and the Chinese
+quick-reference tables link to those — duplicate explicit ids across lang blocks
+FAIL the VitePress build, and without the suffix the zh tables would jump into
+the hidden English block. Verification gotcha: `innerText` on a `display:none`
+block returns its textContent, so any assertion about visible text must be
+scoped to `.ct-lang:not([hidden])`. Verified headless 22/22 in both languages.)
+Earlier same day (**DOC-007 +
+CONTENT-001 landed**, same day, right after DOC-002/004 — the documentation
+is now site content and `src/` is cleaned up. **Paths moved: the docs tree
+lives at `src/docs/`**, with a tracked repo-root symlink `docs` → `src/docs`
+(mode 120000) so every `docs/…` reference in AGENTS.md, this cache, the plan,
+and the design docs still resolves. `docs/README.md` → `src/docs/index.md`
+(VitePress needs `index.md` for the `/docs/` route and the explorer folder
+link). **Direction matters:** the reverse symlink (`src/docs` → `../docs`)
+builds but is broken — Vite resolves symlinks to their real path, so each doc
+page's `relativePath` became `../docs/…`, producing `href="/../docs/…"` links
+and a `/../docs/` explorer row (84 dead links); recorded in
+content-architecture.md §2. Six doc links to repo files outside `srcDir`
+(`AGENTS.md`, `.agent/*`) stay relative to the real location and are skipped
+via `ignoreDeadLinks: [/(^|\/)AGENTS(\.md)?$/, /(^|\/)\.agent\//]` in
+config.mts — the checker strips `.md` before matching, hence the optional
+extension. Each doc subfolder has an `explorer.json` (localized label +
+order): Documentation → User Guide · Configuration · Design. CONTENT-001:
+`src/api-examples.md` deleted (VitePress scaffold), `src/guide/` renamed
+**`src/demo/`** (explorer playground, not a guide) and its
+`getting-started.md` deleted as duplicated documentation, replaced by
+`src/demo/pinned-page.md` keeping the ARCH-004 `order: -1` fixture — **older
+task notes citing `src/guide/...` refer to `src/demo/...` now.** Tool bar:
+Guide tab → **Docs** tab (`/docs/` + Getting Started · Configuration ·
+Markdown Demo · Explorer Demo); home CTA → `/docs/`. Verified headless on the
+built site 16/17, the single FAIL being a bad assertion about a collapsed
+subtree, re-checked separately and correct.) Earlier same day (**DOC-002 +
+DOC-004 landed** — the user documentation set, closing the last two open plan
+tasks. Doc-only: no code, config, or content touched. Split into a
+task-oriented guide (`docs/guide/`, 7 pages: getting-started,
+writing-content, blogging, navigation, internationalization, customization,
+deployment) and a lookup reference (`docs/configuration/`, now 3 pages:
+the complete `theme-config.md` = DOC-002, the new `frontmatter.md` covering
+per-page/per-folder metadata incl. the `explorer.json` + `series.yml`
+schemas, and the existing `clean-urls.md`). Split rule: guides say how,
+`configuration/` gives type + default + example, `design/` keeps the
+rationale — cross-linked, never duplicated. `docs/README.md` gained a "User
+guide" section and retitled the configuration one; `AGENTS.md` §8 repo map
+lists `docs/guide/` + `docs/configuration/`. Facts were read out of the
+source rather than the plan notes, so a few things worth remembering are now
+written down: the status-bar right cluster order is progress+back-to-top ·
+language · mode indicator · gear · clock; `POSTS_PER_PAGE` is 10; the
+sidebar width bounds are 180–420 / 160–400px; a custom `license.name` does
+not inherit the CC url/icons; partial Algolia creds or a blank Waline
+serverURL resolve to unconfigured; a `localeStrings` table under a new tag
+is backfilled from English and needs `lang.label` for the switcher entry.)
+Earlier 2026-07-23 (**THEME-028/029/030
 landed** — heading-link copy, transient notifications, clean URLs. THEME-029 is
 the general toast surface, not an anchor-only affordance:
 `composables/useNotifications.ts` is a module-singleton queue
@@ -574,15 +683,24 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   uses SVG). Scripts
   `dev`/`build`/`preview` run vitepress on the project root (`srcDir` set in config).
 - `pnpm-lock.yaml` — pnpm lockfile.
-- `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist` and
-  `.vitepress/cache`; ignores `themeConfig.mjs` **except**
+- `.gitignore` — node/logs/dist/editor ignores plus `.vitepress/dist`,
+  `.vitepress/cache`, and `/src/docs/` (the generated documentation copy,
+  DOC-009); ignores `themeConfig.mjs` **except**
   `.vitepress/theme/assets/themeConfig.mjs` (reserved path from the upstream template).
 - `.gitmodules` — git submodules (PAGE-004): `.vitepress/theme/assets/generatedLinkData`
   → `iXORTech/blog-friend-links-data-generator-demo`, branch `data` (the demo
   friend-links data consumed by the friends page).
+- `docs/` — the documentation home (DOC-009): a real directory holding the
+  index, `guide/`, `configuration/` and the `design/` records. Its own section
+  is below. The site's copy under `src/docs/` is generated and git-ignored —
+  edit here, never there.
 - `AGENTS.md` — single source of agent instructions: session protocol, plan &
   context-cache rules, compliance code, engineering conventions (hard rules), repo map;
-  §1 table indexes the binding design docs incl. `docs/design/friend-links.md`.
+  §1 table indexes the binding design docs incl. `docs/design/friend-links.md`
+  and states that documentation lives in `docs/` at the root, with the
+  user-facing part published from a generated `src/docs/` copy (DOC-009/010);
+  §8 repo map lists the `docs/` subtrees, the generated `src/docs/`, and
+  `src/demo/`.
 - `CLAUDE.md` — pure pointer to `AGENTS.md` (read by Claude Code). No content.
 
 ## .claude/
@@ -679,15 +797,115 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `composables/useNotifications.ts`, `components/NotificationStack.vue`,
   `composables/useCleanUrls.ts`, `styles/_notifications.scss`,
   `docs/configuration/clean-urls.md`.
-  Roadmap: DOC-002/004 documentation.
+  DOC-002 (complete `themeConfig` reference) + DOC-004 (the seven-page
+  `docs/guide/` user documentation set and the `docs/configuration/`
+  frontmatter reference) done 2026-07-28, then DOC-007 (documentation moved to
+  `src/docs/` and published at `/docs/`, root `docs` symlink), CONTENT-001
+  (`src/` cleanup: scaffold page removed, `guide/` → `demo/`), and DOC-008
+  (zh-Hans translation of all 11 user-facing doc pages via `::: lang` blocks,
+  localized titles + reading order) all the same day —
+  **every task on the board is now `[x]`**.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
-## docs/
+## docs/ — the documentation home (root; user-facing part published at `/docs/`)
 
-- `README.md` — documentation index (design docs, **site configuration**, process
-  files) plus documentation rules; clarifies `docs/` is repo documentation, not
-  site content.
+> DOC-009/010: this is a real directory at the repository root and the only
+> place a document is edited. `index.md`, `guide/` and `configuration/` are
+> mirrored into `src/docs/` at config load and served at `/docs/`; `design/` is
+> repository-only. Paths in this section are relative to `docs/`.
+>
+> **Every file listed below except `design/*` is bilingual (DOC-008):** a
+> localized `title` (+ `order`) frontmatter block, then the English body inside
+> `::::: lang en` and the Simplified-Chinese body inside `::::: lang zh-Hans`
+> (five colons — see the DOC-008 note at the top of this file). The per-file
+> summaries describe the shared structure; the two bodies always say the same
+> thing, so a change to one must be made in both.
+>
+> The six `design/*.md` records are **English-only bodies** (internal decision
+> records, DOC-008 scoping) but each gained a localized `title` map + `order:
+> 1…6` in I18N-009, so their *explorer rows* read 设计语言 · 色彩系统 ·
+> 字体与图标 · 界面草图 · 内容架构 · 友链设计 in reading order. 友链设计 (not
+> 友链) because `src/friends.md` already owns that label.
+
+- `guide/explorer.json`, `configuration/explorer.json`, `design/explorer.json`
+  — source-local explorer metadata for the three doc subfolders (none of which
+  has an `index.md`): localized labels *User Guide* / *Configuration* /
+  *Design* (`使用指南` / `配置` / `设计`) and `order` 1/2/3 so the tree reads in
+  reading order rather than alphabetically.
+- `index.md` — documentation index (was `README.md`; renamed so VitePress
+  serves it at `/docs/` and the explorer can link the folder): **user guide**
+  (`guide/`, 7 pages),
+  **configuration reference** (`configuration/`, 3 pages), design docs, and the
+  process files, plus the documentation rules. Its intro now states the
+  dual-role arrangement instead of the old "not site content" claim: files at
+  `src/docs/`, root `docs` symlink, doc-to-doc links relative, repo-only links
+  (`AGENTS.md`, `.agent/*`) relative to the real location and skipped by the
+  site's dead-link check.
+- `guide/getting-started.md` — DOC-004: requirements table (Node 20+/pnpm/git),
+  clone with `--recurse-submodules`, `pnpm dev|build|preview`, repo layout, the
+  five `themeConfig` edits that make the demo yours, first page vs first post,
+  a four-step demo-removal checklist (content · `DemoLayout` · demo config ·
+  friend-link submodule), and a where-next table into the rest of the docs.
+- `guide/writing-content.md` — DOC-004: page-type table (path → type → what you
+  get) + the two escape hatches, everyday frontmatter block, heading-anchor
+  copy behavior, code-block cards with the `[file.name]` info-string, the eight
+  callout types + custom titles, the MD-001 extension syntax table, LaTeX
+  (`$`/`$$` → MathML) vs Typst (`::: typst` / `:typst[…]`), lightbox +
+  `data-no-lightbox` + `:::: swiper` decks, `::: lang` bodies, and Vue in
+  markdown (`@` alias, `Card` props, globally registered listing components).
+- `guide/blogging.md` — DOC-004: post frontmatter and what it buys, the
+  authored-name (slug/URL) vs display-label (`themeConfig.taxonomy`) split,
+  the listing-page → component table + the three generated route families
+  (`page/[num]`, `tags/[name]`, `categories/[name]`, 10 posts/page), series
+  folder layout + `series.yml` + `<SeriesArticles/>` + article `order` + the
+  four inclusion toggles, cover behavior in cards vs article header, the
+  license/comment cards, and the `src/drafts/` + `explorer.json` draft
+  convention (with the caveat that such pages still build).
+- `guide/navigation.md` — DOC-004: tool bar (nav tabs, hover submenus, action
+  slots, the self-measuring `[⋮]` overflow drawer), explorer (`"auto"` vs
+  explicit tree, the source-local metadata table — `title`/`explorerTitle`/
+  `explorer.json`/`order`/`showInExplorer` — expansion + persistence + 180–420px
+  resize + mobile drawer + absent in paper), TOC (`themeConfig.toc`, retract
+  rail, 160–400px, hidden ≤1023px) and anchor copy, find palette (`/`,
+  search-only key, unconfigured notice), status-bar segment order, settings
+  window, keyboard table, and the `ct-*` localStorage table.
+- `guide/internationalization.md` — DOC-004: the client-side language model (no
+  `/<lang>/`, `ct-lang`, site `lang` = SSR language), the canonical minimal-tag
+  rule, the single fallback chain (exact → primary subtag → `en` → first entry)
+  and everywhere it applies, `::: lang` page bodies, taxonomy label
+  localization, `localeStrings` overrides + the key-group list + placeholders,
+  adding a language (`lang.label`, English backfill, or a registered built-in
+  table), and the SSR-language consequences.
+- `guide/customization.md` — DOC-004: main color + the derive-only rule, the
+  three modes (paper = print), the stylesheet-loaded font/icon table pointing at
+  `head.ts` + the FA/Nerd-Font split, the three styling rules (SCSS-only,
+  derived colors, mobile-first), authored views (`views/`, `@` alias, language
+  dispatcher, `.ct-cardgrid` span modifiers), the `pre-footer` slot wrapper
+  pattern, `linksData.mjs` data modules + group merge semantics, favicon, and
+  the no-branding rule.
+- `guide/deployment.md` — DOC-004: build/preview (incl. the restart-preview
+  caveat), hosting requirements table, clean URLs, `base` subpath deploys, the
+  auto-gzipped Typst compiler WASM (24 MiB threshold, `.wasm.gz`, dev
+  unaffected), CI needing `fetch-depth: 0` (git "Updated" dates) + recursive
+  submodules with a sample GitHub Actions job, Algolia/Waline setup order, and
+  a pre-launch checklist.
+- `configuration/theme-config.md` — DOC-002: the complete `themeConfig`
+  reference — where the object lives and why it is exported (the `.paths.mjs`
+  loaders import it), the `LocalizableText` contract, a quick-reference table of
+  all 17 top-level options with type + default, then one section per option with
+  type, default, nested-interface field tables, an example, and the resolution
+  gotchas (custom `license.name` drops the CC url/icons; incomplete Algolia
+  creds / blank Waline `serverURL` = unconfigured; TOC levels clamped 1–6 and a
+  reversed pair swapped; blank strings fall back). Ends with the three
+  documented non-`themeConfig` surfaces and why each lives with the content.
+- `configuration/frontmatter.md` — DOC-002 companion: every frontmatter field
+  the theme reads (`title`, `explorerTitle`, `description`, `date`,
+  `updated`/`lastUpdated`, `tags`, `categories`, `cover`, `order`,
+  `showInExplorer`, `home`, `pageType`, `article`, `license`, `comments`) with
+  type, default, scope, and example, plus the `explorer.json` (title /
+  showInExplorer / order) and `series.yml` (icon / title / description / order)
+  schemas.
 - `configuration/clean-urls.md` — THEME-030: what `cleanUrls: true` changes
   (link generation only — `<page>.html` files are still written), why the theme
   needed no adjustment (`linkRelativePath()` already strips `.html` when
@@ -815,7 +1033,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   bar (§6); legend of placeholder
   glyphs and a region → spec → build-task map (rows added for THEME-021/022).
 - `design/content-architecture.md` — binding (ARCH-001): the `src/` content layout
-  modeled on `iXORTech/vitepress-theme-arch/src` — normal/standalone pages (home
+  modeled on `iXORTech/vitepress-theme-arch/src`. §2 also records the DOC-007
+  arrangement — documentation is site content in `src/docs/` with a root
+  `docs` → `src/docs` symlink, and **why the symlink points that way** (Vite
+  realpaths symlinks, so the reverse breaks doc routes and the explorer) — plus
+  the `src/demo/` playground. Normal/standalone pages (home
   `index.md`, `about`, `projects`, `friends`) sit **directly in `src/`** (no `pages/`
   folder); regular posts under `src/posts/`, series articles under
   `src/series/<name>/` (each with a localized `series.yml` icon/title/description),
@@ -859,7 +1081,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
   `srcDir: "src"`; `cleanUrls: true` (THEME-030 — generated links drop `.html`;
   `<page>.html` files are still written so old links resolve, see
-  `docs/configuration/clean-urls.md`); `vite.resolve.alias` maps `@` →
+  `docs/configuration/clean-urls.md`); `ignoreDeadLinks:
+  [/(^|\/)AGENTS(\.md)?$/, /(^|\/)\.agent\//]` (DOC-007 — the published docs
+  link to those repo-only files on purpose; the checker strips `.md` before
+  matching, hence the optional extension); the `toolbar.nav` **Docs** tab
+  (`/docs/` + Getting Started · Configuration · Markdown Demo · Explorer Demo)
+  and the home CTA both point into the published documentation;
+  `vite.resolve.alias` maps `@` →
   `fileURLToPath(new URL("./theme", …))` so content `.md` files import authored
   views cleanly (`@/views/About.vue`, PAGE-002/003) — bare `@` only matches
   `@`/`@/…`, scoped pkgs unaffected; `vite.optimizeDeps.exclude` lists the three
@@ -869,7 +1097,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   the lazily imported chunk failing to load (which silently drops Typst math to
   raw source — the fix for "Typst shows only its code"; a dev-server restart is
   needed after adding these deps/this config); `vite.plugins` wires
-  `gzipLargeWasm()` (INFRA-002, `theme/vite/gzipWasm.ts` — ships the oversized
+  `gzipLargeWasm()` + `docsPublishPlugin()` (the latter DOC-009: dev-time
+  re-mirror of `docs/`; the initial mirror runs from `publishDocs()` at module
+  scope, above the config object). `gzipLargeWasm()` (INFRA-002,
+  `theme/vite/gzipWasm.ts` — ships the oversized
   Typst compiler WASM gzipped so Cloudflare Pages' 25 MiB cap is met);
   title, description; **exported**
   `themeConfig` const (the
@@ -963,6 +1194,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   client-side before compiler init. Rolldown gotcha: new bundle keys can't be
   assigned in `generateBundle` — must use `this.emitFile` (delete +
   `chunk.code` mutation are fine).
+- `theme/vite/publishDocs.ts` — node-side documentation publish step
+  (DOC-009/010). `publishDocs()` mirrors the user-facing part of the root
+  `docs/` tree (`PUBLISHED_ENTRIES = ['index.md', 'guide', 'configuration']`)
+  into `src/docs/`, writing only changed files, deleting stale ones, and adding
+  a "GENERATED FILE — do not edit" marker after each frontmatter; `design/` is
+  never mirrored, so it is not deployed. `rewriteLinks()` resolves each relative
+  markdown link against the file's place in `docs/` and rewrites any target
+  outside the published set to `REPO_BLOB_URL + <repo path>` (fenced blocks and
+  inline code skipped, so sample links stay literal) — that is what keeps the
+  site free of dead links without `ignoreDeadLinks`. Called at MODULE SCOPE from
+  `config.mts` (it must run before VitePress resolves pages — a plugin hook is
+  too late); `docsPublishPlugin()` is the `apply: 'serve'` companion that adds
+  `docs/` to the dev watcher and re-mirrors on add/change/unlink.
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr), then `mathPlugin` (LaTeX→MathML,
@@ -2137,22 +2381,27 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   blocks — a localized intro (h1) and a "How to apply" section with the
   generator issue-JSON template (`title` field; no explicit `{#apply}` ids —
   duplicating one id across lang blocks fails the VitePress build).
-- `guide/index.md`, `guide/getting-started.md`, `guide/advanced/index.md`,
-  `guide/advanced/deep-dive.md`, and
-  `guide/advanced/advanced-2/{deep-dive.md,explorer.json}` — explorer demo
-  content with localized title frontmatter; the getting-started page documents
-  `"auto"`, source-local JSON folder metadata, the ARCH-002 `showInExplorer`
-  toggle (frontmatter + JSON), explicit-tree compatibility, the I18N-007
-  `::: lang` localized-content blocks, ARCH-003 localized frontmatter
-  maps, the I18N-008 `taxonomy` config for localized tag/category labels, and
-  the POST-002/003 posts & series section (`series.yml`, `SeriesIndex`/
-  `SeriesArticles`, `order`, the `series` inclusion toggles + the series-name
-  title prefix in general listings, frontmatter `cover`). `advanced/deep-dive.md` wraps its body in `::: lang en` /
-  `::: lang zh-Hans` blocks as the I18N-007 demo (body switches with the UI
-  language).
-- `guide/advanced/hidden-page.md` — ARCH-002 demo: frontmatter
+- `demo/` (CONTENT-001, renamed from `guide/` 2026-07-28 — **older notes citing
+  `src/guide/...` mean these files**) — the explorer/feature playground, which
+  no longer documents anything: the real documentation is `src/docs/`.
+  - `demo/index.md` — the folder's index page (THEME-011 folder-with-index
+    demo: label click navigates + expands, chevron only toggles; first-layer
+    folders start expanded). Rewritten to state its purpose, link to `/docs/`,
+    and table each demo page against the behavior it exercises.
+  - `demo/pinned-page.md` — ARCH-004 fixture (replaces the deleted
+    `guide/getting-started.md`): `order: -1` pins this file **above** the
+    unnumbered `advanced/` folder despite the folders-first default.
+  - `demo/advanced/index.md` — nested second-layer folder, collapsed by
+    default, with persisted user toggles.
+  - `demo/advanced/deep-dive.md` — I18N-007 demo: body wrapped in
+    `::: lang en` / `::: lang zh-Hans` blocks (switches with the UI language),
+    plus a shared line outside the blocks that always shows.
+  - `demo/advanced/advanced-2/{deep-dive.md,explorer.json}` — THEME-013
+    index-less folder labeled by its adjacent JSON (`order: 1` puts it below
+    its file sibling); the leaf is the deepest node of the tree.
+- `demo/advanced/hidden-page.md` — ARCH-002 demo: frontmatter
   `showInExplorer: false` hides the page from the auto-discovered explorer
-  while it stays reachable at `/guide/advanced/hidden-page`.
+  while it stays reachable at `/demo/advanced/hidden-page`.
 - `drafts/{draft-post.md,explorer.json}` — ARCH-002 demo: the folder's
   `explorer.json` `{"showInExplorer": false}` prunes the whole `drafts/`
   subtree from the explorer; the draft still builds at `/drafts/draft-post`.
@@ -2191,12 +2440,16 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   TUI-window glyph (Carbon `#161616` window on a titlebar with the three prompt
   dots, a `be95ff`/`78a9ff` shell chevron, and a `TERM` wordmark), served at
   `/favicon.svg` and linked from `theme/head.ts`.
-- `api-examples.md` — VitePress starter demo of the runtime API (`useData`) with
-  localized explorer title metadata.
+- `api-examples.md` — **deleted 2026-07-28 (CONTENT-001)**: a VitePress starter
+  scaffold page that dumped `useData()` JSON; not theme content.
+- `docs/` — the documentation tree, published at `/docs/` (DOC-007). Its own
+  section is above (`## src/docs/`).
 - `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —
   ARCH-001/POST-001 demo posts (post page type): each declares `title`/`date`/
-  `categories`/`tags`/`description` frontmatter; `hello-terminal` carries
-  per-language `title`/`description` maps as the ARCH-003 demo, and
+  `categories`/`tags`/`description` frontmatter; **all five now carry
+  per-language `title` + `description` maps** (I18N-009 — `hello-terminal` was
+  the original ARCH-003 demo, the other four followed so no explorer row or
+  post card is half-translated; bodies stay English), and
   `hello-terminal` + `tui-design` carry `cover` demo SVGs (POST-003). Dates
   span 2024–2025 (exercise
   the archives year grouping); categories Guides/Design/Ops and overlapping tags
@@ -2204,7 +2457,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   listings multiple posts; 5 posts × 3/page = 2 index pages.
 - `series/terminal-internals/{index,part-1,part-2}.md` + `series.yml` —
   ARCH-001/POST-002 demo series (series-article page type): `index.md` landing
-  places `<SeriesArticles/>` (order-sorted auto list); the two parts carry
+  places `<SeriesArticles/>` (order-sorted auto list); all three carry
+  per-language `title` maps (I18N-009 — 终端内幕 / 第一篇 —— 外壳框架 /
+  第二篇 —— 状态栏, matching `series.yml`'s localized title); the two parts carry
   `order: 1`/`2`, and part-1 a `cover` (POST-003) plus `Design` category +
   `tui`/`terminal` tags (exercises the series-name title prefix on the
   per-term pages); `series.yml` is the final
@@ -2214,10 +2469,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `posts.md`/`archives.md`/`categories.md`/`tags.md` — POST-001 listing pages
   (listing page type): each places its globally-registered component
   (`<PostsIndex/>`/`<ArchivesList/>`/`<CategoriesIndex/>`/`<TagsIndex/>`); the
-  component renders the localized heading, so the files carry only a plain-string
-  `title` frontmatter for the browser tab.
+  component renders the localized heading, and the file's frontmatter `title` is
+  a per-language map (I18N-009: 文章 · 归档 · 分类 · 标签) driving the browser tab
+  **and the explorer row**. Note `posts.md` and the `posts/` folder merge into
+  one explorer branch, so this file's title labels that folder.
 - `series.md` — POST-002 series index (listing type): places `<SeriesIndex/>`
-  (localized heading + one row per series).
+  (localized heading + one row per series); localized `title` map (系列), which
+  also labels the merged `series/` explorer branch (I18N-009).
 - `categories/[name].{md,paths.mjs}`, `tags/[name].{md,paths.mjs}` — POST-001
   dynamic taxonomy routes: the `.md` places `<TermPosts field="categories|tags"/>`;
   the `.paths.mjs` loader runs `createContentLoader(['posts/**/*.md',

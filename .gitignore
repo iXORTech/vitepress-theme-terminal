@@ -34,3 +34,7 @@ themeConfig.mjs
 *.sw?
 
 .vercel
+
+# Generated documentation copy — the source is `docs/` at the repo root
+# (DOC-009: theme/vite/publishDocs.ts mirrors the published subset here).
+/src/docs/

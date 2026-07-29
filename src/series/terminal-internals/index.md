@@ -1,7 +1,11 @@
 ---
-title: Terminal Internals
+title:
+  en: "Terminal Internals"
+  zh-Hans: "终端内幕"
 date: 2025-02-01
-description: The landing page of the Terminal Internals series.
+description:
+  en: "The landing page of the Terminal Internals series."
+  zh-Hans: "「终端内幕」系列的首页。"
 ---
 
 # Terminal Internals

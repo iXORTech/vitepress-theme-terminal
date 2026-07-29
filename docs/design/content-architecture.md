@@ -1,3 +1,9 @@
+---
+title:
+  en: "Content Architecture"
+  zh-Hans: "内容架构"
+order: 5
+---
 # Content Architecture — `src/` layout & page types
 
 > **Binding design document.** Defines how site content is organized under `src/`
@@ -58,9 +64,41 @@ src/
 │   ├── [num].md
 │   └── [num].paths.mjs
 │
+├── docs/                    GENERATED copy of the published documentation
+│   ├── index.md             (DOC-009 — mirrored from `docs/` at the repo root
+│   ├── guide/                by theme/vite/publishDocs.ts; git-ignored, never
+│   └── configuration/        hand-edited. `docs/design/` is NOT mirrored.)
+│
+├── demo/                    Explorer/feature playground pages (CONTENT-001)
+│
 └── public/                  Static assets, served at the site root
     └── images/…
 ```
+
+**Documentation home and published copy** (DOC-009/010). All documentation lives
+in **`docs/` at the repository root** — one real directory, the only place a
+document is edited, and the target of every `docs/…` path in `AGENTS.md`, the
+task board, and the records themselves. The site publishes the *user-facing*
+part of it (index · `guide/` · `configuration/`) by **generating** `src/docs/`
+at config load, before VitePress discovers pages, and re-generating it on change
+while the dev server runs (`theme/vite/publishDocs.ts`, wired in `config.mts`).
+The generated tree is git-ignored and carries a "do not edit" marker in every
+file. `docs/design/` — these binding records, written for contributors and
+coding agents — is deliberately **not** published (DOC-010).
+
+Two decisions are worth keeping:
+
+- **A symlink cannot do this job.** `src/docs` → `../docs` builds, but Vite
+  resolves symlinks to their real path, so every documentation page ends up with
+  a `../docs/…` relative path: wrong routes, a `/../docs/` row in the explorer,
+  and dozens of false dead links. The generated copy avoids the question
+  entirely, and is what makes a *partial* publish possible in the first place.
+- **Links are rewritten on publish, not in the source.** Documents link each
+  other and repository files with plain relative paths so they work in an editor
+  and on the repository host; the mirror rewrites any target outside the
+  published set (a design record, `AGENTS.md`, a source file) to a repository
+  URL. The site therefore has no dead links and needs no `ignoreDeadLinks`
+  entries, while the sources stay portable.
 
 Rationale for the flat placement of normal pages: it keeps their URLs clean
 (`/about`, `/projects`) and lets the auto-discovery explorer (`explorer: "auto"`,

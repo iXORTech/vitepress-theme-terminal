@@ -1,11 +1,15 @@
 ---
-title: Deploying Your Site
+title:
+  en: "Deploying Your Site"
+  zh-Hans: "部署你的站点"
 date: 2024-05-02
 categories: Ops
 tags:
   - deploy
   - vitepress
-description: Building the static site and shipping it — the same as any VitePress project.
+description:
+  en: "Building the static site and shipping it — the same as any VitePress project."
+  zh-Hans: "构建静态站点并把它发布上线——与任何 VitePress 项目并无二致。"
 ---
 
 # Deploying Your Site

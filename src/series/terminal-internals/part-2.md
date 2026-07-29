@@ -1,5 +1,7 @@
 ---
-title: 'Part 2 — The Status Bar'
+title:
+  en: "Part 2 — The Status Bar"
+  zh-Hans: "第二篇 —— 状态栏"
 date: 2025-02-03
 order: 2
 ---

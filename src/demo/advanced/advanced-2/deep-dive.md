@@ -6,7 +6,7 @@ title:
 
 # Deep Dive
 
-A leaf page three folders deep (`guide/advanced/advanced-2/deep-dive`) — the
+A leaf page three folders deep (`demo/advanced/advanced-2/deep-dive`) — the
 deepest node of the explorer demo tree.
 
 Worth noticing here:

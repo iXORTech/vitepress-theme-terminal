@@ -1,3 +1,9 @@
+---
+title:
+  en: "Design Language"
+  zh-Hans: "设计语言"
+order: 1
+---
 # Design Language — VitePress Theme Terminal
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change

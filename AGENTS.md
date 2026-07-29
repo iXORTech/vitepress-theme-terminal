@@ -17,7 +17,12 @@ VitePress scaffold; the theme is built incrementally through the tasks in
 
 - Package manager: **pnpm** · Stack: **VitePress 2 (alpha) + Vue 3**
 - Site content lives in `src/` (`srcDir` is set in `.vitepress/config.mts`)
-- Repo documentation (not published as site pages) lives in `docs/`
+- Documentation lives in **`docs/`** at the repository root — the documentation
+  home, and the only place a document is edited. The site publishes the
+  user-facing part of it (index, `guide/`, `configuration/`) from a **generated**
+  copy under `src/docs/` (git-ignored, produced by `theme/vite/publishDocs.ts`);
+  `docs/design/` is deliberately not published. Never edit `src/docs/`, and
+  never copy a document into a second location
 
 Design decisions are **binding** and recorded in `docs/design/`:
 
@@ -38,7 +43,7 @@ Design decisions are **binding** and recorded in `docs/design/`:
    prompt maps to; add tasks for any new requirements before implementing.
 3. Read [`.agent/context-cache.md`](.agent/context-cache.md) — per-file summaries, so
    you can orient without re-reading the whole tree.
-4. Read the [`docs/`](docs/README.md) documents relevant to the task — always the design
+4. Read the [`docs/`](docs/index.md) documents relevant to the task — always the design
    docs when touching UI, styling, fonts, or colors.
 
 **While working:**
@@ -116,7 +121,7 @@ bug.
 ## 7. Documentation rules
 
 - **Document things.** Decisions, rationale, and usage belong in `docs/`, written for
-  both AI agents and human developers. [`docs/README.md`](docs/README.md) is the index.
+  both AI agents and human developers. [`docs/index.md`](docs/index.md) is the index.
 - `docs/design/` is the design authority. When a design decision changes, **update the
   doc first**, then the code.
 - **Single content source:** among the agent-instruction files (this file, `CLAUDE.md`,
@@ -132,9 +137,13 @@ CLAUDE.md                         → pointer to AGENTS.md (read by Claude Code)
 .github/copilot-instructions.md   → pointer to AGENTS.md (read by GitHub Copilot)
 .agent/plan.md                    task board: IDs, categories, deps, acceptance criteria
 .agent/context-cache.md           per-file summaries (keep current)
-docs/README.md                    documentation index
-docs/design/                      binding design decision records
 .vitepress/config.mts             site + theme configuration (the user-facing config surface)
 .vitepress/theme/                 theme implementation (Layout.vue, index.ts, styles)
 src/                              site content (VitePress srcDir)
+docs/index.md                     documentation index (published at /docs/)
+docs/guide/                       user documentation (published)
+docs/configuration/               configuration reference (published)
+docs/design/                      binding design decision records (NOT published)
+src/docs/                         generated copy of the published docs — git-ignored
+src/demo/                         explorer/feature playground pages (not documentation)
 ```

@@ -181,7 +181,7 @@ An [inline link](https://vitepress.dev/) and one
 A [reference link][vp] defined elsewhere. A bare URL is linkified
 automatically: https://vitepress.dev/
 
-An internal link to [the guide](/guide/).
+An internal link to [the docs](/docs/).
 
 [vp]: https://vitepress.dev/
 ```
@@ -194,7 +194,7 @@ An [inline link](https://vitepress.dev/) and one
 A [reference link][vp] defined elsewhere. A bare URL is linkified
 automatically: https://vitepress.dev/
 
-An internal link to [the guide](/guide/).
+An internal link to [the docs](/docs/).
 
 [vp]: https://vitepress.dev/
 

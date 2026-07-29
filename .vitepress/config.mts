@@ -5,11 +5,18 @@ import { themeHead } from "./theme/head";
 import { createMarkdownConfig } from "./theme/markdown";
 import { createPageDataTransformer } from "./theme/pageData";
 import { gzipLargeWasm } from "./theme/vite/gzipWasm";
+import { docsPublishPlugin, publishDocs } from "./theme/vite/publishDocs";
 import {
   oxocarbonDark,
   oxocarbonLight,
   oxocarbonPaper,
 } from "./theme/shiki/oxocarbon";
+
+// The documentation lives in `docs/` at the repository root (DOC-009). Mirror
+// the user-facing part of it into `src/docs/` before VitePress discovers pages,
+// so the site serves it at `/docs/` from a generated copy — the agent-facing
+// records under `docs/design/` stay out of the deployment (DOC-010).
+publishDocs();
 
 // Default UI language (I18N-003): SSR text and build-time markdown defaults
 // (e.g. callout titles) render in this language; the client switches in place.
@@ -61,24 +68,32 @@ export const themeConfig: TerminalThemeConfig = {
   toolbar: {
     nav: [
       {
-        text: { en: "Guide", "zh-Hans": "指南" },
-        link: "/guide/",
+        // The documentation is the repository's own `docs/` tree; the site
+        // serves the user-facing part of it from a generated copy under
+        // `src/docs/` (DOC-009/010, theme/vite/publishDocs.ts).
+        text: { en: "Docs", "zh-Hans": "文档" },
+        link: "/docs/",
         icon: "fa-solid fa-book",
         items: [
           {
             text: { en: "Getting Started", "zh-Hans": "快速开始" },
-            link: "/guide/getting-started",
+            link: "/docs/guide/getting-started",
             icon: "fa-solid fa-rocket",
           },
           {
-            text: { en: "Advanced", "zh-Hans": "进阶" },
-            link: "/guide/advanced/",
-            icon: "fa-solid fa-flask",
+            text: { en: "Configuration", "zh-Hans": "配置" },
+            link: "/docs/configuration/theme-config",
+            icon: "fa-solid fa-sliders",
           },
           {
             text: { en: "Markdown Demo", "zh-Hans": "Markdown 演示" },
             link: "/markdown-examples",
             icon: "fa-solid fa-hashtag",
+          },
+          {
+            text: { en: "Explorer Demo", "zh-Hans": "浏览器演示" },
+            link: "/demo/",
+            icon: "fa-solid fa-flask",
           },
         ],
       },
@@ -147,11 +162,11 @@ export const themeConfig: TerminalThemeConfig = {
       "zh-Hans": "一个受 TUI 界面风格启发的 VitePress 博客与个人网站主题。",
     },
     body: {
-      en: "Everything on this demo — the shell chrome, cards, explorer, and these very pages — is the theme showing itself off. Browse the guide, posts, and projects below.",
-      "zh-Hans": "本演示中的一切——外壳界面、卡片、资源管理器，以及这些页面本身——都是主题在自我展示。欢迎浏览下方的指南、文章与项目。",
+      en: "Everything on this demo — the shell chrome, cards, explorer, and these very pages — is the theme showing itself off. Browse the docs, posts, and projects below.",
+      "zh-Hans": "本演示中的一切——外壳界面、卡片、资源管理器，以及这些页面本身——都是主题在自我展示。欢迎浏览下方的文档、文章与项目。",
     },
     links: [
-      { text: { en: "Read the guide", "zh-Hans": "阅读指南" }, link: "/guide/", icon: "fa-solid fa-book" },
+      { text: { en: "Read the docs", "zh-Hans": "阅读文档" }, link: "/docs/", icon: "fa-solid fa-book" },
       { text: { en: "Browse posts", "zh-Hans": "浏览文章" }, link: "/posts", icon: "fa-solid fa-feather" },
       {
         text: "GitHub",
@@ -248,8 +263,8 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
   srcDir: "src",
 
   // Clean URLs (THEME-030): every generated link drops the `.html` suffix, so
-  // pages are addressed as `/guide/getting-started`. The build still writes
-  // `<page>.html` files, so an old `/guide/getting-started.html` link keeps
+  // pages are addressed as `/docs/guide/getting-started`. The build still writes
+  // `<page>.html` files, so an old `/docs/guide/getting-started.html` link keeps
   // working — see docs/configuration/clean-urls.md for the hosting contract.
   cleanUrls: true,
 
@@ -266,7 +281,7 @@ export default defineConfigWithTheme<TerminalThemeConfig>({
     // Static hosts cap file sizes (Cloudflare Pages: 25 MiB); the bundled
     // Typst compiler WASM is ~27 MiB. The build re-emits oversized WASM
     // gzipped (`.wasm.gz`), decompressed client-side by useTypst (INFRA-002).
-    plugins: [gzipLargeWasm()],
+    plugins: [gzipLargeWasm(), docsPublishPlugin()],
     // The Typst renderer (MD-004, loaded lazily by useTypst) is a WASM-glue
     // package with internal dynamic imports + `?url` WASM assets. Excluding it
     // from Vite's dependency pre-bundling is the recommended handling for such

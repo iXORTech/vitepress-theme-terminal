@@ -1,5 +1,7 @@
 ---
-title: 'Part 1 — The Shell Frame'
+title:
+  en: "Part 1 — The Shell Frame"
+  zh-Hans: "第一篇 —— 外壳框架"
 date: 2025-02-02
 order: 1
 cover: /images/demo-terminal-3.svg

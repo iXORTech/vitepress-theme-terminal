@@ -1,5 +1,7 @@
 ---
-title: Series
+title:
+  en: "Series"
+  zh-Hans: "系列"
 ---
 
 <!-- The series index (POST-002): every series' icon, localized title,

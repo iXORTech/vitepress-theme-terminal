@@ -30,6 +30,7 @@ Fields marked **`LocalizableText`** take a plain string or a per-language map
 | [`categories`](#tags--categories) | `string \| string[]` | `[]` | posts, series articles |
 | [`cover`](#cover) | `string` | none | posts, series articles |
 | [`order`](#order) | `number` | `0` | any page, series articles |
+| [`pinned`](#pinned) | `boolean` | `false` | posts, series articles |
 | [`showInExplorer`](#showinexplorer) | `boolean` | `true` | any page |
 | [`home`](#home) | `boolean` | `false` | any page |
 | [`pageType`](#pagetype) | page-type string | resolved from the path | any page |
@@ -178,6 +179,30 @@ order: -1
 
 A folder takes its `order` from its `explorer.json` (which wins) or its
 `index.md` frontmatter.
+
+## `pinned`
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Pins a post to the top of the date-sorted listings: the posts index and its
+`/page/<n>` pagination, and the per-tag and per-category listings. Pinned posts
+keep their own date order among themselves, and everything below them is
+unchanged.
+
+```yaml
+---
+pinned: true
+---
+```
+
+The **archives are the deliberate exception** — they stay strictly
+chronological and keep their year headings, so a pinned post leads its own year
+rather than the whole page. An archive that lied about dates would stop being
+an archive.
+
+Pinned posts are marked in listings with a labeled pin indicator. The field
+does nothing on pages that are not posts or series articles.
 
 ## `showInExplorer`
 
@@ -333,6 +358,7 @@ The full rationale for this layout is in
 | [`categories`](#tags-fm-zh) | `string \| string[]` | `[]` | 文章、系列文章 |
 | [`cover`](#cover-fm-zh) | `string` | 无 | 文章、系列文章 |
 | [`order`](#order-fm-zh) | `number` | `0` | 任意页面、系列文章 |
+| [`pinned`](#pinned-fm-zh) | `boolean` | `false` | 文章、系列文章 |
 | [`showInExplorer`](#showinexplorer-fm-zh) | `boolean` | `true` | 任意页面 |
 | [`home`](#home-fm-zh) | `boolean` | `false` | 任意页面 |
 | [`pageType`](#pagetype-fm-zh) | 页面类型字符串 | 由路径推断 | 任意页面 |
@@ -472,6 +498,26 @@ order: -1
 ```
 
 文件夹的 `order` 取自它的 `explorer.json`（优先）或 `index.md` 的 frontmatter。
+
+## `pinned` {#pinned-fm-zh}
+
+- **类型：** `boolean`
+- **默认值：** `false`
+
+把文章置顶到按日期排序的列表最前面：文章索引页及其 `/page/<n>` 分页，以及各标签、
+各分类的列表页。多篇置顶文章之间仍按各自的日期排序，其下的文章顺序完全不变。
+
+```yaml
+---
+pinned: true
+---
+```
+
+**归档页是刻意的例外**——它保持严格的时间顺序与年份分组，因此置顶文章只会排在它
+所属年份的最前面，而不是整页最前面。一个在日期上撒谎的归档就不再是归档了。
+
+置顶文章会在列表中显示一个带文字标签的图钉标记。该字段对非文章、非系列文章的页面
+没有任何作用。
 
 ## `showInExplorer` {#showinexplorer-fm-zh}
 

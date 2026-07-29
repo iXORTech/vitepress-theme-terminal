@@ -1723,6 +1723,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   them; term names stay verbatim strings. I18N-008: `termLabel(term, labels,
   language)` — the display-label resolver over `themeConfig.taxonomy` maps
   (key matched by exact name or slug equality; fallback = the authored term).
+  POST-004: `PostEntry.pinned` (frontmatter `pinned === true`) and the sort in
+  `normalizePosts` is `pinned desc, then timestamp desc`. **One sort serves
+  every surface**: the flat listings get pinned posts at the very top, while
+  ArchivesList re-groups this list by year and sorts the YEARS descending — so
+  the archives stay chronological and a pinned post only leads its own year.
 - `theme/posts.data.mts` — POST-001/002 VitePress data loader:
   `createContentLoader(['posts/**/*.md', 'series/**/*.md'], { excerpt })` →
   `normalizePosts`; exports typed `data: PostEntry[]` inlined at build. Series
@@ -1982,7 +1987,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   ≤640px); the
   `seriesInTitle` prop (TermPosts) prefixes a series article's title with the
   dim localized series name (`Series › Title`, via `seriesDisplayTitle`) and
-  suppresses the chip; title/excerpt
+  suppresses the chip; POST-004 adds a `.ct-postcard__pin` chip (FA thumbtack
+  + the localized `post.pinned` label — the glyph is `aria-hidden`, the label
+  is what AT reads) ahead of the title of a pinned post; title/excerpt
   resolved via `resolveLocalizedText` against the active language (ARCH-003);
   localized `post.empty` when the list is empty.
 - `theme/components/PostsIndex.vue` — POST-001 post-index landing + pagination:
@@ -1997,7 +2004,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   descending UTC year (`yearOf`) into `.ct-archives__year`
   sections of date + title rows (titles resolved via `resolveLocalizedText`,
   ARCH-003; series rows prefixed with the dim localized series name via
-  `seriesDisplayTitle`); no cards/excerpts. Rendered by `archives.md`.
+  `seriesDisplayTitle`); a pinned post carries the same `__pin` chip as the
+  post cards (POST-004) but the page stays chronological — pinning only lifts
+  it within its year. No cards/excerpts. Rendered by `archives.md`.
 - `theme/components/CategoriesIndex.vue` / `TagsIndex.vue` — POST-001 taxonomy
   indexes: `groupByCategory`/`groupByTag` over the `'categories'`/`'tags'`
   toggle-filtered posts (POST-002) → a list (categories) / cloud
@@ -2174,9 +2183,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   rounded-square avatar with the placeholder glyph behind an absolutely
   positioned cover img, 2-line blurb clamp, `friends.empty` dim notice; the
   random control grows to `--ct-tap` ≤640px (MOBILE-001).
-- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003 posts, series,
+- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003/004 posts, series,
   taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
-  base markdown list/heading rules): `.ct-taxonomy` link chips;
+  base markdown list/heading rules): `.ct-postcard__pin`/`.ct-archives__pin`
+  pinned chips (POST-004 — uppercase mono, colored with `--ct-link`, i.e. the
+  main color already made contrast-safe per mode, not a new constant);
+  `.ct-taxonomy` link chips;
   `.ct-post-header` — plain separator byline, or with `--cover` a framed hero
   banner showing the FULL uncropped cover (normal-flow `width:100%;height:auto`,
   natural aspect drives the banner height, 8rem floor) at FULL opacity, masked

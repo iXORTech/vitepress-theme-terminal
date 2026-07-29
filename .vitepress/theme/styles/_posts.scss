@@ -189,6 +189,27 @@
     color: var(--ct-text-dim);
   }
 
+  // Pinned marker (POST-004) — an accent chip ahead of the title. Sized and
+  // set in mono like the other card chrome, so it reads as a status flag
+  // rather than as part of the headline.
+  .ct-postcard__pin,
+  .ct-archives__pin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    font-family: var(--ct-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    // `--ct-link` is the main color already made contrast-safe as foreground
+    // text per mode (main on dark, the darkened derivative on light/paper) —
+    // the derivation rule, not a second configured color (color-system.md §3).
+    color: var(--ct-link);
+  }
+
   // Date + series chip on one mono meta row (POST-002).
   .ct-postcard__meta {
     margin: 0;

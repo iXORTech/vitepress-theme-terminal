@@ -1996,6 +1996,23 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     re-localization, chip suppressed with prefix, posts index still
     series-free, landing untouched, tag counts include the part).*
 
+- [ ] **POST-004** — Pinned posts
+  - **Category:** Content · **Deps:** POST-001, POST-002
+  - **Acceptance criteria:** a post declares `pinned: true` in its frontmatter
+    and is then sorted above every unpinned post on the date-sorted listing
+    surfaces — the posts index and its `/page/<n>` pagination, and the
+    per-tag/per-category listings — while pinned posts keep their relative date
+    order among themselves and the unpinned order is untouched; the **archives
+    stay strictly chronological**, keeping their year grouping, so pinning
+    lifts a post only to the top of its own year (a global hoist would
+    misdate the archive, and that is the deliberate exception); the pagination
+    page count and the dynamic-route loaders see the same order the components
+    render, so no post is dropped or duplicated across pages; a pinned post is
+    marked as such in the listing UI with a localized, accessible indicator
+    (not a bare glyph); the flag is inert on non-post pages; documented in
+    `docs/configuration/frontmatter.md` and the blogging guide (both
+    languages).
+
 - [x] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a home page with basic personal-website welcome content

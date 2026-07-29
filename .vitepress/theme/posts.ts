@@ -54,6 +54,8 @@ export interface PostEntry {
   series: string
   /** Sibling sort key inside a series (POST-002; default 0, smaller = higher). */
   order: number
+  /** Frontmatter `pinned` — hoisted above unpinned posts in listings (POST-004). */
+  pinned: boolean
 }
 
 /** Coerce a frontmatter value that may be a string, a list, or absent. */
@@ -168,9 +170,15 @@ export function normalizePosts(raw: RawContentEntry[]): PostEntry[] {
         cover: typeof fm.cover === 'string' ? fm.cover.trim() : '',
         series: seriesSlugOf(entry.url),
         order: toOrder(fm.order),
+        pinned: fm.pinned === true,
       }
     })
-    .sort((a, b) => b.timestamp - a.timestamp)
+    // Pinned posts first, then newest first (POST-004). One sort here serves
+    // every surface: the flat listings show pinned posts at the very top,
+    // while the archives — which re-group this list by year and sort the YEARS
+    // descending — stay chronological and only lift a pinned post to the top
+    // of its own year.
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.timestamp - a.timestamp)
 }
 
 // -----------------------------------------------------------------------------

@@ -98,6 +98,24 @@ beside the template — leave these files in place if you want the routes:
 The loaders import your `themeConfig`, so the generated routes and what the
 components display always agree — which matters for the series toggles below.
 
+### Pinning a post
+
+`pinned: true` in a post's frontmatter lifts it above every unpinned post on
+the posts index (and its pagination) and on the tag and category listings. Use
+it for the one or two posts a new reader should see first — a "start here", a
+changelog, a pinned announcement.
+
+```yaml
+---
+title: Start Here
+pinned: true
+---
+```
+
+The archives are left strictly chronological on purpose: a pinned post leads
+its own year there, not the page. Full reference:
+[`pinned`](../configuration/frontmatter.md#pinned).
+
 ## Series
 
 A series is a folder under `src/series/`. The folder name is the series' identity
@@ -302,6 +320,22 @@ title: Posts
 
 这些加载器会导入你的 `themeConfig`，因此生成的路由与组件展示的内容始终一致——这对
 下面的系列开关尤其重要。
+
+### 置顶文章
+
+在文章 frontmatter 中写 `pinned: true`，即可让它排在文章索引页（及其分页）以及标签、
+分类列表页上所有未置顶文章之前。适合用在你希望新读者第一眼看到的那一两篇——「从这里
+开始」、更新日志、置顶公告等。
+
+```yaml
+---
+title: 从这里开始
+pinned: true
+---
+```
+
+归档页刻意保持严格的时间顺序：置顶文章在那里只会排在自己所属年份的最前面，而不是整页
+最前面。完整说明见 [`pinned`](../configuration/frontmatter.md#pinned-fm-zh)。
 
 ## 系列
 

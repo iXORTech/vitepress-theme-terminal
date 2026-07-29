@@ -44,6 +44,12 @@ const coverSrc = (cover: string): string =>
       <article class="ct-postcard" :class="{ 'ct-postcard--cover': post.cover }">
         <div class="ct-postcard__body">
           <h3 class="ct-postcard__title">
+            <!-- Pinned indicator (POST-004): the glyph is decorative, the
+                 localized label beside it is what AT reads -->
+            <span v-if="post.pinned" class="ct-postcard__pin">
+              <i class="fa-solid fa-thumbtack" aria-hidden="true"></i>
+              <span class="ct-postcard__pin-label">{{ t('post.pinned') }}</span>
+            </span>
             <a :href="withBase(post.url)"
               ><span
                 v-if="seriesInTitle && post.series"

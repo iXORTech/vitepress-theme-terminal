@@ -130,6 +130,7 @@ export const zhHans: ThemeLocaleStrings = {
   'post.inCategory': '分类 {term} 下的文章',
   'post.allTags': '全部标签',
   'post.allCategories': '全部分类',
+  'post.pinned': '置顶', // POST-004 置顶文章标记
   'post.pagination': '分页',
   'post.prevPage': '上一页',
   'post.nextPage': '下一页',

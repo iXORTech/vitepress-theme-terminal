@@ -149,6 +149,7 @@ export const en = {
   'post.inCategory': 'Posts in {term}',
   'post.allTags': 'All tags',
   'post.allCategories': 'All categories',
+  'post.pinned': 'Pinned', // POST-004 pinned-post indicator
   'post.pagination': 'Pagination',
   'post.prevPage': 'Previous',
   'post.nextPage': 'Next',

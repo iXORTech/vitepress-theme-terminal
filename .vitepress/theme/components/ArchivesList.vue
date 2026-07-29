@@ -56,6 +56,12 @@ const years = computed(() => {
           }}</time>
           <!-- Title frontmatter may be a per-language map (ARCH-003); series
                rows are prefixed with the localized series name (POST-002) -->
+          <!-- Pinned indicator (POST-004): the archives stay chronological,
+               so this only marks the post that leads its year -->
+          <span v-if="post.pinned" class="ct-archives__pin">
+            <i class="fa-solid fa-thumbtack" aria-hidden="true"></i>
+            <span class="ct-archives__pin-label">{{ t('post.pinned') }}</span>
+          </span>
           <a class="ct-archives__link" :href="withBase(post.url)"
             ><span v-if="post.series" class="ct-archives__series"
               >{{ seriesTitle(post.series) }} › </span

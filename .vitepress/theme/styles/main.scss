@@ -34,6 +34,7 @@
 @use "code";    // code blocks & Shiki mode switching (STYLE-003)
 @use "callouts"; // TUI-card callout containers (MD-002)
 @use "quote";   // pull quotes with CJK corner marks (MD-005)
+@use "timeline"; // chronological timeline entries (MD-006)
 @use "math";    // rendered math: LaTeX MathML + Typst (MD-001/MD-004/FONT-005)
 @use "lightbox"; // enlarge-on-click image gallery (COMP-002)
 @use "swiper";  // cards-effect image slider (COMP-002)

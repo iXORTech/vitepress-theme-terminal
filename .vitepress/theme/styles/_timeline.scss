@@ -1,0 +1,107 @@
+// ============================================================================
+// _timeline.scss — chronological timeline entries (MD-006)
+// ============================================================================
+// Markup from theme/markdown/timeline.ts: one `.ct-timeline` per entry, each
+// holding a `.ct-timeline__node` marker, an optional `.ct-timeline__label`
+// row, and the `.ct-timeline__body` content.
+//
+// The rail is a left border on the ENTRY, not on a wrapper: adjacent entries
+// stack with no vertical gap between their borders, so a run of containers
+// reads as one unbroken rail while each entry stays an independent `:::`
+// block in the source. The rail is neutral (`--ct-border`) and only the node
+// carries the main color — the same division of labor as the callouts, where
+// the accent marks the point of interest rather than flooding the block.
+//
+// The node is an absolutely positioned pseudo-box centered on the rail. It is
+// an empty element with `aria-hidden`, so it never enters selections, copied
+// text, or the accessibility tree.
+
+.ct-content .ct-timeline {
+  // Rail geometry, expressed once so the node can be centered on the border.
+  --ct-timeline-rail: 2px;
+  --ct-timeline-node: 0.625rem; // 10px marker diameter
+  --ct-timeline-gap: 1.25rem; // rail-to-content clearance
+  --ct-timeline-accent: var(--ct-main);
+
+  position: relative;
+  margin: 0;
+  padding: 0 0 1.5rem var(--ct-timeline-gap);
+  border-left: var(--ct-timeline-rail) solid var(--ct-border);
+
+  // The first and last entries of a run: the rail starts and stops at the
+  // content rather than running into the surrounding paragraphs.
+  &:first-of-type {
+    padding-top: 0.125rem;
+  }
+
+  &:last-of-type {
+    padding-bottom: 0.25rem;
+    // Fade the tail out instead of ending on a hard stop — the timeline is
+    // open-ended, and a cut border reads as a truncation.
+    border-image: linear-gradient(
+        to bottom,
+        var(--ct-border) 0%,
+        var(--ct-border) 65%,
+        transparent 100%
+      )
+      1;
+  }
+
+  // Node marker — centered on the rail, so half of it overhangs to the left.
+  &__node {
+    position: absolute;
+    top: 0.375rem;
+    left: calc(-0.5 * (var(--ct-timeline-node) + var(--ct-timeline-rail)));
+    width: var(--ct-timeline-node);
+    height: var(--ct-timeline-node);
+    border-radius: 50%;
+    background: var(--ct-timeline-accent);
+    // A ring in the page background separates the node from the rail it sits
+    // on, which keeps it readable when entries are close together.
+    box-shadow: 0 0 0 3px var(--ct-bg);
+  }
+
+  // Label row — the authored date/version. TUI chrome, so mono
+  // (typography-and-icons.md §1), matching the callout title line.
+  &__label {
+    margin: 0 0 0.375rem;
+    font-family: var(--ct-font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--ct-timeline-accent);
+  }
+
+  &__body {
+    > :first-child {
+      margin-top: 0;
+    }
+
+    > :last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Light and paper surfaces need the darkened derivative for readable contrast
+// (mirrors how _modes.scss applies its mode token sets, including print).
+:root[data-ct-mode="light"] .ct-content .ct-timeline,
+:root[data-ct-mode="paper"] .ct-content .ct-timeline {
+  --ct-timeline-accent: var(--ct-main-deep);
+}
+
+@media print {
+  .ct-content .ct-timeline {
+    --ct-timeline-accent: var(--ct-main-deep);
+  }
+}
+
+// Mobile: tighten the rail clearance so a narrow column keeps a usable
+// measure; the node keeps its size (it is already small) — §8.
+@media (max-width: 640px) {
+  .ct-content .ct-timeline {
+    --ct-timeline-gap: 0.875rem;
+
+    padding-bottom: 1.25rem;
+  }
+}

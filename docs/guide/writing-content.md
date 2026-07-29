@@ -141,6 +141,32 @@ the column as usual.
 Use the plain `>` blockquote for a quotation in the flow of your text, and
 `::: quote` when the quotation *is* the point.
 
+## Timelines
+
+For a changelog, a milestone list, or a "how this site got here" page, the
+`timeline` container renders one entry against a vertical rail. Everything
+after the container name is the entry's label — a date, a version, a milestone
+name, anything short:
+
+```md
+::: timeline 2021-01-10
+The site was founded, on VuePress.
+:::
+
+::: timeline 2025-07-04
+Rebuilt on **VitePress Theme Terminal**.
+:::
+```
+
+Write one container per entry; consecutive entries join into a single unbroken
+rail, so there is no wrapper container to remember. The label is rendered as
+inline Markdown (emphasis and links work) and is plain authored text — it is
+never translated by the theme, so if a page is bilingual, put each language's
+timeline inside its own [`::: lang` block](#per-language-page-bodies). The body
+takes any Markdown, including lists and nested callouts. The label is omitted
+if you leave it out; the rail and node marker are drawn by the theme in the
+main color and need no configuration.
+
 ## Markdown extensions
 
 Enabled site-wide, no configuration needed:
@@ -389,6 +415,28 @@ Hello, World!
 
 行文之中的引用请继续使用普通的 `>` 引用块；当引文本身就是重点时，才用
 `::: quote`。
+
+## 时间线（Timelines）
+
+要写更新日志、里程碑列表，或是「本站是怎么走到今天的」这类页面，可以使用
+`timeline` 容器：它会把一个条目渲染在一条竖直的轴线旁。容器名之后的所有内容都是
+该条目的标签——日期、版本号、里程碑名称，任何简短文字皆可：
+
+```md
+::: timeline 2021-01-10
+本站创立，当时使用 VuePress。
+:::
+
+::: timeline 2025-07-04
+迁移到 **VitePress Theme Terminal** 重建。
+:::
+```
+
+每个条目写一个容器；相邻的条目会自动连成一条不间断的轴线，因此不需要额外的外层
+容器。标签按行内 Markdown 渲染（强调与链接均可用），并且是纯粹的作者文本——主题
+不会翻译它，所以双语页面请把各语言的时间线分别放进各自的
+[`::: lang` 块](#分语言的页面正文)。条目正文可以写任意 Markdown，包括列表与嵌套的
+提示框。省略标签时该行不渲染；轴线与节点标记由主题以主色绘制，无需任何配置。
 
 ## Markdown 扩展
 

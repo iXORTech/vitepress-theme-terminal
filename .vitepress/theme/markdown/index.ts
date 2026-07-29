@@ -29,6 +29,7 @@ import { localizedContentPlugin } from './localized-content'
 import { mathPlugin } from './math'
 import { quotePlugin } from './quote'
 import { swiperPlugin } from './swiper'
+import { timelinePlugin } from './timeline'
 import { typstPlugin } from './typst'
 
 /**
@@ -74,6 +75,10 @@ export function createMarkdownConfig(lang: string) {
     // COMP-002 image slider containers (`:::: swiper` decks of
     // `::: swiper-slide-no-shadow` cards; client-initialized by useSwipers)
     swiperPlugin(md)
+
+    // MD-006 timeline entries — `::: timeline <label>`; adjacent entries share
+    // one continuous rail, drawn in CSS rather than by an outer container
+    timelinePlugin(md)
 
     // I18N-007 per-language content blocks (`::: lang <tag>`) — the matching
     // block is emitted visible at build time, the client switches on language

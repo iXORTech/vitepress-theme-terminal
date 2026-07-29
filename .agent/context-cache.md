@@ -1346,6 +1346,15 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   pseudo-elements in `_quote.scss`, so they never enter the DOM, a selection, or
   the accessibility tree). No options, no localization: the whole rendering is
   styling.
+- `theme/markdown/timeline.ts` — MD-006 timeline entries: registers a
+  `::: timeline <label>` markdown-it-container emitting ONE entry
+  (`.ct-timeline` > node span + optional `.ct-timeline__label` +
+  `.ct-timeline__body`). Everything after the container name is the label,
+  rendered with `renderInline` so emphasis/links work; it is authored text and
+  is deliberately **not** localizable — a bilingual page puts each language's
+  timeline in its own `::: lang` block. No outer/wrapper container: adjacent
+  entries join into one rail purely in `_timeline.scss`, so the source shape
+  stays one `:::` block per entry.
 - `theme/shiki/oxocarbon.ts` — builds `oxocarbon-dark`/`oxocarbon-light` shiki themes
   from the oxocarbon.nvim palettes (treesitter groups transcribed to TextMate scopes;
   MIT attribution in header) and re-exports the vendored paper theme.
@@ -2088,7 +2097,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   **notifications** (THEME-029, after statusbar)/window/
   settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
-  callouts/**quote** (MD-005, after callouts)/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
+  callouts/**quote** (MD-005, after callouts)/**timeline** (MD-006, after quote)/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
   `window`, SEARCH-002; `license`/`comments` after `card`, COMP-003/004;
   `posts` after `content`, ARCH-001/POST-001; `friends` after `pages`,
   PAGE-004), then base document styles
@@ -2308,6 +2317,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   while the plain `>` blockquote keeps its bar. Color `--ct-quote-mark`:
   `--ct-main` on dark, `--ct-main-deep` under `[data-ct-mode=light|paper]` and
   `@media print` (mirrors `_modes.scss`'s own application block).
+- `theme/styles/_timeline.scss` — MD-006 timeline entries (`.ct-timeline`, from
+  `markdown/timeline.ts`). **The rail is a `border-left` on the ENTRY, not on a
+  wrapper**: adjacent entries stack their borders with no gap, which is how a
+  run of independent `:::` blocks reads as one unbroken rail. `:last-of-type`
+  replaces the border with a `border-image` gradient so the rail fades out
+  instead of ending on a hard cut (a timeline is open-ended). The node is
+  `position:absolute` at `left: -(node + rail)/2` — centered ON the border, so
+  half overhangs — with a 3px `--ct-bg` ring separating it from the rail.
+  Accent = `--ct-main` on dark, `--ct-main-deep` under
+  `[data-ct-mode=light|paper]` and `@media print`; the rail itself stays the
+  neutral `--ct-border` (callout division of labor: accent marks the point of
+  interest, it does not flood the block). Label row is mono TUI chrome like
+  `.ct-callout__title`. ≤640px only tightens `--ct-timeline-gap`.
 - `theme/styles/_math.scss` — MD-001/MD-004/FONT-005 rendered math, scoped under
   `.ct-content`. Shared `$ct-math-font` = `"IBM Plex Math", math, "IBM Plex
   Serif", serif`. **LaTeX/MathML:** `math` gets the font + neutral `--ct-text`;

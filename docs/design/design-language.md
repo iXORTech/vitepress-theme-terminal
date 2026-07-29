@@ -544,6 +544,32 @@ belongs to the marks. One inherited-rule note: `.ct-content .ct-quote` is one
 class heavier than the base `.ct-content blockquote` rule, which is what lets it
 drop the left bar without touching the plain form.
 
+**Timelines (MD-006)** — a `::: timeline <label>` container renders one entry of
+a chronological list against a vertical rail: a node marker on the rail, the
+authored label (a date, a version, a milestone name), and the entry body. The
+label is authored text, never locale-derived — unlike a callout title there is
+no default to translate, so a bilingual page puts each language's timeline in
+its own `::: lang` block rather than asking the theme to switch labels.
+
+The structural decision is that the **rail belongs to the entry, not to a
+wrapper**: each container emits its own `.ct-timeline` carrying the rail as a
+left border, and adjacent entries stack borders with no gap, so a run reads as
+one unbroken rail. The alternative — an outer container wrapping the entries —
+would have matched the visual grouping but broken the theme's one rule for
+containers, that one `:::` block is one thing; nesting is reserved for the
+slider deck, where the deck is genuinely a single component. The tail of the
+last entry fades out instead of stopping on a hard edge, because a timeline is
+open-ended and a cut border reads as truncation.
+
+Color follows the callout division of labor: the rail is the neutral border
+token and only the node and label carry the **main color**, derived per mode
+(`--ct-main` on dark, `--ct-main-deep` on light/paper/print) — the accent marks
+the point of interest instead of flooding the block. The node is an empty,
+`aria-hidden` element ringed in the page background so it stays readable where
+entries sit close together, and stays out of selections, copied text, and the
+accessibility tree. See `theme/markdown/timeline.ts` and
+`styles/_timeline.scss`.
+
 **Rendered math (MD-001 / MD-004 / FONT-005)** — two math renderers, one typeface.
 Both render in **IBM Plex Math** (the font decision lives in
 `docs/design/typography-and-icons.md` §2a).

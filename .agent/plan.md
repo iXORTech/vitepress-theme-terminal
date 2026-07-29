@@ -764,6 +764,21 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     headless (marks empty-content, only the two corner borders set on each,
     14×20 box, bold text, per-mode color, geometry kept at 360px, no overflow).*
 
+- [ ] **MD-006** — Timeline container (`::: timeline <label>`)
+  - **Category:** Markdown · **Deps:** MD-001, MD-002, STYLE-001, STYLE-005
+  - **Acceptance criteria:** a `::: timeline <label> … :::` container renders one
+    entry of a vertical timeline — the label (a date, a version, any short
+    string) beside a rail with a node marker, and the container body as the
+    entry content, accepting arbitrary Markdown (paragraphs, lists, links,
+    nested callouts); consecutive containers read as one continuous rail rather
+    than as separate boxes; the label is authored text and is never
+    locale-derived, so no locale table entry is needed; the rail and node use
+    the **main color** derived per mode (color-system.md §3), never a second
+    configured constant; styling lives in a dedicated SCSS partial; renders
+    correctly in all three color modes, in print, and on mobile (the rail
+    stays legible at ≤640px); documented in `docs/design/design-language.md`
+    §4 and in the user guide (both languages).
+
 ### i18n
 
 - [x] **I18N-001** — Locale system scaffolding

@@ -669,6 +669,21 @@ and the author & license system above:
 An author can opt a page out of both with `article: false` in frontmatter, or
 drop just one with `license: false` / `comments: false`.
 
+**Per-article license (COMP-006)** — CONF-002 stays the single source for the
+*site's* license, but a single article may be carried under terms that are not
+the site's: a translation, a syndicated repost, a guest piece. Such an article
+names its own license with a frontmatter `license` **object** (`name` as
+`LocalizableText`, optional `url` and `icons`), and the license card — deed
+link, icons, and the CC watermark alike — follows that value instead of the
+configured one.
+
+The rule is the same one CONF-002 applies to a custom site license: the object
+**replaces the site license as a whole** and inherits nothing implicit. A
+repost under someone else's terms silently keeping this site's brand icons
+would be a licensing misstatement, not a convenience. `license: false` keeps
+its meaning — the card is dropped before it renders — so boolean and object
+forms never conflict.
+
 **Heading anchor links (THEME-023)** — every content heading (`h1`–`h6` inside
 `.ct-content`) carries a stable slug `id` and a clickable permalink control that
 sets the URL hash to that heading. VitePress emits the slug and the

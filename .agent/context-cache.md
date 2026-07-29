@@ -1928,13 +1928,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   separators in the flex prompt layout. A resize-aware staged fitter hides the
   host, reduces the path to its last section, and then enables path ellipsis.
 - `theme/components/ArticleLicense.vue` — end-of-article license card
-  (COMP-003): a `Card` with `showPrompt` (command `license`) showing the
+  (COMP-003, COMP-006): a `Card` with `showPrompt` (command `license`) showing the
   article title (linked to its permalink), a labeled meta list (author ·
   release date from frontmatter `date` · last-updated date [frontmatter
   `updated`/`lastUpdated`, else VitePress git `page.lastUpdated`] · permalink,
   upgraded to the absolute URL on mount), and the license statement (`{license}`
   → deed link) + CC brand icons. Author & license from CONF-002 via
-  `useThemeConfig()`; labels localized; a shared `formatDate(raw)` normalizes
+  `useThemeConfig()` — **unless** the frontmatter `license` is an OBJECT
+  (COMP-006), which replaces the site license as a whole (`name` resolved as
+  LocalizableText; `url`/`icons` default to none, never inherited from the
+  site — a repost must not keep this site's license branding). A `name` that
+  resolves empty falls back to the site license; `license: false` never
+  reaches here (PostPage drops the card). The CC watermark follows the
+  effective license, so a non-CC override drops it. Labels localized; a shared `formatDate(raw)` normalizes
   any date shape (bare `YYYY-MM-DD`, full ISO datetime with offset, YAML `Date`,
   numeric git timestamp) to a single instant, assumes UTC when an ISO string
   has no zone, and formats in UTC until mount before switching to the reader's

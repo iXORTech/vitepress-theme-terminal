@@ -2013,6 +2013,21 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `docs/configuration/frontmatter.md` and the blogging guide (both
     languages).
 
+- [ ] **COMP-006** — Per-article license override
+  - **Category:** Components · **Deps:** COMP-003, CONF-002
+  - **Acceptance criteria:** an article can declare its own content license in
+    frontmatter — `license:` accepting either the existing boolean (`false`
+    still removes the card entirely) or an object with `name`
+    (`LocalizableText`), optional `url`, and optional `icons` — and the license
+    card then shows that license instead of `themeConfig.license`, with the
+    deed link, icons, and the Creative-Commons watermark following the
+    per-article value rather than the site default; a partial object inherits
+    nothing implicit beyond the documented defaults (a custom `name` without
+    `icons` renders no icons, matching the CONF-002 rule for a custom site
+    license); pages without the field are byte-identical to before; documented
+    in `docs/configuration/frontmatter.md` and cross-referenced from
+    `docs/configuration/theme-config.md` (both languages).
+
 - [x] **PAGE-001** — Home page
   - **Category:** Pages · **Deps:** ARCH-001, COMP-001
   - **Acceptance criteria:** a home page with basic personal-website welcome content

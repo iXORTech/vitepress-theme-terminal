@@ -207,6 +207,11 @@ and `icons` are not inherited, so supply your own (an unset field then means
 license: { name: "MIT", url: "https://opensource.org/license/mit/" },
 ```
 
+This is the site-wide license. A single article can carry a different one — a
+translation or a repost under someone else's terms — with a
+[`license` object in its frontmatter](frontmatter.md#per-article-license),
+which follows the same "replaces the default as a whole" rule.
+
 ## `toolbar`
 
 - **Type:** `TerminalToolbarConfig`
@@ -709,6 +714,10 @@ author: { name: "Ada Lovelace", username: "ada" },
 ```ts
 license: { name: "MIT", url: "https://opensource.org/license/mit/" },
 ```
+
+这是站点级的许可协议。单篇文章——译文，或以他人条款转载的内容——可以通过
+[frontmatter 中的 `license` 对象](frontmatter.md#per-article-license-zh)
+使用不同的协议，其「整体替换默认值」的规则与这里一致。
 
 ## `toolbar` {#toolbar-zh}
 

@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // ============================================================================
-// ArticleLicense.vue — end-of-article license card (COMP-003)
+// ArticleLicense.vue — end-of-article license card (COMP-003, COMP-006)
 // ============================================================================
 // Rendered at the bottom of every article (Layout.vue) inside the reusable
 // Card WITH the shell-prompt decoration (design-language.md §4, cards;
 // ui-sketch.md §6). Shows the article info — title, permalink, publish date,
-// author — plus the configured content license, all sourced from the central
-// author & license system (CONF-002). Every label is localized (I18N-001).
+// author — plus the content license, sourced from the central author & license
+// system (CONF-002) unless the article names its own in frontmatter (COMP-006 —
+// for a repost carried under someone else's terms). Labels localized
+// (I18N-001).
 import { computed, onMounted, ref } from 'vue'
 import { useData, useRoute } from 'vitepress'
 import Card from './Card.vue'
@@ -20,8 +22,36 @@ const route = useRoute()
 const config = useThemeConfig()
 const { t, language } = useThemeLocale()
 
-// License & author come from CONF-002 (the single source, like the footer).
-const license = computed(() => config.value.license)
+// License & author come from CONF-002 (the single source, like the footer) —
+// unless the article overrides it in frontmatter (COMP-006). An article-level
+// `license:` object replaces the site license as a WHOLE, mirroring the
+// CONF-002 rule that a custom license name inherits neither the CC deed URL
+// nor its icons: a repost under someone else's terms must not silently keep
+// the site's brand icons. `license: false` never reaches here — PostPage drops
+// the card before rendering it.
+const license = computed(() => {
+  const override = frontmatter.value.license as
+    | { name?: unknown; url?: unknown; icons?: unknown }
+    | boolean
+    | undefined
+  if (!override || typeof override !== 'object') return config.value.license
+
+  // `name` is LocalizableText like every other authored display string
+  // (ARCH-003); an override without a usable name is treated as absent.
+  const name = resolveLocalizedText(
+    asLocalizableText(override.name),
+    language.value,
+  )
+  if (!name) return config.value.license
+
+  return {
+    name,
+    url: typeof override.url === 'string' ? override.url : '',
+    icons: Array.isArray(override.icons)
+      ? override.icons.filter((icon): icon is string => typeof icon === 'string')
+      : [],
+  }
+})
 const author = computed(
   () =>
     resolveLocalizedText(config.value.author.name, language.value) ||

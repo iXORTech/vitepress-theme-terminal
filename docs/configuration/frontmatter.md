@@ -35,7 +35,7 @@ Fields marked **`LocalizableText`** take a plain string or a per-language map
 | [`home`](#home) | `boolean` | `false` | any page |
 | [`pageType`](#pagetype) | page-type string | resolved from the path | any page |
 | [`article`](#article) | `boolean` | `true` | posts, series articles |
-| [`license`](#license--comments) | `boolean` | `true` | articles |
+| [`license`](#license--comments) | `boolean \| object` | `true` | articles |
 | [`comments`](#license--comments) | `boolean` | `true` | articles |
 
 ---
@@ -269,7 +269,7 @@ article: false
 
 ## `license` / `comments`
 
-- **Type:** `boolean`
+- **Type:** `boolean` (`license` also accepts an object)
 - **Default:** `true`
 
 Individually drop the end-of-article license card or comment card. `comments`
@@ -282,6 +282,37 @@ license: false
 comments: false
 ---
 ```
+
+### Per-article license
+
+`license` may instead be an object, and the license card then shows that
+license in place of
+[`themeConfig.license`](theme-config.md#license) — for a translation, a repost,
+or any article carried under terms that are not the site's own.
+
+| Field | Type | Default | Notes |
+| --- | --- | --- | --- |
+| `name` | `LocalizableText` | — | Required; without it the site license is used |
+| `url` | `string` | none | Deed / full-text link; without it the name is plain text |
+| `icons` | `string[]` | `[]` | Font Awesome class lists, e.g. `fa-brands fa-creative-commons` |
+
+```yaml
+---
+license:
+  name: CC BY-SA 4.0
+  url: https://creativecommons.org/licenses/by-sa/4.0/
+  icons:
+    - fa-brands fa-creative-commons
+    - fa-brands fa-creative-commons-by
+    - fa-brands fa-creative-commons-sa
+---
+```
+
+The object **replaces the site license as a whole** — it inherits neither the
+default deed URL nor the default icons, the same rule
+[`themeConfig.license`](theme-config.md#license) follows for a custom name. That
+is deliberate: an article published under someone else's terms must not keep
+the site's license branding by accident.
 
 ---
 
@@ -363,7 +394,7 @@ The full rationale for this layout is in
 | [`home`](#home-fm-zh) | `boolean` | `false` | 任意页面 |
 | [`pageType`](#pagetype-fm-zh) | 页面类型字符串 | 由路径推断 | 任意页面 |
 | [`article`](#article-fm-zh) | `boolean` | `true` | 文章、系列文章 |
-| [`license`](#license-fm-zh) | `boolean` | `true` | 文章类页面 |
+| [`license`](#license-fm-zh) | `boolean \| object` | `true` | 文章类页面 |
 | [`comments`](#license-fm-zh) | `boolean` | `true` | 文章类页面 |
 
 ---
@@ -581,7 +612,7 @@ article: false
 
 ## `license` / `comments` {#license-fm-zh}
 
-- **类型：** `boolean`
+- **类型：** `boolean`（`license` 还接受对象）
 - **默认值：** `true`
 
 分别用于去掉文末的许可卡片或评论卡片。未配置评论服务器时 `comments` 没有实际影响
@@ -593,6 +624,34 @@ license: false
 comments: false
 ---
 ```
+
+### 单篇文章的许可协议 {#per-article-license-zh}
+
+`license` 也可以写成一个对象，此时许可卡片会用它取代
+[`themeConfig.license`](theme-config.md#license-zh) —— 适用于译文、转载，或任何以
+非本站条款发布的文章。
+
+| 字段 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `name` | `LocalizableText` | —— | 必填；缺失时回退到站点许可协议 |
+| `url` | `string` | 无 | 协议原文／条款链接；不填则协议名为纯文本 |
+| `icons` | `string[]` | `[]` | Font Awesome 类名，如 `fa-brands fa-creative-commons` |
+
+```yaml
+---
+license:
+  name: CC BY-SA 4.0
+  url: https://creativecommons.org/licenses/by-sa/4.0/
+  icons:
+    - fa-brands fa-creative-commons
+    - fa-brands fa-creative-commons-by
+    - fa-brands fa-creative-commons-sa
+---
+```
+
+这个对象会**整体取代**站点许可协议——既不会继承默认的协议链接，也不会继承默认图标，
+与 [`themeConfig.license`](theme-config.md#license-zh) 对自定义协议名的规则一致。这是
+刻意为之：以他人条款发布的文章绝不应该顺带保留本站的协议标识。
 
 ---
 

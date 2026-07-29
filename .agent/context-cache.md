@@ -2,7 +2,39 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**DOC-009 + DOC-010
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**MD-005 landed** —
+the `::: quote` pull-quote container. `theme/markdown/quote.ts` emits a real
+`<blockquote class="ct-quote">` (semantic quotation, not a decorative div) and
+the new `styles/_quote.scss` puts a corner mark at the upper-left and
+lower-right as `::before`/`::after` — decoration that stays out of selections,
+copied text, and the accessibility tree. **The marks are DRAWN WITH BORDERS,
+not typed as 「/」** — this is the settled decision after two rounds of user
+feedback pointing at `iXORTech/vitepress-theme-arch`, whose `.quote-container`
+does the same: the wanted mark is *shorter* than the typographic bracket
+(stubby arms, thick stroke — a corner rule, not punctuation), which no glyph
+can produce, and drawing it also drops the dependency on the reader's CJK font
+(IBM Plex has none). The first implementation used `content: "\300C"` +
+`-webkit-text-stroke` + a `--ct-font-cjk` token; all three are **gone**, and
+the token was removed from `_tokens.scss` (nothing else used it) — don't
+reintroduce them. **Three things to know before touching this:** (1) the rule
+is written `.ct-content .ct-quote`, one class heavier than `_content.scss`'s
+`.ct-content blockquote`, which is exactly how it drops the left bar while the
+plain `>` blockquote keeps its own; (2) the mark geometry is expressed as OUTER
+dimensions (14×20px box, 6px stroke) because main.scss puts pseudo-elements in
+`border-box` — the reference theme's `*{box-sizing:border-box}` does not cover
+pseudo-elements, so its `8/14px + 6px borders` is the same 14×20; (3) the box
+shrink-wraps its quotation and centers in the column (`width: fit-content` +
+`margin-inline: auto`, in the mobile block too), because the marks are anchored
+to the box and a full-width one strands them at the column edges. Quotation
+text is bold/tighter-set per the reference, but stays the neutral body color —
+the accent belongs to the marks. Mark color is `--ct-main` on dark and
+`--ct-main-deep` on light/paper/print (contrast first, still derived —
+color-system.md §3). Docs: design-language.md §4 "Pull quotes",
+typography-and-icons.md §1 (CJK is a fallback concern — the theme never draws
+chrome with a CJK glyph), guide/writing-content.md in both languages, and a
+demo section in `src/markdown-examples.md`. Verified headless 16/16 on the
+built site + screenshots in all three modes and at 360px.) Earlier same day
+(**DOC-009 + DOC-010
 landed** — the documentation home moved back to the repository root and the
 agent-facing records left the deployment. **Paths again: every document lives in
 `docs/` at the root — a REAL directory, no symlink** (DOC-007's `src/docs` +
@@ -850,7 +882,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `guide/writing-content.md` — DOC-004: page-type table (path → type → what you
   get) + the two escape hatches, everyday frontmatter block, heading-anchor
   copy behavior, code-block cards with the `[file.name]` info-string, the eight
-  callout types + custom titles, the MD-001 extension syntax table, LaTeX
+  callout types + custom titles, the MD-005 `::: quote` pull quote (and when to
+  prefer the plain `>` form), the MD-001 extension syntax table, LaTeX
   (`$`/`$$` → MathML) vs Typst (`::: typst` / `:typst[…]`), lightbox +
   `data-no-lightbox` + `:::: swiper` decks, `::: lang` bodies, and Vue in
   markdown (`@` alias, `Card` props, globally registered listing components).
@@ -996,7 +1029,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   bar, mono TUI boxes with a derived-accent frame and a text `[x]`, ~3s
   auto-dismiss, repeats replace rather than stack, max 3, persistent
   `role="status"` live region, caller supplies the localized message,
-  print-hidden, reduced-motion honored).
+  print-hidden, reduced-motion honored); §4 **pull quotes** note (MD-005: the
+  `::: quote` container framed by 「/」-shaped corner marks in the main color,
+  the recorded reason both quotation forms exist — plain `>` is the quiet
+  in-flow one, `::: quote` the loud framed one — the shrink-wrap-and-center
+  rule, and the binding decision that the marks are DRAWN WITH BORDERS
+  (14×20px, 6px stroke) rather than typed, so their shape is the theme's own
+  and needs no CJK font).
 - `design/color-system.md` — binding: main color (default `#80E0A7`, `themeConfig`)
   is an ACCENT for emphasis/links/bold/headings — body text is neutral Carbon in all
   modes (2026-07-09 decision, §2/§6); hard rule that all auxiliary colors derive
@@ -1005,7 +1044,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   tokens, head-injected main color, `data-ct-mode` + `ct-mode` storage, callout
   colors, three-theme shiki, and mode-aware prompt roles).
 - `design/typography-and-icons.md` — binding: IBM Plex allocation (Sans = UI/body,
-  Serif = paper-mode body, Mono = code + TUI chrome); Font Awesome for most icons, Nerd
+  Serif = paper-mode body, Mono = code + TUI chrome; §1 also records that CJK is
+  a FALLBACK concern, not a fourth family — no CJK webfont is loaded, so the
+  theme never draws chrome with a CJK glyph: the MD-005 quote corner marks are
+  drawn with borders instead);
+  Font Awesome for most icons, Nerd
   Font only in TUI chrome incl. callout chrome (title glyphs + details chevron, MD-003);
   hard rule: load via stylesheets injected in `<head>` from VitePress config, no npm
   font/icon packages. FONT-001 note: Google Fonts CSS2, weights 400/600/700 (+italic
@@ -1210,7 +1253,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/markdown/index.ts` — node-side `createMarkdownConfig(lang)` → the
   `markdown.config` hook: wires the MD-001 plugin suite (emoji `full` preset, sub,
   sup, ins, mark, footnote, deflist, abbr), then `mathPlugin` (LaTeX→MathML,
-  MD-001/FONT-005) and `typstPlugin` (Typst math, MD-004), then `calloutsPlugin`
+  MD-001/FONT-005) and `typstPlugin` (Typst math, MD-004), then `calloutsPlugin`,
+  `quotePlugin` (MD-005 pull quotes)
   and `swiperPlugin` (COMP-002), then `localizedContentPlugin(md, lang)`
   (I18N-007) and `codeBlockCardsPlugin(md, lang)` last (STYLE-004). The `md`
   param is typed as the intersection of the callout/math/typst plugin shapes
@@ -1257,6 +1301,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (details → `<details>/<summary>`); default titles from the locale table for the
   build `lang`, tagged `data-ct-callout-title` for client re-localization; custom
   titles render inline markdown untagged. Aliases: note→info, caution→danger.
+- `theme/markdown/quote.ts` — MD-005 pull quotes: registers a `::: quote`
+  markdown-it-container emitting a real `<blockquote class="ct-quote">` (the
+  quotation stays semantic markup — the 「/」 corner marks are CSS
+  pseudo-elements in `_quote.scss`, so they never enter the DOM, a selection, or
+  the accessibility tree). No options, no localization: the whole rendering is
+  styling.
 - `theme/shiki/oxocarbon.ts` — builds `oxocarbon-dark`/`oxocarbon-light` shiki themes
   from the oxocarbon.nvim palettes (treesitter groups transcribed to TextMate scopes;
   MIT attribution in header) and re-exports the vendored paper theme.
@@ -1982,7 +2032,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   **notifications** (THEME-029, after statusbar)/window/
   settings/content/**anchors** (THEME-023, after content)/**posts**/pages/**friends**/card/license/comments/footer/
   prefooter-demo/code/
-  callouts/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
+  callouts/**quote** (MD-005, after callouts)/lightbox/swiper (COMP-002 vendor CSS + overrides; `search` after
   `window`, SEARCH-002; `license`/`comments` after `card`, COMP-003/004;
   `posts` after `content`, ARCH-001/POST-001; `friends` after `pages`,
   PAGE-004), then base document styles
@@ -2183,6 +2233,25 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   animates a rotating chevron (`❯` fallback, upgraded to the NF chevron by the same
   gated rule via specificity); ≤640px the summary line becomes a centered flex
   row grown to `--ct-tap` (MOBILE-001).
+- `theme/styles/_quote.scss` — MD-005 pull quotes (`.ct-quote`, from
+  `markdown/quote.ts`): bold centered quotation (weight 700, line-height 1.5)
+  with an empty `::before` at top-left / `::after` at bottom-right, each
+  showing only the **two borders meeting at its corner** — the marks are DRAWN,
+  never typed as 「/」. Geometry as OUTER dimensions
+  (`--ct-quote-mark-width/-height/-stroke` = 14/20/6px, vertical arm longer),
+  which works because main.scss puts pseudo-elements in `border-box` too; the
+  reference theme's `*{box-sizing:border-box}` does NOT cover pseudo-elements,
+  so its `8/14px + 6px borders` means the same 14×20. Horizontal padding =
+  mark width + `--ct-quote-gap` (10px, 6px ≤640px). The box is
+  `width: fit-content; max-width: 100%` with `margin-inline: auto` (**also in
+  the ≤640px block** — an override there that resets `margin` to `0` silently
+  un-centers it): the marks are anchored to this box, so a full-width one would
+  strand them at the column edges away from a short quotation. Written as
+  `.ct-content .ct-quote` **on purpose** — one class heavier than
+  `_content.scss`'s `.ct-content blockquote`, so `border-left: 0` wins here
+  while the plain `>` blockquote keeps its bar. Color `--ct-quote-mark`:
+  `--ct-main` on dark, `--ct-main-deep` under `[data-ct-mode=light|paper]` and
+  `@media print` (mirrors `_modes.scss`'s own application block).
 - `theme/styles/_math.scss` — MD-001/MD-004/FONT-005 rendered math, scoped under
   `.ct-content`. Shared `$ct-math-font` = `"IBM Plex Math", math, "IBM Plex
   Serif", serif`. **LaTeX/MathML:** `math` gets the font + neutral `--ct-text`;
@@ -2420,7 +2489,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   **Typst** `::: typst` block + `:typst[…]` inline sections, both rendering in
   IBM Plex Math and both showing **Tupper's self-referential formula** as the
   display block, MD-004/FONT-005); **Callouts** (all 8 MD-002 types + note/caution
-  aliases + custom-title + nested); **Images and galleries** (COMP-002 lightbox
+  aliases + custom-title + nested); **Pull quotes** (MD-005, added 2026-07-28 —
+  a short `::: quote` and a multi-paragraph one with an attribution line);
+  **Images and galleries** (COMP-002 lightbox
   image + a `:::: swiper` / `::: swiper-slide-no-shadow` three-card deck); and
   the **Card component** (DEMO-002 — defaulted, fully-overridden, prompt-off,
   and prompt-disabled COMP-001 cards). Task lists are intentionally excluded

@@ -1,0 +1,118 @@
+// ============================================================================
+// _quote.scss — pull quotes framed by corner marks (MD-005)
+// ============================================================================
+// Markup from theme/markdown/quote.ts: `<blockquote class="ct-quote">`. The
+// quotation is centered between two corner marks in the shape of the Chinese
+// brackets 「 and 」 — opener at the upper-left, closer at the lower-right —
+// drawn in the main color, the theme's emphasis accent (color-system.md §2:
+// body text stays neutral, the accent carries the visual appeal).
+//
+// **The marks are drawn with borders, not typed as 「/」 glyphs.** Two reasons,
+// and the second is the deciding one:
+//   1. IBM Plex has no CJK coverage, so a real glyph would be rendered by
+//      whatever CJK family the reader happens to have — different arm lengths,
+//      different stroke weight, tofu where there is none at all.
+//   2. The intended mark is SHORTER than the typographic bracket: stubby arms
+//      and a thick stroke, which is a corner rule, not punctuation. A glyph
+//      draws long thin arms and cannot be made to look like this.
+// An empty pseudo-element with two borders gives that shape exactly, at any
+// size, on every platform.
+//
+// The marks being pseudo-elements also keeps them decorative: unselectable,
+// absent from copied text, and invisible to screen readers, which read the
+// quotation itself.
+//
+// One inherited-rule note: `.ct-content blockquote` (in _content.scss) gives
+// every quote a left bar; `.ct-content .ct-quote` is one class heavier, so the
+// reset below wins and the plain `>` blockquote keeps its bar.
+
+.ct-content .ct-quote {
+  // Theme color, contrast-safe per mode — the dark surface takes the main
+  // color straight, light/paper its darkened derivative (both derived from
+  // --ct-main, never configured: color-system.md §3).
+  --ct-quote-mark: var(--ct-main);
+  // Mark geometry. These are OUTER dimensions: main.scss puts every element and
+  // pseudo-element in `border-box`, so the borders are drawn inside the box.
+  --ct-quote-mark-width: 0.875rem; // 14px — horizontal arm
+  --ct-quote-mark-height: 1.25rem; // 20px — vertical arm, deliberately longer
+  --ct-quote-mark-stroke: 0.375rem; // 6px
+  --ct-quote-gap: 0.625rem; // clearance between a mark and the text
+
+  position: relative;
+  // Shrink-wrapped and centered in the column: the marks are anchored to this
+  // box, so a full-width box would strand them at the column edges, far from a
+  // short quotation. A quotation long enough to wrap fills the column as usual.
+  width: fit-content;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 0.5rem calc(var(--ct-quote-mark-width) + var(--ct-quote-gap));
+  border-left: 0; // reset the base blockquote bar
+  color: var(--ct-text);
+  text-align: center;
+  // Bold, tighter-set display text — a pulled quotation is looked at before it
+  // is read. The weight is typographic only: the color stays the neutral body
+  // token, since the accent belongs to the marks (color-system.md §2).
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.5;
+
+  > p {
+    margin: 0.5rem 0;
+  }
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  // The corner marks — an empty box showing only the two borders that meet at
+  // the corner it sits in.
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: var(--ct-quote-mark-width);
+    height: var(--ct-quote-mark-height);
+    pointer-events: none;
+  }
+
+  &::before {
+    top: 0;
+    left: 0;
+    border-top: var(--ct-quote-mark-stroke) solid var(--ct-quote-mark);
+    border-left: var(--ct-quote-mark-stroke) solid var(--ct-quote-mark);
+  }
+
+  &::after {
+    right: 0;
+    bottom: 0;
+    border-right: var(--ct-quote-mark-stroke) solid var(--ct-quote-mark);
+    border-bottom: var(--ct-quote-mark-stroke) solid var(--ct-quote-mark);
+  }
+}
+
+// Light and paper surfaces need the darkened derivative for readable contrast
+// (mirrors how _modes.scss applies its mode token sets, including print).
+:root[data-ct-mode="light"] .ct-content .ct-quote,
+:root[data-ct-mode="paper"] .ct-content .ct-quote {
+  --ct-quote-mark: var(--ct-main-deep);
+}
+
+@media print {
+  .ct-content .ct-quote {
+    --ct-quote-mark: var(--ct-main-deep);
+  }
+}
+
+// Mobile: the marks keep their size (they are already small); only the text
+// clearance tightens, so a narrow column keeps a usable measure (§8).
+@media (max-width: 640px) {
+  .ct-content .ct-quote {
+    --ct-quote-gap: 0.375rem;
+
+    margin: 1.5rem auto; // keep the shrink-wrapped box centered
+  }
+}

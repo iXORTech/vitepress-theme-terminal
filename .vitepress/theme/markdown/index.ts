@@ -3,8 +3,9 @@
 // =============================================================================
 // Node-side. Builds the `markdown.config` hook for `.vitepress/config.mts`:
 // the markdown-it plugin suite (MD-001) plus the callout containers (MD-002),
-// the LaTeX math pipeline (mathPlugin, MD-001/FONT-005), and the Typst math
-// syntax (typstPlugin, MD-004). Syntax-highlighting themes are wired separately
+// the LaTeX math pipeline (mathPlugin, MD-001/FONT-005), the Typst math syntax
+// (typstPlugin, MD-004), and the pull-quote container (quotePlugin, MD-005).
+// Syntax-highlighting themes are wired separately
 // via `markdown.theme` (theme/shiki/) — see config.mts.
 //
 // Math typeface (FONT-005): the LaTeX path emits MathML (not MathJax SVG) so it
@@ -26,6 +27,7 @@ import { calloutsPlugin } from './callouts'
 import { codeBlockCardsPlugin } from './codeblock'
 import { localizedContentPlugin } from './localized-content'
 import { mathPlugin } from './math'
+import { quotePlugin } from './quote'
 import { swiperPlugin } from './swiper'
 import { typstPlugin } from './typst'
 
@@ -65,6 +67,9 @@ export function createMarkdownConfig(lang: string) {
 
     // MD-002 callouts (markdown-it-container based)
     calloutsPlugin(md, lang)
+
+    // MD-005 pull quotes — `::: quote` framed by the 「 」 corner marks
+    quotePlugin(md)
 
     // COMP-002 image slider containers (`:::: swiper` decks of
     // `::: swiper-slide-no-shadow` cards; client-initialized by useSwipers)

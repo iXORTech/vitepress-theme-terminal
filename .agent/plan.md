@@ -624,6 +624,71 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     hidden post-render, malformed `:typst[…]` → `ct-typst--error` with visible
     message + kept source, no page errors, dark/light/paper, 360px no overflow.*
 
+- [x] **MD-005** — Pull-quote container (`::: quote`) with CJK corner marks
+  - **Category:** Markdown · **Deps:** MD-001, STYLE-001, STYLE-005
+  - **Acceptance criteria:** a `::: quote … :::` container renders its body as a
+    display quotation framed by the Chinese corner brackets `「` (upper-left)
+    and `」` (lower-right) drawn in the **main color** — derived per mode, never
+    a second configured constant (color-system.md §3); the container emits
+    semantic quotation markup rather than a decorative `<div>`, and the marks
+    are decoration only (not selectable, not copied with the text, not read by
+    a screen reader); the plain Markdown `>` blockquote keeps its existing
+    left-bar styling unchanged; the container accepts any Markdown body
+    (multiple paragraphs, emphasis, an attribution line); styling lives in a
+    dedicated SCSS partial; renders correctly in all three color modes and on
+    mobile; documented in `docs/design/design-language.md` §4 and the user guide
+    (both languages) and exercised in the Markdown demo; verified on the
+    rendered site.
+    *Landed 2026-07-28. `theme/markdown/quote.ts` registers the container via
+    markdown-it-container and emits `<blockquote class="ct-quote">` — a real
+    blockquote, so the quotation stays semantic; the brackets are `::before` /
+    `::after` pseudo-elements in the new `styles/_quote.scss`, which keeps them
+    out of selections and out of the accessibility tree. One detail worth
+    remembering: `.ct-content .ct-quote` is deliberately one class heavier than
+    `_content.scss`'s `.ct-content blockquote` rule, which is how it drops the
+    left bar without touching the plain `>` form. Mark color is `--ct-main` on
+    dark and `--ct-main-deep` on light/paper/print, mirroring how `_modes.scss`
+    applies its token sets.
+    **(Superseded by follow-up 2 below: this first pass typed the marks as
+    `「`/`」` glyphs, which is no longer how they are drawn — read that note
+    before touching the styles.)**
+    Docs: design-language.md §4 (new "Pull quotes" note, incl. why both
+    quotation forms exist), typography-and-icons.md §1 (CJK is a fallback
+    concern, not a fourth family — no CJK webfont is loaded),
+    guide/writing-content.md (en + zh-Hans), and a "Pull quotes" section in
+    `src/markdown-examples.md` with a short and a multi-paragraph example.
+    Verified headless on the built site: two `<blockquote class="ct-quote">`
+    rendered, bar reset to 0 while the plain blockquote keeps its 2px bar, text
+    centered, marks in the main color on dark and the darkened derivative on
+    light/paper, no horizontal overflow at 360px, no page errors — plus
+    screenshots in all three modes and at 360px.
+    **Follow-up 1 the same day, from user feedback** ("the two 「」should be
+    closer to content"): the box now shrink-wraps its quotation and centers in
+    the column (`width: fit-content; max-width: 100%; margin-inline: auto`)
+    instead of spanning the full content width — the marks are anchored to the
+    box, so a full-width box stranded them at the column edges beside a short
+    line. The ≤640px block needed `margin: 1.5rem auto` for the same reason; a
+    long quotation still fills the column and puts the marks at its corners.
+    **Follow-up 2, from user feedback** ("refer to the design of
+    `iXORTech/vitepress-theme-arch`, the character in that one is shorter?"):
+    correct — that theme never types the bracket. Its `.quote-container`
+    `.content[type=text]` draws each mark as an **empty pseudo-element with two
+    borders** (`width: 8px; height: 14px` content-box + `6px` borders = a 14×20
+    outer box), giving stubby arms and a thick stroke that a real 「 glyph
+    cannot produce. This theme now does the same: the CJK-glyph implementation
+    is gone — no `content: "\300C"`, no `-webkit-text-stroke`, and the
+    `--ct-font-cjk` token added for it was **removed** from `_tokens.scss`
+    (nothing else used it). Geometry expressed as OUTER dimensions
+    (`--ct-quote-mark-width/-height/-stroke` = 14/20/6px), since this theme —
+    unlike the reference — puts pseudo-elements in `border-box` too. Also
+    adopted from the reference: bold, tighter-set quotation text (weight 700,
+    line-height 1.5; color stays the neutral body token, the accent belongs to
+    the marks) and its 24px mark-to-text clearance. Docs corrected accordingly,
+    including typography-and-icons.md §1, which now records the rule the other
+    way round: the theme never draws chrome with a CJK glyph. Re-verified 16/16
+    headless (marks empty-content, only the two corner borders set on each,
+    14×20 box, bold text, per-mode color, geometry kept at 360px, no overflow).*
+
 ### i18n
 
 - [x] **I18N-001** — Locale system scaffolding

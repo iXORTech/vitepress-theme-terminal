@@ -119,6 +119,28 @@ Collapsible — click the title to expand.
 Default titles are localized automatically; a custom title (anything after the
 type on the opening line) is used verbatim and may contain inline Markdown.
 
+## Pull quotes
+
+For a line worth setting apart, the `quote` container frames it with corner
+marks in the shape of the Chinese brackets `「` and `」`, drawn in the main
+color — opener at the upper-left, closer at the lower-right:
+
+```md
+::: quote
+Hello, World!
+:::
+```
+
+The container takes any Markdown, so a longer quotation and its attribution fit
+too. Nothing is configurable: the marks are drawn by the theme (with borders —
+they are not text, so they need no CJK font and never end up in a copied
+selection), the quotation is set bold, and the frame shrink-wraps it and centers
+in the column — a short line keeps the marks right beside it, a long one fills
+the column as usual.
+
+Use the plain `>` blockquote for a quotation in the flow of your text, and
+`::: quote` when the quotation *is* the point.
+
 ## Markdown extensions
 
 Enabled site-wide, no configuration needed:
@@ -348,6 +370,25 @@ body { color: var(--ct-main); }
 
 默认标题会自动本地化；自定义标题（开头那一行中类型之后的内容）原样使用，并且可以
 包含行内 Markdown。
+
+## 引言块（Pull quotes）
+
+想让某句话单独成景时，可以使用 `quote` 容器：它会用主色绘制形如中文引号 `「` 与
+`」` 的角标把内容框起来——左上角是前引号，右下角是后引号：
+
+```md
+::: quote
+Hello, World!
+:::
+```
+
+容器内可以写任意 Markdown，因此较长的引文连同出处也放得下。这里没有任何可配置
+项：角标由主题用边框绘制（并非文字，因此无需 CJK 字体，也不会被复制进选区），
+引文本身加粗，引用框会自动收紧到引文宽度并在正文列中居中——短句的角标会紧贴其
+两侧，较长的引文则照常占满整列。
+
+行文之中的引用请继续使用普通的 `>` 引用块；当引文本身就是重点时，才用
+`::: quote`。
 
 ## Markdown 扩展
 

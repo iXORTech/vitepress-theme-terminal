@@ -19,8 +19,8 @@ feature is shown twice: an **Input** block with the raw source, followed by the
   quotes, links, images, code), styled to the terminal design language.
 - **Markdown extensions** — the plugin suite (emoji, subscript/superscript,
   inserted/marked text, footnotes, definition lists, abbreviations, math).
-- **Callouts** — the admonition containers, plus the theme's card and image
-  components.
+- **Callouts** — the admonition containers, plus the theme's pull quote, card,
+  and image components.
 
 ## Basic Markdown
 
@@ -564,6 +564,49 @@ Markdown, including lists and `code`.
 
 ::: tip Custom title with `code`
 Custom titles render inline Markdown and are not re-localized.
+:::
+
+## Pull quotes
+
+The `quote` container (MD-005) renders a display quotation framed by the Chinese
+corner brackets `「` and `」` in the main color — the opener at the upper-left,
+the closer at the lower-right. Use it for a line worth setting apart; the plain
+`>` blockquote (above) stays the choice for quoted passages in the flow of the
+text.
+
+**Input**
+
+```md
+::: quote
+Hello, World!
+:::
+```
+
+**Output**
+
+::: quote
+Hello, World!
+:::
+
+The container holds any Markdown, so a longer quotation and its attribution fit
+too.
+
+**Input**
+
+```md
+::: quote
+To be or not to be, that is the question.
+
+*- William Shakespeare*
+:::
+```
+
+**Output**
+
+::: quote
+To be or not to be, that is the question.
+
+*- William Shakespeare*
 :::
 
 ## Images and galleries

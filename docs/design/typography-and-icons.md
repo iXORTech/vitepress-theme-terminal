@@ -7,7 +7,7 @@ order: 3
 # Typography & Icons
 
 > **Status: binding.** To change a decision, update this document first, then the code.
-> Last updated: 2026-07-20.
+> Last updated: 2026-07-28.
 
 ## 1. Font families — IBM Plex only
 
@@ -21,6 +21,15 @@ order: 3
   Serif are both approved for text, Mono is exclusively for code and TUI chrome.
 - Every family gets a system fallback stack (e.g. `…, ui-sans-serif, system-ui,
   sans-serif` and `…, ui-monospace, monospace`).
+- **CJK is a fallback concern, not a fourth family.** IBM Plex ships no CJK
+  coverage, so CJK text in page content is rendered by whatever the reader's
+  system supplies through those fallback stacks — the theme does not load a CJK
+  webfont (they are megabytes, and the no-npm-font-packages rule applies
+  regardless). It follows that the theme never *draws chrome* with a CJK glyph:
+  where a CJK shape is part of the design — the `「`/`」` corner marks of the
+  `::: quote` container (MD-005) — it is **drawn with borders**, not typed, so
+  its arm lengths and stroke weight are the theme's own and identical on every
+  platform (design-language.md §4).
 
 ## 2. Icons
 

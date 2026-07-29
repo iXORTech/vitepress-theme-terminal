@@ -8,7 +8,7 @@ order: 1
 
 > **Status: binding.** These are recorded design decisions, not suggestions. To change
 > one, update this document first, then the code. Workflow rules: [`AGENTS.md`](../../AGENTS.md).
-> Last updated: 2026-07-13.
+> Last updated: 2026-07-28.
 
 ## 1. Identity
 
@@ -507,6 +507,42 @@ and those must never move the reader.
 Vendor stylesheets are pulled in through the theme's SCSS entry partials
 `styles/_lightbox.scss` / `styles/_swiper.scss`, which also carry the theme
 overrides (zoom-in cursor, theme-token backdrop/chrome, card-finish slides).
+
+**Pull quotes (MD-005)** — a `::: quote` container sets a passage apart as a
+display quotation, framed by the Chinese corner brackets **「** (upper-left) and
+**」** (lower-right) drawn in the main color. The frame **shrink-wraps the
+quotation and centers in the column**: the marks belong to the quotation, not to
+the column, so a short line keeps them right beside it rather than stranded at
+the content edges; a quotation long enough to wrap fills the column as usual and
+the marks land at its corners. The two quotation forms are
+deliberately distinct and neither replaces the other: the plain Markdown `>`
+blockquote stays the quiet, left-barred form for a quotation inside the flow of
+the text, while `::: quote` is the loud one — centered, generously padded, and
+framed — for a line meant to be looked at. The corner marks follow the accent
+rule of §6/color-system.md §2: the quotation itself is neutral body text and only
+the marks take the accent (its darkened derivative on light and paper surfaces,
+so contrast comes first).
+
+**The marks are drawn with borders, not typed as `「`/`」` glyphs** — a decision,
+not an implementation detail. The intended mark is *shorter* than the
+typographic bracket: stubby arms and a thick stroke, a corner rule rather than
+punctuation, which no glyph can be made to look like. Drawing it also removes
+the dependency on the reader's CJK font (IBM Plex has none), so the arm lengths
+and stroke weight are the theme's own and identical on every platform. The
+geometry is a **14×20px outer box with a 6px stroke** — the vertical arm
+deliberately longer than the horizontal one.
+
+*Implemented (MD-005):* `theme/markdown/quote.ts` registers the container and
+emits a real `<blockquote class="ct-quote">` — the quotation stays semantic
+markup, not decoration. Each mark is an empty `::before`/`::after` in
+`styles/_quote.scss` showing only the two borders that meet at its corner, so
+the marks are unselectable, absent from copied text, and invisible to screen
+readers, which read the quotation alone. The quotation is set bold and tighter
+than body copy (a pulled quotation is looked at before it is read); the weight
+is typographic only — the text keeps the neutral body token, since the accent
+belongs to the marks. One inherited-rule note: `.ct-content .ct-quote` is one
+class heavier than the base `.ct-content blockquote` rule, which is what lets it
+drop the left bar without touching the plain form.
 
 **Rendered math (MD-001 / MD-004 / FONT-005)** — two math renderers, one typeface.
 Both render in **IBM Plex Math** (the font decision lives in

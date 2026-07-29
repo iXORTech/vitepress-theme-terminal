@@ -330,6 +330,49 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `#…-design` permalink; all six design links are GitHub URLs), plus
     404/200 checks on the built site.*
 
+- [x] **DOC-011** — Repository README (English + Simplified Chinese)
+  - **Category:** Documentation · **Deps:** DOC-004, DOC-009, DOC-010
+  - **Acceptance criteria:** `README.md` at the repository root introduces the
+    project to a first-time visitor — what the theme is, its feature set,
+    requirements, a copy-pasteable quick start, the repository layout, an index
+    of the documentation, and how to contribute; a localized
+    `README_zh-Hans.md` carries the same content in Simplified Chinese, and the
+    two link to each other at the top; both open with a **cover screenshot** of
+    the theme, captured from the built site (not a mockup) and stored as a
+    repository asset rather than site content, with localized alt text; the
+    README **indexes** the documentation
+    rather than restating it (single-content-source rule, `AGENTS.md` §7) —
+    every detail stays in `docs/`; every relative link resolves in the
+    repository; nothing is claimed that the repository does not actually
+    provide.
+    *Landed 2026-07-28. Both files are repository-facing only — they are not
+    under `docs/` and therefore not part of the published set, so they use
+    plain repository-relative links (`docs/guide/…`, `AGENTS.md`,
+    `.agent/plan.md`), all verified to exist. Localization uses a **second
+    file**, not the theme's `::: lang` mechanism: `::: lang` is a site-render
+    feature, and a README is read on the repository host, which renders neither
+    the container nor the switch. Content is derived from
+    `guide/getting-started.md` (requirements, clone-with-submodules, the three
+    scripts, "make it yours") plus the completed task board for the feature
+    list; the docs table mirrors `docs/index.md`. Clone URL is the `origin`
+    remote, `iXORTech/vitepress-theme-terminal-reforged`. The License section
+    reads **MIT © 2026 iXOR Technology**, linking the root `LICENSE` file the
+    maintainer added the same day, and keeps it explicitly apart from the
+    CC BY-NC-SA 4.0 **content** license default — that one is a `themeConfig`
+    option a site owner applies to their own articles, not the theme's terms.
+    **Cover image** added the same day on request: `.github/assets/cover.png`,
+    the demo home page in dark mode shot headless off the built site at
+    1440×700 @2x (228 KB) — tool bar, explorer, shell-prompt hero card, footer,
+    status bar in one frame. Chosen after comparing candidates: the home page
+    at the 900px-tall default left a dead band between the card and the footer,
+    so the viewport was shortened to 700 to tighten the composition;
+    content-page candidates (rendered callouts, the docs index) showed the
+    three-pane shell well but not the brand/hero. `#anchor` framing was
+    abandoned because the deep-linked heading takes focus and draws a blue
+    focus ring — scroll `.ct-viewport` directly instead. The file sits in
+    `.github/assets/`, NOT `src/public/`, which would publish it as a site URL;
+    alt text is localized per README.*
+
 - [x] **DOC-005** — Footer design documentation
   - **Category:** Documentation · **Deps:** DOC-001, DOC-003
   - **Acceptance criteria:** footer structure (custom Vue region · separator ·

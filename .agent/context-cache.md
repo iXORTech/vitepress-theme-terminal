@@ -2,7 +2,13 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**MD-005 landed** —
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**DOC-011 landed** —
+`README.md` + `README_zh-Hans.md` at the repository root, the first
+repository-facing entry point: a cover screenshot (`.github/assets/cover.png`,
+the demo home page shot headless off the built site), feature list, quick
+start, layout, and an index of `docs/`. They index the documentation rather than restate it, and the
+Chinese version is a separate file because `::: lang` only works on the
+rendered site. Earlier the same day: **MD-005** —
 the `::: quote` pull-quote container. `theme/markdown/quote.ts` emits a real
 `<blockquote class="ct-quote">` (semantic quotation, not a decorative div) and
 the new `styles/_quote.scss` puts a corner mark at the upper-left and
@@ -734,6 +740,24 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   §8 repo map lists the `docs/` subtrees, the generated `src/docs/`, and
   `src/demo/`.
 - `CLAUDE.md` — pure pointer to `AGENTS.md` (read by Claude Code). No content.
+- `LICENSE` — the theme's own license: **MIT**, © 2026 iXOR Technology. Not to
+  be confused with the CC BY-NC-SA 4.0 default of `themeConfig.license`, which
+  is the license a site owner applies to their *articles* (CONF-002).
+- `README.md` — project README (DOC-011): a cover screenshot
+  (`.github/assets/cover.png`), what the theme is, feature list,
+  requirements, quick start (clone `--recurse-submodules` + the three pnpm
+  scripts), repository layout, a table indexing `docs/` (mirrors
+  `docs/index.md`), a contributing section pointing at `AGENTS.md`, and a
+  License section: **MIT** (`LICENSE`), explicitly distinguished from the
+  CC BY-NC-SA 4.0 *content* default, which is a `themeConfig` option site
+  owners set for their own writing — two different licenses, don't conflate
+  them. Indexes the documentation, never restates it. Links to
+  `README_zh-Hans.md` at the top.
+- `README_zh-Hans.md` — the same README in Simplified Chinese. Localized as a
+  **second file**, not with `::: lang`: that container is a site-render
+  feature, and a README is read on the repository host, which renders neither
+  the container nor the language switch. Keep the two in sync when either
+  changes.
 
 ## .claude/
 
@@ -747,6 +771,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 - `copilot-instructions.md` — pure pointer to `AGENTS.md` (read by GitHub Copilot). No
   content.
+- `assets/cover.png` — the README cover (DOC-011): the demo home page in dark
+  mode at 1440×700 @2x (228 KB), captured headless from the built site — tool
+  bar, explorer, the shell-prompt hero card, footer, status bar. Lives here, not
+  in `src/public/`, because it is a repository asset: `src/public/` would
+  publish it as a site URL. Re-shoot it when the shell chrome changes.
 
 ## .agent/
 

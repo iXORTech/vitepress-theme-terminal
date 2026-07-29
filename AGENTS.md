@@ -132,6 +132,7 @@ bug.
 ## 8. Repository map
 
 ```
+README.md                         project README (human entry point); README_zh-Hans.md is its zh-Hans version
 AGENTS.md                         ← you are here — single source of agent instructions
 CLAUDE.md                         → pointer to AGENTS.md (read by Claude Code)
 .github/copilot-instructions.md   → pointer to AGENTS.md (read by GitHub Copilot)

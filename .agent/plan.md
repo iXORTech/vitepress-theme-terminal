@@ -2004,6 +2004,27 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     Chromium checks at 1280×900 and 360×740 confirmed the vivid cover/fade and
     a four-row wrapped metadata block fully backed by the surface.*
 
+- [x] **POST-006** — Full-width intrinsic article covers after metadata-grid rework
+  - **Scope:** upstream
+  - **Category:** Content · **Deps:** POST-005
+  - **Acceptance criteria:** the POST-005 overlap grid always spans the full
+    article-header width rather than shrinking its implicit column to a cover's
+    intrinsic width; small and large cover images scale proportionally to that
+    track without cropping, distortion, or horizontal overflow; the
+    content-sized metadata shade and coverless/listing-card behavior remain
+    unchanged; documented and verified against a cover narrower than its hero
+    at desktop and mobile widths.
+    *Landed 2026-08-06. Cause: POST-005 placed the image and byline in an
+    implicit grid column. The image's `width: 100%` then participated in a
+    cyclic percentage calculation, letting that column resolve to the image's
+    intrinsic width (the reported cover is 460×215) even though the framed
+    header itself was wider. Added one explicit `minmax(0, 1fr)` column, making
+    the shared image/byline track fill the header while `height: auto` preserves
+    the source aspect ratio. The shade, coverless header, and listing-card
+    selectors are unchanged. Documented in `content-architecture.md` §5a;
+    `pnpm build` green and the exact reported article rendered correctly in
+    Chromium at 1280×900 and a ≤640px narrow layout.*
+
 - [x] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in

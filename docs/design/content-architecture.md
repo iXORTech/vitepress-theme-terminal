@@ -249,6 +249,9 @@ alphabetical. The exact schema and the archive-inclusion toggles are defined by
 >   surface. The opaque part of that shade is sized by the complete byline,
 >   not by a fixed percentage of the image, so wrapped taxonomy rows remain
 >   readable at every viewport width while the rest of the image stays vivid.
+>   The overlap grid has one explicit full-width track, so even a cover whose
+>   intrinsic width is smaller than the header scales to fill it proportionally
+>   rather than leaving an unpainted strip or cropping the image.
 >   The overlaid grid row also grows to at least the byline's height, preventing
 >   unusually short covers or long taxonomies from clipping metadata.
 >   Without a cover the header keeps its plain separator-rule look.

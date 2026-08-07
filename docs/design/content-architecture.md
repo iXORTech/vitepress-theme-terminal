@@ -245,9 +245,12 @@ alphabetical. The exact schema and the archive-inclusion toggles are defined by
 >   **full, uncropped** cover at its natural aspect (full width, height auto,
 >   so the banner is as tall as the image needs). The image renders at **full
 >   opacity**; only its lower edge — the strip behind the overlaid byline
->   (date, categories, tags) — is masked, fading into the header surface so
->   the byline stays readable while the rest of the image stays vivid (the
->   fade starts higher on mobile, where the byline covers more of the frame).
+>   (date, categories, tags) — is shaded by an overlay fading into the header
+>   surface. The opaque part of that shade is sized by the complete byline,
+>   not by a fixed percentage of the image, so wrapped taxonomy rows remain
+>   readable at every viewport width while the rest of the image stays vivid.
+>   The overlaid grid row also grows to at least the byline's height, preventing
+>   unusually short covers or long taxonomies from clipping metadata.
 >   Without a cover the header keeps its plain separator-rule look.
 >
 > Covers stay real `<img>` elements (alt = localized title), lazy-loaded

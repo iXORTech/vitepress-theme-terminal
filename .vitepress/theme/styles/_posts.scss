@@ -67,12 +67,13 @@
 
   // With a cover the header becomes a hero banner: framed like a card, the
   // whole image shown (not cropped) with the byline overlaid on its faded
-  // bottom edge. The image is in normal flow so it drives the banner height;
-  // a small floor keeps the byline room for unusually short images.
+  // bottom edge. The overlapping grid lets both the image and the byline
+  // contribute to the banner height, so short images and wrapped taxonomy
+  // rows cannot clip the metadata; a small floor handles sparse headers.
   .ct-post-header--cover {
     position: relative;
     overflow: hidden;
-    display: block;
+    display: grid;
     min-height: 8rem;
     padding: 0;
     border: 1px solid var(--ct-border);
@@ -88,14 +89,30 @@
     min-width: 0;
   }
 
-  // The byline overlays the faded bottom of the cover image, with its own
-  // padding, above the image.
+  // The byline overlays the cover's bottom edge. Its generated backdrop has a
+  // fixed transition above the box, then stays opaque behind however many
+  // metadata rows wrap; unlike an image-percentage mask, the readable shade
+  // therefore grows with the actual date/category/tag content (POST-005).
   .ct-post-header--cover .ct-post-header__meta {
-    position: absolute;
-    inset: auto 0 0 0;
+    position: relative;
+    grid-area: 1 / 1;
+    align-self: end;
     z-index: 1;
     flex: 0 0 auto;
     padding: 1rem 1.25rem;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -2.5rem 0 0;
+      z-index: -1;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--ct-surface) 2.5rem
+      );
+    }
   }
 
   .ct-post-header__date {
@@ -106,17 +123,15 @@
   }
 
   // Article cover (POST-003): the full, uncropped image — shown at its
-  // natural aspect (full width, height auto) at FULL opacity, then faded out
-  // (masked into the header surface) only toward the bottom where the byline
-  // sits, so the date/tags stay readable while the rest of the image stays
-  // vivid. In every mode the faded zone reveals `--ct-surface`.
+  // natural aspect (full width, height auto) at full opacity. It shares the
+  // hero grid cell with the content-sized metadata shade above, leaving the
+  // rest of the image vivid in every color mode.
   .ct-post-header__cover {
+    grid-area: 1 / 1;
     display: block;
     width: 100%;
     height: auto;
     margin: 0;
-    -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent 92%);
-    mask-image: linear-gradient(to bottom, #000 65%, transparent 92%);
   }
 
   // --------------------------------------------------------------------------
@@ -593,14 +608,6 @@ html[data-ct-nerdfont] .ct-content .ct-series-icon[class*='nf-'] {
         -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
         mask-image: linear-gradient(to bottom, #000 55%, transparent);
       }
-    }
-
-    // On small screens the byline covers a larger share of the (full) cover
-    // image — start the fade higher so the whole byline sits over the
-    // surface-revealed zone and stays readable.
-    .ct-post-header__cover {
-      -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 82%);
-      mask-image: linear-gradient(to bottom, #000 45%, transparent 82%);
     }
 
     // ------------------------------------------------------------------------

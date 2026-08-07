@@ -11,8 +11,8 @@
 // POST-001 adds the post byline above the content: the publish date and the
 // post's categories/tags as links to their listing pages (PostTaxonomy). The
 // series article type (SeriesArticlePage) reuses this whole component.
-// POST-003: an optional frontmatter `cover` renders in the header region —
-// beside the byline on desktop, above it (full width) on mobile.
+// POST-003: an optional frontmatter `cover` renders as a full-width hero with
+// the byline overlaid on its shaded bottom edge.
 import { computed } from 'vue'
 import { useData, withBase } from 'vitepress'
 import ArticleComments from '../components/ArticleComments.vue'
@@ -64,8 +64,8 @@ const showComments = computed(
   <ArticleMeta v-if="showComments" />
 
   <!-- Post header: byline (publish date + categories/tags links, POST-001)
-       plus the optional cover image (POST-003) — cover right on desktop,
-       on top on mobile; lazy-loaded, skipped by the lightbox -->
+       plus the optional full-width cover hero (POST-003/005), whose metadata
+       shade grows with wrapped rows; lazy-loaded, skipped by the lightbox -->
   <div
     v-if="date || tags.length || categories.length || cover"
     class="ct-post-header"

@@ -18,7 +18,13 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-08-06 (**COMP-007 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-08-06 (**POST-005 landed**
+— article-cover metadata shading now grows with the complete byline: cover and
+metadata overlap in one grid row (so either can determine the hero height), and
+the byline owns a gradient backdrop whose opaque portion covers every wrapped
+date/category/tag row at wide and narrow widths; the rest of the uncropped image
+stays at full opacity. Production build green; rendered at 1280px and 360px.)
+Earlier the same day: **COMP-007 landed**
 — the article license icon cluster's localized `title`/`aria-label` now join
 the visible statement's resolved text segments, so `{license}` becomes the
 effective site-wide or per-article license name instead of leaking into hover
@@ -900,6 +906,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   COMP-007 (done 2026-08-06): the article-license icon cluster's localized
   tooltip and accessible name resolve `{license}` through the same statement
   segments as the visible text, for both site-wide and per-article licenses.
+  POST-005 (done 2026-08-06): article-cover metadata shading is sized by the
+  complete overlaid byline instead of fixed image percentages, including
+  wrapped taxonomy rows at desktop and mobile widths.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -1180,9 +1189,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   alphabetical) and the `themeConfig.series` listing-inclusion toggles
   (all-false defaults; route loaders apply the same filter; admitted articles
   carry a dim series-name prefix before their title in archives/per-term
-  listings, chip suppressed there); §5a the POST-003
-  cover-image note (frontmatter `cover`, desktop-right/mobile-top, lazy,
-  fixed aspect, lightbox-excluded); §7 note points to `friend-links.md` for the
+  listings, chip suppressed there); §5a the POST-003/005 cover-image note
+  (frontmatter `cover`; uncropped article hero with a byline-sized surface
+  shade, cropped/faded listing cards; lazy and lightbox-excluded); §7 note
+  points to `friend-links.md` for the
   PAGE-004 friends page.
 - `design/friend-links.md` — binding (PAGE-004, implemented 2026-07-18 — §9
   implemented note):
@@ -1792,13 +1802,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `<Content/>` or article chrome. Styles in `_pages.scss`.
 - `theme/pages/NormalPage.vue` — ARCH-001 normal type: bare `<Content/>`, no
   article footer (about/projects/guide/demo pages).
-- `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline + POST-003
+- `theme/pages/PostPage.vue` — ARCH-001 post type + POST-001 byline + POST-003/005
   cover: `<ArticleMeta>` (when comments configured), a `.ct-post-header` region
   — the `__meta` byline (formatted date + `<PostTaxonomy>` category/tag
   links) with the optional `__cover` img (frontmatter `cover`; base-aware
   URL, alt = localized title, `loading=lazy decoding=async data-no-lightbox`;
   the `--cover` modifier turns the header into a hero banner showing the full
-  uncropped image with the byline overlaid on its faded bottom edge) —
+  uncropped image with the byline overlaid on a content-sized bottom shade) —
   `<Content/>`, then `<ArticleLicense>` (unless `license:false`) and
   `<ArticleComments>` (when configured, unless `comments:false`). Reused
   wholesale by SeriesArticlePage.
@@ -2170,18 +2180,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   rounded-square avatar with the placeholder glyph behind an absolutely
   positioned cover img, 2-line blurb clamp, `friends.empty` dim notice; the
   random control grows to `--ct-tap` ≤640px (MOBILE-001).
-- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003/004 posts, series,
+- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003/004/005 posts, series,
   taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
   base markdown list/heading rules): `.ct-postcard__pin`/`.ct-archives__pin`
   pinned chips (POST-004 — uppercase mono, colored with `--ct-link`, i.e. the
   main color already made contrast-safe per mode, not a new constant);
   `.ct-taxonomy` link chips;
   `.ct-post-header` — plain separator byline, or with `--cover` a framed hero
-  banner showing the FULL uncropped cover (normal-flow `width:100%;height:auto`,
-  natural aspect drives the banner height, 8rem floor) at FULL opacity, masked
-  into `--ct-surface` only along the bottom strip behind the `__meta` byline
-  (which absolutely overlays that faded edge); mask `#000 65%→transparent 92%`,
-  ≤640px `#000 45%→82%` (POST-003);
+  banner showing the FULL uncropped cover at FULL opacity; cover and `__meta`
+  share one grid cell so either can drive the height (8rem floor), while the
+  bottom-aligned byline owns a gradient backdrop that becomes opaque at its
+  top and therefore shades every wrapped metadata row (POST-003/005);
   `.ct-postlist`/`.ct-postcard` cards as `__body` +
   optional full-height 15rem `__cover` panels (negative-margin bleed to the
   right frame edges, `object-fit: cover` crop, left-edge fade mask;

@@ -1980,6 +1980,30 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     (image opacity == 1, fade mask retained, still uncropped natural aspect,
     byline overlay, no overflow).*
 
+- [x] **POST-005** — Content-sized article-cover metadata shade
+  - **Scope:** upstream
+  - **Category:** Content · **Deps:** POST-003
+  - **Acceptance criteria:** an article cover's bottom shade grows with the
+    complete overlaid byline (date, categories, and tags), including taxonomy
+    chips wrapped across multiple lines at desktop and mobile widths; every
+    metadata line remains backed by the header surface while the rest of the
+    uncropped, full-opacity cover stays vivid; coverless post headers and post
+    list cards remain unchanged; the behavior is documented and verified in a
+    production build and rendered narrow/wide cases.
+    *Landed 2026-08-06. Cause: the cover image carried a fixed percentage mask
+    (`65%→92%` desktop, `45%→82%` mobile), but the absolutely positioned
+    byline could independently grow as taxonomy chips wrapped, leaving its
+    upper rows over an unshaded image and allowing exceptionally tall metadata
+    to outgrow a short cover. The cover and byline now overlap in one CSS grid
+    cell, so either contributes to the hero height; the bottom-aligned byline
+    owns a gradient backdrop that fades for 2.5rem above it and is fully
+    `--ct-surface` behind the complete metadata box. No fixed image percentage
+    or mobile override remains. The cover stays uncropped and full-opacity,
+    while coverless headers and listing cards use untouched selectors.
+    Documented in `content-architecture.md` §5a. `pnpm build` green; rendered
+    Chromium checks at 1280×900 and 360×740 confirmed the vivid cover/fade and
+    a four-row wrapped metadata block fully backed by the surface.*
+
 - [x] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in

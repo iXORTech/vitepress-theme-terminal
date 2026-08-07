@@ -249,6 +249,9 @@ alphabetical. The exact schema and the archive-inclusion toggles are defined by
 >   surface. The opaque part of that shade is sized by the complete byline,
 >   not by a fixed percentage of the image, so wrapped taxonomy rows remain
 >   readable at every viewport width while the rest of the image stays vivid.
+>   Its transparent edge eases in through progressively stronger surface-color
+>   stops over a responsive transition depth (shorter on narrow screens, longer
+>   on wide ones), avoiding a visible hard boundary before the metadata.
 >   The overlap grid has one explicit full-width track, so even a cover whose
 >   intrinsic width is smaller than the header scales to fill it proportionally
 >   rather than leaving an unpainted strip or cropping the image.

@@ -2025,6 +2025,26 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     `pnpm build` green and the exact reported article rendered correctly in
     Chromium at 1280×900 and a ≤640px narrow layout.*
 
+- [x] **POST-007** — Soften article-cover shade onset
+  - **Scope:** upstream
+  - **Category:** Content · **Deps:** POST-005, POST-006
+  - **Acceptance criteria:** the cover-to-metadata shade begins gradually with
+    no visually hard boundary at its transparent edge, adapts its transition
+    depth between narrow and wide viewports, and still reaches the fully opaque
+    header surface before every metadata row; cover aspect, full-width sizing,
+    content-sized metadata behavior, coverless headers, and listing cards remain
+    unchanged; documented and rendered against shallow and tall covers.
+    *Landed 2026-08-06. Replaced POST-005's short 2.5rem linear fade with a
+    responsive `clamp(4rem, 12vw, 7rem)` transition and progressively stronger
+    12%/42%/75% surface-color stops, so opacity eases in gently instead of
+    presenting a narrow band at the transparent edge. The gradient now occupies
+    only the generated region above the byline; the byline box has its own solid
+    `--ct-surface` background, guaranteeing full readability regardless of its
+    height. Cover sizing/aspect and unrelated selectors are untouched.
+    Documented in `content-architecture.md` §5a; `pnpm build` green and rendered
+    Chromium checks covered the shallow 460×215 Game Dev Story image, the taller
+    UTM cover, and the shallow cover below the 640px breakpoint.*
+
 - [x] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in

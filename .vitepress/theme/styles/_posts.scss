@@ -91,27 +91,35 @@
   }
 
   // The byline overlays the cover's bottom edge. Its generated backdrop has a
-  // fixed transition above the box, then stays opaque behind however many
-  // metadata rows wrap; unlike an image-percentage mask, the readable shade
-  // therefore grows with the actual date/category/tag content (POST-005).
+  // responsive, eased transition above the box, then stays opaque behind
+  // however many metadata rows wrap. Unlike an image-percentage mask, the
+  // readable shade grows with the actual date/category/tag content (POST-005),
+  // while the longer gradual onset avoids a hard boundary (POST-007).
   .ct-post-header--cover .ct-post-header__meta {
+    --ct-post-cover-fade: clamp(4rem, 12vw, 7rem);
+
     position: relative;
     grid-area: 1 / 1;
     align-self: end;
     z-index: 1;
     flex: 0 0 auto;
     padding: 1rem 1.25rem;
+    background: var(--ct-surface);
 
     &::before {
       content: "";
       position: absolute;
-      inset: -2.5rem 0 0;
+      inset: calc(0rem - var(--ct-post-cover-fade)) 0 auto;
+      height: var(--ct-post-cover-fade);
       z-index: -1;
       pointer-events: none;
       background: linear-gradient(
         to bottom,
-        transparent,
-        var(--ct-surface) 2.5rem
+        transparent 0,
+        color-mix(in srgb, var(--ct-surface) 12%, transparent) 28%,
+        color-mix(in srgb, var(--ct-surface) 42%, transparent) 58%,
+        color-mix(in srgb, var(--ct-surface) 75%, transparent) 80%,
+        var(--ct-surface) 100%
       );
     }
   }

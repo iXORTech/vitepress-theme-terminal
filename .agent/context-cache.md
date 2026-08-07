@@ -18,7 +18,12 @@
 
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-08-06 (**POST-006 landed**
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-08-06 (**POST-007 landed**
+— the article-cover shade now eases through derived 12%/42%/75% surface-color
+stops over a responsive 4–7rem transition above the byline, while the byline
+itself stays on a solid surface; shallow, tall, and ≤640px covers rendered
+cleanly and the production build is green.) Earlier the same day:
+**POST-006 landed**
 — the POST-005 overlap grid now declares an explicit full-width
 `minmax(0, 1fr)` column, preventing intrinsically narrow article covers from
 shrinking the shared image/byline track; covers scale proportionally without
@@ -918,6 +923,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   POST-006 (done 2026-08-06): the POST-005 overlap grid declares one
   `minmax(0, 1fr)` column so intrinsically narrow covers fill the article hero
   proportionally instead of shrinking its image/byline track.
+  POST-007 (done 2026-08-06): the cover shade's transparent edge eases through
+  derived surface-color stops over a responsive 4–7rem transition, separate
+  from the byline's fully opaque surface.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -1198,10 +1206,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   alphabetical) and the `themeConfig.series` listing-inclusion toggles
   (all-false defaults; route loaders apply the same filter; admitted articles
   carry a dim series-name prefix before their title in archives/per-term
-  listings, chip suppressed there); §5a the POST-003/005/006 cover-image note
+  listings, chip suppressed there); §5a the POST-003/005/006/007 cover-image note
   (frontmatter `cover`; uncropped article hero with an explicit full-width
-  overlap track and byline-sized surface shade, cropped/faded listing cards;
-  lazy and lightbox-excluded); §7 note
+  overlap track and a responsive, eased shade above the solid byline surface;
+  cropped/faded listing cards; lazy and lightbox-excluded); §7 note
   points to `friend-links.md` for the
   PAGE-004 friends page.
 - `design/friend-links.md` — binding (PAGE-004, implemented 2026-07-18 — §9
@@ -2190,7 +2198,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   rounded-square avatar with the placeholder glyph behind an absolutely
   positioned cover img, 2-line blurb clamp, `friends.empty` dim notice; the
   random control grows to `--ct-tap` ≤640px (MOBILE-001).
-- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003/004/005 posts, series,
+- `theme/styles/_posts.scss` — ARCH-001/POST-001/002/003/004/005/006/007 posts, series,
   taxonomy & listing styles, all scoped under `.ct-content` (out-specifies the
   base markdown list/heading rules): `.ct-postcard__pin`/`.ct-archives__pin`
   pinned chips (POST-004 — uppercase mono, colored with `--ct-link`, i.e. the
@@ -2200,8 +2208,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   banner showing the FULL uncropped cover at FULL opacity; cover and `__meta`
   share one explicit full-width `minmax(0, 1fr)` grid cell so either can drive
   the height (8rem floor) without intrinsic-width shrinkage, while the
-  bottom-aligned byline owns a gradient backdrop that becomes opaque at its
-  top and therefore shades every wrapped metadata row (POST-003/005/006);
+  bottom-aligned byline owns a solid surface plus a responsive 4–7rem gradient
+  above it, eased through derived surface-color alpha stops so every wrapped
+  metadata row stays opaque without a hard fade onset (POST-003/005/006/007);
   `.ct-postlist`/`.ct-postcard` cards as `__body` +
   optional full-height 15rem `__cover` panels (negative-margin bleed to the
   right frame edges, `object-fit: cover` crop, left-edge fade mask;

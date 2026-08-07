@@ -251,7 +251,9 @@ alphabetical. The exact schema and the archive-inclusion toggles are defined by
 >   readable at every viewport width while the rest of the image stays vivid.
 >   Its transparent edge eases in through progressively stronger surface-color
 >   stops over a responsive transition depth (shorter on narrow screens, longer
->   on wide ones), avoiding a visible hard boundary before the metadata.
+>   on wide ones), avoiding a visible hard boundary before the metadata. Once
+>   opaque, the surface keeps only a compact half-rem buffer above the date;
+>   side and bottom padding retain the roomier card rhythm.
 >   The overlap grid has one explicit full-width track, so even a cover whose
 >   intrinsic width is smaller than the header scales to fill it proportionally
 >   rather than leaving an unpainted strip or cropping the image.

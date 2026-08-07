@@ -2045,6 +2045,24 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     Chromium checks covered the shallow 460×215 Game Dev Story image, the taller
     UTM cover, and the shallow cover below the 640px breakpoint.*
 
+- [x] **POST-008** — Tighten the solid cover-shade buffer above the date
+  - **Scope:** upstream
+  - **Category:** Content · **Deps:** POST-007
+  - **Acceptance criteria:** the fully opaque metadata surface leaves only a
+    compact buffer between the eased cover fade and the date, without crowding
+    the date or reducing the existing side/bottom padding; metadata remains
+    fully readable when taxonomy rows wrap, and cover sizing, fade easing,
+    coverless headers, and listing cards remain unchanged; rendered on shallow,
+    tall, and narrow covers.
+    *Landed 2026-08-06. The solid byline box kept a full `1rem` top inset after
+    POST-007's fade had already reached `--ct-surface`, producing a visibly
+    heavy opaque band before the date. Its asymmetric padding is now
+    `0.5rem 1.25rem 1rem`: only the top buffer tightens, while horizontal and
+    bottom rhythm remain unchanged. The fade and every cover/image selector are
+    untouched. Documented in `content-architecture.md` §5a; `pnpm build` green
+    and rendered Chromium checks covered the shallow Game Dev Story cover, the
+    taller UTM cover, and the wrapped ≤640px layout.*
+
 - [x] **POST-002** — Posts & post series
   - **Category:** Content · **Deps:** ARCH-001, POST-001, CONF-001
   - **Acceptance criteria:** regular posts live in `src/posts`, series articles in

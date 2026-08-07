@@ -775,8 +775,10 @@ SSR markup to mismatch). Controls are localized (`toc.collapse` / `toc.expand`)
 and keyboard-operable; the rail follows the panel's desktop-only visibility
 (hidden ≤1023px and in print).
 
-*Implemented (COMP-003/004):* `ArticleLicense.vue` (title · release + last-updated
-dates · author · permalink, license statement + CC icons, and a `.ct-license__watermark`
+*Implemented (COMP-003/004, refined COMP-007):* `ArticleLicense.vue` (title ·
+release + last-updated dates · author · permalink, license statement + CC icons
+whose localized `title`/`aria-label` reuse the statement as plain text with its
+`{license}` placeholder resolved to the effective license name, and a `.ct-license__watermark`
 — an absolutely-positioned `<span>` whose top/bottom insets make its height the
 card's, masked with the Creative Commons SVG logo [`background-color` tints it
 per mode] and rotated CCW, clipped by the card's `overflow:hidden`, gated on an

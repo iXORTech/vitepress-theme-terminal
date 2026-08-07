@@ -1707,6 +1707,23 @@ parallel; tick `[x]` only when every acceptance criterion is met.
     height, square, rotated, doesn't change card height) + dark/light/mobile
     screenshots.*
 
+- [x] **COMP-007** — Resolve the license name in the license-icon label
+  - **Scope:** upstream — this fixes the shared license card without any
+    site-specific value or content
+  - **Category:** Components · **Deps:** COMP-003, I18N-001
+  - **Acceptance criteria:** the license icon cluster's localized `title` and
+    `aria-label` replace every `{license}` placeholder in `license.statement`
+    with the effective site-wide or per-article license name; neither attribute
+    exposes an unresolved placeholder; the visible statement and its deed link
+    remain unchanged; the behavior is documented and the production build passes.
+    *Landed 2026-08-06: `ArticleLicense.vue` now builds the icon cluster's
+    plain-text label by joining the already-resolved visible-statement segments,
+    so the tooltip and accessible name share the statement's one substitution
+    path instead of appending a name to the raw template. Documented in
+    `design-language.md` §4. Production build green; generated HTML verified for
+    the site-wide CC BY-NC-SA 4.0 license and a per-article CC BY-SA 4.0 override,
+    with matching `title`/`aria-label` sentences and no unresolved placeholder.*
+
 - [x] **COMP-005** — Timezone-aware article dates
   - **Category:** Components · **Deps:** COMP-003
   - **Acceptance criteria:** explicit date offsets/Z values preserve their source

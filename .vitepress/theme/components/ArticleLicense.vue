@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ============================================================================
-// ArticleLicense.vue — end-of-article license card (COMP-003, COMP-006)
+// ArticleLicense.vue — end-of-article license card (COMP-003, COMP-006/007)
 // ============================================================================
 // Rendered at the bottom of every article (Layout.vue) inside the reusable
 // Card WITH the shell-prompt decoration (design-language.md §4, cards;
@@ -161,7 +161,12 @@ const statement = computed(() =>
     ),
 )
 
-const licenseLabel = computed(() => `${t('license.statement')} ${license.value.name}`)
+// The icon cluster's plain-text label mirrors the visible statement. Reusing
+// its resolved segments keeps every {license} token out of the tooltip and
+// accessible name without duplicating the placeholder-substitution logic.
+const licenseLabel = computed(() =>
+  statement.value.map((segment) => segment.text).join(''),
+)
 
 // Shell prompt: `user@host:~/path$ license ~/path` (ui-sketch.md §6). `user`
 // and the host/path defaults come from Card; `license` is the literal verb.

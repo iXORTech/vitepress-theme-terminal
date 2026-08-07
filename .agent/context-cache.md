@@ -1,8 +1,54 @@
 # Context Cache
 
+> **Declared divergence in this fork (SITE-014).** This is the **theme's**
+> cache and is kept upstream-clean, so an `upstream`-scoped change can carry
+> its own cache entry in the same commit and cherry-pick cleanly onto
+> `upstream/main`. Entries for **site-owned** files (AGENTS.md §3 —
+> `.vitepress/config.mts`, `src/**`, `.vitepress/theme/views/**`, the
+> friend-link data, `.gitmodules`, `vercel.json`, `AGENTS.md`, the READMEs, the
+> site board) are therefore **not here**: they live in
+> [`site-context-cache.md`](site-context-cache.md), which also records what this
+> fork has changed inside theme-owned files. Removing those entries, and this
+> note, are the only ways this file departs from `upstream/main` — verify with
+> `git diff upstream/main -- .agent/context-cache.md`.
+>
+> One consequence to remember: the `§5` in the sentence below is **upstream's**
+> section numbering. In this repository the rule that governs both caches is
+> [`AGENTS.md`](../AGENTS.md) **§7**.
+
 Brief per-file summaries of the repository — purpose plus the essentials, 1–3 lines
 each. **Update whenever a file is added, meaningfully changed, or removed** (rule:
-[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-07-28 (**DOC-011 landed** —
+[`AGENTS.md`](../AGENTS.md) §5). Last updated: 2026-08-06 (**COMP-007 landed**
+— the article license icon cluster's localized `title`/`aria-label` now join
+the visible statement's resolved text segments, so `{license}` becomes the
+effective site-wide or per-article license name instead of leaking into hover
+text. Production build green; both license paths verified in generated HTML.)
+Earlier, 2026-07-30 (**THEME-035 landed**
+— the explorer's expand level is a reader preference too: an **Explorer** pane
+in the settings panel (`SettingsExplorer.vue`) holding one `Expand level` row,
+the bracketed stepper **`[Default] [<] [n] [>]`** — `[Default]` stores nothing
+and follows the site's configured level, `[<]`/`[>]` step one layer, `[n]`
+shows it and takes a typed depth. The
+reader's level persists as `ct-explorer-level`, wins over the configuration,
+and — like a configuration change — resets the remembered folder states, so the
+level they picked is what the whole tree shows; a pick that leaves the effective
+level unchanged resets nothing. The pane is offered only while the explorer
+exists (empty tree / paper mode drop it), the typed box commits on `change` and
+resolves its entry exactly as the config surface does, and the stored level
+applies post-mount like the folder states, keeping SSR on the configured
+default.
+Earlier the same day: **THEME-034 landed**
+— `themeConfig.explorerExpandLevel`, the explorer's default expand level: a
+folder starts open while its depth is below it, so `0` collapses the whole tree,
+`1` (the default) keeps today's first-layer-open rule, and larger values open
+that many layers. It changes only the DEFAULT — remembered folder states and the
+active-route reveal still win — which is exactly why changing it **resets the
+remembered states**: the level the states were saved under is stored beside them
+as `ct-explorer-nodes-level`, and a mismatch drops `ct-explorer-nodes` once, at
+the first visit after the change, so the new default actually reaches returning
+visitors. A MISSING marker is adopted rather than read as a change, so upgrading
+from a version without the option leaves a visitor's tree alone.
+Earlier, 2026-07-28: **DOC-011 landed** —
 `README.md` + `README_zh-Hans.md` at the repository root, the first
 repository-facing entry point: a cover screenshot (`.github/assets/cover.png`,
 the demo home page shot headless off the built site), feature list, quick
@@ -725,46 +771,14 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.vitepress/cache`, and `/src/docs/` (the generated documentation copy,
   DOC-009); ignores `themeConfig.mjs` **except**
   `.vitepress/theme/assets/themeConfig.mjs` (reserved path from the upstream template).
-- `.gitmodules` — git submodules (PAGE-004): `.vitepress/theme/assets/generatedLinkData`
-  → `iXORTech/blog-friend-links-data-generator-demo`, branch `data` (the demo
-  friend-links data consumed by the friends page).
-- `vercel.json` — Vercel deploy configuration (INFRA-004). Needed because
-  Vercel's VitePress preset assumes a `docs/`-as-site layout and looks for
-  `docs/.vitepress/dist`, so a preset-driven deploy fails *after* a green
-  build; this pins `outputDirectory: ".vitepress/dist"` plus the pnpm
-  install/build commands and Vercel's own `cleanUrls` (matching THEME-030).
-  `trailingSlash` intentionally unset — folder pages are `/docs/` here.
-  Overrides the dashboard's Build & Development Settings.
 - `docs/` — the documentation home (DOC-009): a real directory holding the
   index, `guide/`, `configuration/` and the `design/` records. Its own section
   is below. The site's copy under `src/docs/` is generated and git-ignored —
   edit here, never there.
-- `AGENTS.md` — single source of agent instructions: session protocol, plan &
-  context-cache rules, compliance code, engineering conventions (hard rules), repo map;
-  §1 table indexes the binding design docs incl. `docs/design/friend-links.md`
-  and states that documentation lives in `docs/` at the root, with the
-  user-facing part published from a generated `src/docs/` copy (DOC-009/010);
-  §8 repo map lists the `docs/` subtrees, the generated `src/docs/`, and
-  `src/demo/`.
 - `CLAUDE.md` — pure pointer to `AGENTS.md` (read by Claude Code). No content.
 - `LICENSE` — the theme's own license: **MIT**, © 2026 iXOR Technology. Not to
   be confused with the CC BY-NC-SA 4.0 default of `themeConfig.license`, which
   is the license a site owner applies to their *articles* (CONF-002).
-- `README.md` — project README (DOC-011): a cover screenshot
-  (`.github/assets/cover.png`), what the theme is, feature list,
-  requirements, quick start (clone `--recurse-submodules` + the three pnpm
-  scripts), repository layout, a table indexing `docs/` (mirrors
-  `docs/index.md`), a contributing section pointing at `AGENTS.md`, and a
-  License section: **MIT** (`LICENSE`), explicitly distinguished from the
-  CC BY-NC-SA 4.0 *content* default, which is a `themeConfig` option site
-  owners set for their own writing — two different licenses, don't conflate
-  them. Indexes the documentation, never restates it. Links to
-  `README_zh-Hans.md` at the top.
-- `README_zh-Hans.md` — the same README in Simplified Chinese. Localized as a
-  **second file**, not with `::: lang`: that container is a site-render
-  feature, and a README is read on the repository host, which renders neither
-  the container nor the language switch. Keep the two in sync when either
-  changes.
 
 ## .claude/
 
@@ -873,6 +887,19 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (zh-Hans translation of all 11 user-facing doc pages via `::: lang` blocks,
   localized titles + reading order) all the same day —
   **every task on the board is now `[x]`**.
+  THEME-034 (done 2026-07-30): `themeConfig.explorerExpandLevel` — how many
+  explorer folder layers start expanded (default `1` = today's behavior, `0` =
+  all collapsed), with a change to it resetting the visitor's remembered
+  `ct-explorer-nodes` folder states through the new `ct-explorer-nodes-level`
+  marker key.
+  THEME-035 (done 2026-07-30): the same level as a reader preference — an
+  Explorer pane in the settings panel holding the stepper
+  `[Default] [<] [n] [>]` (`[Default]` = the site's level, otherwise persisted
+  `ct-explorer-level`), winning over the configured level and resetting the
+  remembered folder states when it changes the effective one.
+  COMP-007 (done 2026-08-06): the article-license icon cluster's localized
+  tooltip and accessible name resolve `{license}` through the same statement
+  segments as the visible text, for both site-wide and per-article licenses.
   I18N-001 includes a shipped Chinese (Simplified) locale.
 - `context-cache.md` — this file.
 
@@ -934,11 +961,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `guide/navigation.md` — DOC-004: tool bar (nav tabs, hover submenus, action
   slots, the self-measuring `[⋮]` overflow drawer), explorer (`"auto"` vs
   explicit tree, the source-local metadata table — `title`/`explorerTitle`/
-  `explorer.json`/`order`/`showInExplorer` — expansion + persistence + 180–420px
+  `explorer.json`/`order`/`showInExplorer` — expansion + `explorerExpandLevel` +
+  persistence + 180–420px
   resize + mobile drawer + absent in paper), TOC (`themeConfig.toc`, retract
   rail, 160–400px, hidden ≤1023px) and anchor copy, find palette (`/`,
   search-only key, unconfigured notice), status-bar segment order, settings
-  window, keyboard table, and the `ct-*` localStorage table.
+  window (fonts, the THEME-035 explorer expand level, language), keyboard table,
+  and the `ct-*` localStorage table.
 - `guide/internationalization.md` — DOC-004: the client-side language model (no
   `/<lang>/`, `ct-lang`, site `lang` = SSR language), the canonical minimal-tag
   rule, the single fallback chain (exact → primary subtag → `en` → first entry)
@@ -965,11 +994,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `configuration/theme-config.md` — DOC-002: the complete `themeConfig`
   reference — where the object lives and why it is exported (the `.paths.mjs`
   loaders import it), the `LocalizableText` contract, a quick-reference table of
-  all 17 top-level options with type + default, then one section per option with
+  all 18 top-level options with type + default, then one section per option with
   type, default, nested-interface field tables, an example, and the resolution
   gotchas (custom `license.name` drops the CC url/icons; incomplete Algolia
   creds / blank Waline `serverURL` = unconfigured; TOC levels clamped 1–6 and a
-  reversed pair swapped; blank strings fall back). Ends with the three
+  reversed pair swapped; blank strings fall back; `explorerExpandLevel` rounded,
+  negatives clamped to `0`, and its change resetting the readers' remembered
+  folder states). Ends with the three
   documented non-`themeConfig` surfaces and why each lives with the content.
 - `configuration/frontmatter.md` — DOC-002 companion: every frontmatter field
   the theme reads (`title`, `explorerTitle`, `description`, `date`,
@@ -999,7 +1030,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   tree `{ text, link?, items? }`, folder `link` = its index page
   (label click navigates and route awareness expands transiently; chevron pure
   toggle); depth default =
-  first layer open / deeper collapsed, toggles remembered in
+  first layer open / deeper collapsed — configurable as
+  `themeConfig.explorerExpandLevel` (THEME-034) and choosable per reader in the
+  settings panel's Explorer pane (THEME-035, `ct-explorer-level`), a change to
+  either resetting the remembered states via the `ct-explorer-nodes-level`
+  marker —
+  toggles remembered in
   `ct-explorer-nodes`; NF chevron + folder/file icon row with plain-marker
   fallback; tool-bar `[=]` toggle,
   `ct-explorer` persistence, ≤640px drawer, paper mode = not rendered),
@@ -1022,7 +1058,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   implemented note: `themeConfig.footer` shape, placeholder strings,
   color-mix-derived lighter tone, mobile stack order), author &
   license system spec (§4: `author.name`/`author.username` + normalization rule,
-  `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons), cards &
+  `license` default CC BY-NC-SA 4.0, custom name drops CC url/icons; COMP-007:
+  license-icon `title`/`aria-label` reuse the visible statement as plain text,
+  with `{license}` resolved to the effective name), cards &
   shell-prompt decoration (explicit `showPrompt`; prompt user = normalized author
   username; configured `themeConfig.siteName` host is normalized for prompts and
   falls back to the active site title; path defaults to the
@@ -1160,83 +1198,6 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 
 ## .vitepress/
 
-- `config.mts` — site config via `defineConfigWithTheme<TerminalThemeConfig>`:
-  `srcDir: "src"`; `cleanUrls: true` (THEME-030 — generated links drop `.html`;
-  `<page>.html` files are still written so old links resolve, see
-  `docs/configuration/clean-urls.md`); `ignoreDeadLinks:
-  [/(^|\/)AGENTS(\.md)?$/, /(^|\/)\.agent\//]` (DOC-007 — the published docs
-  link to those repo-only files on purpose; the checker strips `.md` before
-  matching, hence the optional extension); the `toolbar.nav` **Docs** tab
-  (`/docs/` + Getting Started · Configuration · Markdown Demo · Explorer Demo)
-  and the home CTA both point into the published documentation;
-  `vite.resolve.alias` maps `@` →
-  `fileURLToPath(new URL("./theme", …))` so content `.md` files import authored
-  views cleanly (`@/views/About.vue`, PAGE-002/003) — bare `@` only matches
-  `@`/`@/…`, scoped pkgs unaffected; `vite.optimizeDeps.exclude` lists the three
-  `@myriaddreamin/typst*` WASM packages (MD-004) — WASM-glue with internal
-  dynamic imports + `?url` assets; excluding them from dep pre-bundling keeps
-  the WASM URLs resolving and avoids the re-optimization churn that can leave
-  the lazily imported chunk failing to load (which silently drops Typst math to
-  raw source — the fix for "Typst shows only its code"; a dev-server restart is
-  needed after adding these deps/this config); `vite.plugins` wires
-  `gzipLargeWasm()` + `docsPublishPlugin()` (the latter DOC-009: dev-time
-  re-mirror of `docs/`; the initial mirror runs from `publishDocs()` at module
-  scope, above the config object). `gzipLargeWasm()` (INFRA-002,
-  `theme/vite/gzipWasm.ts` — ships the oversized
-  Typst compiler WASM gzipped so Cloudflare Pages' 25 MiB cap is met);
-  title, description; **exported**
-  `themeConfig` const (the
-  `.paths.mjs` route loaders import it to apply the POST-002 series toggles)
-  with commented option
-  examples including the shell-prompt `siteName` override and the THEME-024
-  `toc` example; `head:
-  themeHead(themeConfig)` (fonts + main color + mode restore);
-  `markdown.theme` = three oxocarbon shiki themes (`{ light, dark, paper }` — extra
-  `paper` key is forwarded to shiki and loaded lazily as a raw object); `lang:
-  "en"` as the default UI language (minimal canonical tag, I18N-005; no
-  VitePress `locales` — I18N-003);
-  `themeConfig` demos per-language `title`/`description` maps, an MIT
-  `license` (exercises the footer's icon-less text fallback), a `footer`
-  block (GitHub social icon; demo `rss: "/feed.rss"` — feed not actually
-  generated yet), a `toolbar` block (THEME-005: `guide`/`posts`/`tags`/`archives`
-  nav tabs — the last three surface the POST-001 listing pages — +
-  a GitHub action icon; the `guide` tab carries THEME-020 submenu `items`:
-  Getting Started + Advanced + **Markdown Demo** (DEMO-001,
-  `/markdown-examples`) child links with icons; the `posts` tab's items
-  include Categories/Tags/Series; demo also adds `projects`/`about`/`friends`
-  nav tabs
-  surfacing the PAGE-002/003/004 pages), a `home` demo block (PAGE-001: localized
-  welcome with command/greeting/tagline/body/links — projects/About are
-  authored views, not config), a `friends` block (PAGE-004: display options
-  only — the link data lives in `theme/assets/**/linksData.mjs`; demo
-  `groups.group2` override localizes a generated plain-string group label),
-  a `taxonomy` block (I18N-008: zh-Hans labels for the
-  `theme`/`color` tags + `Guides`/`Design` categories),
-  a `series` block (POST-002: `inArchives`/`inCategories`/`inTags: true` —
-  the demo series joins those listings with the series-name title prefix
-  while `/posts` stays regular-only; `inPosts` commented),
-  and `explorer: "auto"` to discover every Markdown page under `src/`;
-  index-less folder metadata is read from adjacent `explorer.json` files;
-  a commented `search.algolia` example documents the SEARCH-001 keys (demo
-  ships unconfigured → the palette shows its notice); a commented
-  `comments.waline.serverURL` example documents COMP-004 (demo ships
-  unconfigured → no comment card/counts); `lastUpdated: true` (git-derived
-  per-page timestamp feeding the license card's "Updated" row, COMP-003);
-  `transformPageData: createPageDataTransformer(lang)` (ARCH-003 — resolves
-  localized frontmatter maps for the SSR head); `markdown.config:
-  createMarkdownConfig(lang)` (MD-001/002/004 + FONT-005 — no `markdown.math`;
-  math is wired inside `config`, LaTeX as MathML + Typst, not mathjax3 SVG).
-- `theme/assets/generatedLinkData/` — git submodule (PAGE-004 demo):
-  `iXORTech/blog-friend-links-data-generator-demo` `data` branch;
-  `output/linksData.{json,mjs}` is generated friend-links data picked up by
-  the `FriendLinks.vue` glob. Content managed upstream via GitHub Issues —
-  never edited here. (Its one avatar URL 404s, organically demoing the
-  placeholder fallback.)
-- `theme/assets/linksData.mjs` — PAGE-004 hand-authored demo friend-links
-  data (generator format + LocalizableText, friend-links.md §2/§4): a
-  localized `friends` group (working GitHub avatar entry + a no-avatar
-  entry) and an unlabeled `group1` whose entry merges into the generated
-  submodule group (inheriting its labels).
 - `theme/head.ts` — node-side `themeHead(themeConfig)`: official favicon `<link>`
   (THEME-031: `rel="icon"` `type="image/svg+xml"` → `/favicon.svg`, first entry,
   consumer-overridable), IBM Plex Google-Fonts-CSS2
@@ -1391,7 +1352,10 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `explorer: TerminalExplorerItem[] | "auto"` — explicit tree or automatic
   discovery of `src/**/*.md`; explicit nodes retain `{ text, link?, items? }`,
   while source-local `explorer.json` files can provide localized folder labels;
-  default `[]` = no explorer rendered. I18N-008: `taxonomy:
+  default `[]` = no explorer rendered. THEME-034: `explorerExpandLevel: number`
+  — how many folder layers start expanded, default `1`, resolved by
+  `resolveExpandLevel()` (non-finite → default, then rounded and clamped to
+  ≥ 0). I18N-008: `taxonomy:
   TerminalTaxonomyConfig` — `{ tags?, categories? }` maps of authored term
   name → LocalizableText display label (display-only; slugs/URLs stay
   authored), resolved to `{ tags: {}, categories: {} }` defaults.
@@ -1423,8 +1387,11 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `callout.*` ×8, `nav.label`/`nav.home` + `status.*`
       (read/home/notFound/clock/progress/top/bottom/backToTop — THEME-001/009/019),
   `explorer.*` ×3 — label/toggle/close (THEME-002),
-  `settings.*` ×13 — title/open + fonts/fontFamily/fontSize +
-  fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007),
+  `settings.*` ×16 — title/open + fonts/fontFamily/fontSize +
+  fontDefault/Sans/Serif/Mono + sizeSmall/Medium/Large + language (THEME-007)
+  + explorer/explorerLevel/explorerLevelDefault/explorerLevelLess/
+  explorerLevelMore (THEME-035; `[<]`/`[>]` are drawn text with the Less/More
+  strings as their accessible names, and the level itself is a numeral),
   `code.copy`/`code.copied` (STYLE-004),
   `anchor.permalink` (`{title}` — THEME-023 heading permalink label) +
   `anchor.copied` (THEME-028 link-copy confirmation),
@@ -1572,10 +1539,13 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   persisted to `ct-font-family`/`ct-font-size`, synced from the head-script
   attributes on mount. SSR-safe.
 - `theme/composables/useSettings.ts` — THEME-007 settings opener: `openSettings()`
-  opens the shared floating window with a prompt-less two-pane `settings` utility
+  opens the shared floating window with a prompt-less `settings` utility
   (Fonts `SettingsFonts` + Language `SettingsLanguage`, FA `fa-font`/`fa-language`
   border icons, localized title getters). Setup-time composable (needs
-  `useThemeLocale` context).
+  `useThemeLocale` context). THEME-035: an Explorer pane
+  (`SettingsExplorer`, `fa-folder-tree`) sits between them, included only while
+  `useExplorer().available` — an empty tree or paper mode has no explorer to
+  configure.
 - `theme/composables/useNerdFont.ts` — waits for the generated Nerd Font stylesheet
   before using the CSS Font Loading API to confirm the working
   `NerdFontsSymbols Nerd Font Terminal` alias (`fonts.ready` → `fonts.load()`); then
@@ -1626,6 +1596,18 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `toFiniteOrder()` keeps only finite numbers (negatives/fractions honored,
   `NaN`/`±Infinity`/non-numbers → `0`). Display-only, SSR + client identical;
   explicit `themeConfig.explorer` arrays bypass discovery entirely.
+  THEME-034: exposes `expandLevel` for the tree's depth default, and
+  `resetNodeStatesOnLevelChange()` runs once post-mount before the states are
+  restored — `ct-explorer-nodes-level` records the level `ct-explorer-nodes` was
+  written under, a mismatch drops the states and re-records the marker, a
+  missing marker is adopted (upgrades keep the visitor's tree).
+  THEME-035: `expandLevel` = `levelOverride ??
+  themeConfig.explorerExpandLevel`, where `levelOverride` is the reader's own
+  level from the settings panel (`ct-explorer-level`, restored post-mount just
+  before the marker check so the reset sees the level actually in force; `null`
+  = follow the site). `setExpandLevel(level | null)` persists the choice and,
+  only when the effective level changes, clears the folder states in memory and
+  in storage and re-records the marker.
 - `theme/composables/useFloatingWindow.ts` — shared floating-window singleton
   (THEME-003/016/017): `active` shallowRef holding the current utility payload
   `{ id, label(), panes: [{ title(), icon?, component }] }` — `label()` names
@@ -1831,21 +1813,6 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
 - `theme/pages/NotFoundPage.vue` — ARCH-001 404 type: minimal localized
   not-found (`notFound.title`/`.home`) inside the shell; client-rendered
   (VitePress's `404.html` app div is empty and hydrates through the dispatch).
-- `theme/views/About.vue`, `theme/views/Projects.vue` — PAGE-003/002 page
-  views (authored-view pattern, content-architecture.md §8; imported by
-  `src/about.md`/`src/projects.md` via `@/views/…`). Thin language dispatchers:
-  render `views/{about,projects}/{en,zh-Hans}.vue` by
-  `useThemeLocale().language` (primary-subtag match, en fallback → re-renders
-  in place on a language switch).
-- `theme/views/about/{en,zh-Hans}.vue`, `theme/views/projects/{en,zh-Hans}.vue`
-  — hand-authored per-language content for the About/Projects pages, built from
-  the `Card` component + shared fractional `.ct-cardgrid` with span modifiers
-  (`--full`/`--two-thirds`/`--half`/`--third`): a `--full` lead card (shell
-  prompt `whoami`/`open`) over fractional rows — projects show `1/3 + 2/3`,
-  About shows `2/3 + 1/3` then `1/2 + 1/2` (About: labeled `<dl>` info rows;
-  Projects: name link + description + literal `tags` chips). FA icons (always
-  render); classes styled in `_pages.scss` (no SFC `<style>`). Edit these to
-  author real content — this authoring IS the config surface for these pages.
 - `theme/components/ToolBar.vue` — top tool bar / tabline (THEME-001/005/010/020):
   the explorer toggle `[=]` (FA bars, leftmost, hidden when the explorer doesn't
   exist — THEME-002), brand
@@ -1908,7 +1875,8 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   (THEME-002/011/014), nvim-tree row anatomy: chevron (folders; pure toggle) or
   dash spacer (leaves) + NF folder/file icon span + label. Expanded state
   from the `useExplorer()` store keyed by `parentKey + '/' + raw config
-  text` (language-stable); default = `depth === 0`.
+  text` (language-stable); default = `depth < expandLevel` (THEME-034 —
+  `themeConfig.explorerExpandLevel`, `1` = first layer only).
   A folder-with-link label is a plain navigational anchor; route awareness
   expands it without persistence; link nodes use `withBase` (external `_blank
   noreferrer`); the active row matched by mapping the link to
@@ -1928,7 +1896,7 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   separators in the flex prompt layout. A resize-aware staged fitter hides the
   host, reduces the path to its last section, and then enables path ellipsis.
 - `theme/components/ArticleLicense.vue` — end-of-article license card
-  (COMP-003, COMP-006): a `Card` with `showPrompt` (command `license`) showing the
+  (COMP-003, COMP-006/007): a `Card` with `showPrompt` (command `license`) showing the
   article title (linked to its permalink), a labeled meta list (author ·
   release date from frontmatter `date` · last-updated date [frontmatter
   `updated`/`lastUpdated`, else VitePress git `page.lastUpdated`] · permalink,
@@ -1947,7 +1915,9 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   browser timezone. Renders a `.ct-license__watermark` `<span>` (CC SVG mask)
   when `isCreativeCommons` (deed URL / CC icons). ARCH-003: the article title
   resolves a localized frontmatter `title` map first (falls back to
-  `page.title`, then the site title).
+  `page.title`, then the site title). COMP-007: the icon cluster's localized
+  `title`/`aria-label` join the visible statement's already-resolved text
+  segments, so no raw `{license}` placeholder reaches hover or accessibility text.
 - `theme/components/ArticleComments.vue` — end-of-article comment card
   (COMP-004): a `Card` with `showPrompt` (command `comments`) holding the
   localized `comments.title` heading and the `.ct-comments__waline` mount point
@@ -2078,6 +2048,17 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   segmented controls (`.ct-settings__option`) for the content font family
   (Default/Sans/Serif/Mono) and size (Small/Medium/Large), driven by
   `useFontSettings()`; every label localized.
+- `theme/components/SettingsExplorer.vue` — THEME-035 settings Explorer pane: one
+  `Expand level` row — a `<label for>` and the stepper
+  **`[Default] [<] [n] [>]`**. `[Default]` clears the reader's level (accent-active
+  while `themeConfig.explorerExpandLevel` is what applies), `[<]`/`[>]` step one
+  layer from the level in force (`[<]` disabled at `0`), `[n]` is a
+  `.ct-settings__number` input showing that level and accepting a typed one.
+  Typed values commit on `change` (blur/Enter — `input` would reset the tree per
+  digit), resolved like the config surface (`Math.max(0, Math.round(v))`, empty
+  or non-finite → follow the site) and echoed back. Driven by `useExplorer()`
+  (`expandLevel`, `levelOverride`, `setExpandLevel`); localized label, `[Default]`
+  text, and accessible names on the step controls.
 - `theme/components/SettingsLanguage.vue` — THEME-007 settings Language pane: a
   list of `useThemeLocale().languages` rows (self-described `lang.label` + tag),
   active highlighted, `setLanguage()` switches in place (I18N-003).
@@ -2228,7 +2209,12 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   `.ct-settings` font rows (label + `.ct-settings__option` segmented control) and
   `.ct-settings__langs` language list, accent active state (`--ct-main-subtle`);
   ≤640px options + language rows grow to `--ct-tap` (rows center-aligned,
-  MOBILE-001).
+  MOBILE-001). THEME-035: the explorer expand-level stepper —
+  `.ct-settings__stepper` (flex row, wraps ≤640px; `:disabled` option dimmed at
+  the `0` floor), `.ct-settings__value` drawing the `[`/`]` around
+  `.ct-settings__number`, a chrome-less 2rem centered input with the native
+  spinner suppressed (`[<]`/`[>]` replace it); ≤640px it takes the full
+  `--ct-tap` box like the buttons.
 - `theme/styles/_pages.scss` — PAGE-001/002/003 built-in content pages (scoped
   under `.ct-content`): shared `.ct-page__title`; the **fractional**
   `.ct-cardgrid` — a 6-column `repeat(6, minmax(0, 1fr))` track (LCM of
@@ -2528,129 +2514,3 @@ STYLE-001/002/003/005, FONT-001, I18N-001/002/003/004).
   hyphen). Below 360px the read-only `__segment--mode` indicator is dropped
   (redundant, non-interactive) rather than compressing/overflowing the row;
   hidden in print.
-
-## src/ (site content — VitePress `srcDir`)
-
-- `index.md` — home page stub with `home: true` and localized `title`
-  frontmatter used by the auto-discovered explorer; the `home` page type
-  dispatches to `HomePage.vue` (the welcome card content is `themeConfig.home`,
-  PAGE-001).
-- `projects.md` — normal page (localized `title` frontmatter) whose
-  `<script setup>` imports `@/views/Projects.vue` and renders `<Projects/>`
-  (PAGE-002 authored view; content-architecture.md §8).
-- `about.md` — normal page (localized `title` frontmatter) whose
-  `<script setup>` imports `@/views/About.vue` and renders `<About/>`
-  (PAGE-003 authored view).
-- `friends.md` — PAGE-004 friends page: normal page (localized `title`)
-  placing the global `<FriendLinks />` between authored `::: lang` en/zh-Hans
-  blocks — a localized intro (h1) and a "How to apply" section with the
-  generator issue-JSON template (`title` field; no explicit `{#apply}` ids —
-  duplicating one id across lang blocks fails the VitePress build).
-- `demo/` (CONTENT-001, renamed from `guide/` 2026-07-28 — **older notes citing
-  `src/guide/...` mean these files**) — the explorer/feature playground, which
-  no longer documents anything: the real documentation is `src/docs/`.
-  - `demo/index.md` — the folder's index page (THEME-011 folder-with-index
-    demo: label click navigates + expands, chevron only toggles; first-layer
-    folders start expanded). Rewritten to state its purpose, link to `/docs/`,
-    and table each demo page against the behavior it exercises.
-  - `demo/pinned-page.md` — ARCH-004 fixture (replaces the deleted
-    `guide/getting-started.md`): `order: -1` pins this file **above** the
-    unnumbered `advanced/` folder despite the folders-first default.
-  - `demo/advanced/index.md` — nested second-layer folder, collapsed by
-    default, with persisted user toggles.
-  - `demo/advanced/deep-dive.md` — I18N-007 demo: body wrapped in
-    `::: lang en` / `::: lang zh-Hans` blocks (switches with the UI language),
-    plus a shared line outside the blocks that always shows.
-  - `demo/advanced/advanced-2/{deep-dive.md,explorer.json}` — THEME-013
-    index-less folder labeled by its adjacent JSON (`order: 1` puts it below
-    its file sibling); the leaf is the deepest node of the tree.
-- `demo/advanced/hidden-page.md` — ARCH-002 demo: frontmatter
-  `showInExplorer: false` hides the page from the auto-discovered explorer
-  while it stays reachable at `/demo/advanced/hidden-page`.
-- `drafts/{draft-post.md,explorer.json}` — ARCH-002 demo: the folder's
-  `explorer.json` `{"showInExplorer": false}` prunes the whole `drafts/`
-  subtree from the explorer; the draft still builds at `/drafts/draft-post`.
-- `markdown-examples.md` — the complete **Markdown Demo** page (DEMO-001,
-  rewritten 2026-07-19; title map `Markdown Demo`/`Markdown 演示`,
-  `outline: [2,3]`). Every feature is shown as an **Input** (raw source, in a
-  fenced block) beside its rendered **Output**, in five parts: **Basic
-  Markdown** (STYLE-005 — headings h1–h6 with live h3–h6 examples, paragraphs +
-  `\` line break, italic/bold/bold-italic + `~~strikethrough~~`, nested
-  blockquotes, ordered/unordered/nested lists, horizontal rules, links incl.
-  reference/autolink/internal, inline code, alignment tables, inline HTML
-  (`<kbd>/<mark>/<sub>/<sup>`) + Font Awesome icons); **Code Blocks** (STYLE-004
-  Shiki highlighting + a `[main.scss]` file-name title-bar card); **Markdown
-  Extensions** (all MD-001 plugins — emoji, sub/sup, ins/mark, footnotes,
-  deflists, abbr, and math — split 2026-07-20 into **LaTeX** `$…$`/`$$…$$` and
-  **Typst** `::: typst` block + `:typst[…]` inline sections, both rendering in
-  IBM Plex Math and both showing **Tupper's self-referential formula** as the
-  display block, MD-004/FONT-005); **Callouts** (all 8 MD-002 types + note/caution
-  aliases + custom-title + nested); **Pull quotes** (MD-005, added 2026-07-28 —
-  a short `::: quote` and a multi-paragraph one with an attribution line);
-  **Images and galleries** (COMP-002 lightbox
-  image + a `:::: swiper` / `::: swiper-slide-no-shadow` three-card deck); and
-  the **Card component** (DEMO-002 — defaulted, fully-overridden, prompt-off,
-  and prompt-disabled COMP-001 cards). Task lists are intentionally excluded
-  (no task-list plugin; VitePress renders `- [ ]` literally — also outside the
-  STYLE-005 list). Reachable from the tool bar via a new **Markdown Demo** child
-  under the Guide submenu (`config.mts`) plus the auto-explorer. The former
-  `date` frontmatter was dropped (a normal page doesn't render the COMP-003
-  license card). Build green; headless-verified. Write gotcha: the initial
-  Write leaked stray `</content></invoke>` closing tokens at EOF, which Vue
-  compiled as an "Invalid end tag" (build failure) — strip any such trailing
-  tool-syntax tokens after a large Write.
-- `public/images/demo-terminal-{1,2,3}.svg` — static demo art for the COMP-002
-  image demos: three 800×600 terminal-mock SVGs in the theme palette (session /
-  split panes / paper mode), served from the VitePress public dir as
-  `/images/…`.
-- `public/favicon.svg` — the project's official favicon (THEME-031): the theme's
-  TUI-window glyph (Carbon `#161616` window on a titlebar with the three prompt
-  dots, a `be95ff`/`78a9ff` shell chevron, and a `TERM` wordmark), served at
-  `/favicon.svg` and linked from `theme/head.ts`.
-- `api-examples.md` — **deleted 2026-07-28 (CONTENT-001)**: a VitePress starter
-  scaffold page that dumped `useData()` JSON; not theme content.
-- `docs/` — the documentation tree, published at `/docs/` (DOC-007). Its own
-  section is above (`## src/docs/`).
-- `posts/{hello-terminal,tui-design,color-system,markdown-power,deploying}.md` —
-  ARCH-001/POST-001 demo posts (post page type): each declares `title`/`date`/
-  `categories`/`tags`/`description` frontmatter; **all five now carry
-  per-language `title` + `description` maps** (I18N-009 — `hello-terminal` was
-  the original ARCH-003 demo, the other four followed so no explorer row or
-  post card is half-translated; bodies stay English), and
-  `hello-terminal` + `tui-design` carry `cover` demo SVGs (POST-003). Dates
-  span 2024–2025 (exercise
-  the archives year grouping); categories Guides/Design/Ops and overlapping tags
-  (vitepress/theme/tui/terminal/color/markdown/deploy) give the tag/category
-  listings multiple posts; 5 posts × 3/page = 2 index pages.
-- `series/terminal-internals/{index,part-1,part-2}.md` + `series.yml` —
-  ARCH-001/POST-002 demo series (series-article page type): `index.md` landing
-  places `<SeriesArticles/>` (order-sorted auto list); all three carry
-  per-language `title` maps (I18N-009 — 终端内幕 / 第一篇 —— 外壳框架 /
-  第二篇 —— 状态栏, matching `series.yml`'s localized title); the two parts carry
-  `order: 1`/`2`, and part-1 a `cover` (POST-003) plus `Design` category +
-  `tui`/`terminal` tags (exercises the series-name title prefix on the
-  per-term pages); `series.yml` is the final
-  POST-002 schema (localized icon/title/description + `order`) parsed by
-  `series.data.mts`. Demo config admits the parts to archives, categories,
-  and tags (not the posts index).
-- `posts.md`/`archives.md`/`categories.md`/`tags.md` — POST-001 listing pages
-  (listing page type): each places its globally-registered component
-  (`<PostsIndex/>`/`<ArchivesList/>`/`<CategoriesIndex/>`/`<TagsIndex/>`); the
-  component renders the localized heading, and the file's frontmatter `title` is
-  a per-language map (I18N-009: 文章 · 归档 · 分类 · 标签) driving the browser tab
-  **and the explorer row**. Note `posts.md` and the `posts/` folder merge into
-  one explorer branch, so this file's title labels that folder.
-- `series.md` — POST-002 series index (listing type): places `<SeriesIndex/>`
-  (localized heading + one row per series); localized `title` map (系列), which
-  also labels the merged `series/` explorer branch (I18N-009).
-- `categories/[name].{md,paths.mjs}`, `tags/[name].{md,paths.mjs}` — POST-001
-  dynamic taxonomy routes: the `.md` places `<TermPosts field="categories|tags"/>`;
-  the `.paths.mjs` loader runs `createContentLoader(['posts/**/*.md',
-  'series/**/*.md'])` → `filterListablePosts` (POST-002: imports the exported
-  site `themeConfig` so series terms only generate routes when opted in) →
-  `groupBy{Category,Tag}` and emits one path per term (`params { name: slug, term:
-  display }`). Build generated 3 category + 7 tag pages.
-- `page/[num].{md,paths.mjs}` — POST-001 post-index pagination: `<PostsIndex/>`;
-  the loader emits `/page/2 … /page/N` (page 1 lives at `/posts`) over the same
-  toggle-filtered post set as PostsIndex (POST-002). Build generated
-  `/page/2`.
